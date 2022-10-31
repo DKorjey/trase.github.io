@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/pako/1.0.3/pako.min.js"></script>
+    <link rel="stylesheet" href="style.css" />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js"
+      integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <link
+      rel="stylesheet"
+      href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.13.2/themes/smoothness/jquery-ui.css"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
+    <script src="../scripts/music.js"></script>
+    <script src="../scripts/staranim.js"></script>
+    <script src="../scripts/tbl.js"></script>
+    <title>TRASE</title>
+  </head>
+  <body>
+    <div id="xy">X: <span id="x">0</span>Y: <span id="y">0</span></div>
+    <table draggable="false" id="tblLooper">
+      <tbody></tbody>
+    </table>
+    <table draggable="false" id="tbl">
+      <tbody></tbody>
+    </table>
+    <ul id="btns">
+      <li>
+        <div class="liss">
+          <h2>Color</h2>
+          <ul>
+            <li><input type="color" id="clr" value="#ffffff" /></li>
+            <li>
+              <input type="text" id="clrHelp" value="#ffffff" maxlength="7" />
+            </li>
+          </ul>
+        </div>
+      </li>
+      <li>
+        <div id="instrs" class="liss">
+          <h2>Instruments</h2>
+          <ul>
+            <li>
+              <ul id="instruments" class="liul">
+                <li>
+                  <button id="brush" class="active" onclick="">Brush</button>
+                </li>
+                <li><button id="ereaser">Eraser</button></li>
+              </ul>
+            </li>
+            <li>
+              <ul class="liul">
+                <li><button id="pippet">Pippet</button></li>
+                <li><button id="select">Select</button></li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </li>
+
+      <li>
+        <div id="resets" class="liss">
+          <h2>Reset</h2>
+          <ul class="liul">
+            <li><input type="button" id="reset" value="Skin" /></li>
+            <li><input type="button" id="noClr" value="Color" /></li>
+          </ul>
+          <ul>
+            <li><input type="button" id="resBdyClr" value="Body color" /></li>
+            <li><input type="button" id="resLgsClr" value="Legs color" /></li>
+          </ul>
+          <ul>
+            <li><button id="resetEvr" class="danger">Everything</button></li>
+          </ul>
+        </div>
+      </li>
+    </ul>
+
+    <ul id="layers">
+      <li>
+        <div class="liss">
+          <h2>Apply</h2>
+          <ul>
+            <li><input type="button" id="bdclr" value="Body color" /></li>
+            <li><input type="button" id="lgclr" value="Legs color" /></li>
+          </ul>
+        </div>
+      </li>
+      <li>
+        <div class="liss">
+          <h2>Parameters</h2>
+          <ul>
+            <li>
+              <label>
+                <input
+                  type="checkbox"
+                  class="gridder"
+                  id="gridManager"
+                  checked
+                />
+                Enable Grid
+              </label>
+            </li>
+            <li>
+              <label><input type="checkbox" id="mus" /> Enable Music</label>
+            </li>
+            <li>
+              <label
+                ><input type="checkbox" id="autoimport" /> Auto Import</label
+              >
+            </li>
+          </ul>
+        </div>
+      </li>
+      <li>
+        <div class="liss">
+          <h2>Import/Export</h2>
+          <ul id="impexp" class="liul">
+            <li><input type="button" value="Import" id="importBtn" /></li>
+            <li><input type="button" value="Export" id="exportBtn" /></li>
+          </ul>
+        </div>
+      </li>
+      <li>
+        <div class="liss">
+          <h2>Replace</h2>
+          <ul>
+            <li>
+              <input type="color" id="fromRepl" /> to
+              <input type="color" id="toRepl" />
+            </li>
+            <li><input type="button" value="Replace" /></li>
+          </ul>
+        </div>
+      </li>
+      <li>
+        <div class="liss">
+          <h2>Layers</h2>
+          <ul>
+            <li class="layer layer1 active">Layer 2</li>
+            <li class="layer">Layer 1 (Main)</li>
+          </ul>
+        </div>
+      </li>
+    </ul>
+    <ul id="brushSettings">
+      <li id="bRange">
+        Brush range: <span id="bRangeVal">1</span> <br /><input
+          type="range"
+          id="brushRange"
+          min="1"
+          max="10"
+          value="1"
+        />
+      </li>
+    </ul>
+    <canvas id="bgCanvas" width="100%" height="100%"></canvas>
+    <div id="mobileSmall">
+      <span class="sorrySmall">Sorry but your device so small</span>
+    </div>
+    <div id="blackscreen"><span class="waiting">Wait</span></div>
+  </body>
+</html>
