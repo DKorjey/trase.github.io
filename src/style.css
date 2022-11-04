@@ -165,7 +165,6 @@ button,
 input[type="button"] {
   background: transparent !important;
   border: 2px solid #65abcf;
-  transition: 0.5s;
   outline: none;
 }
 button:hover,
@@ -283,4 +282,7 @@ h2 {
 
 input {
   outline: none;
+}
+.hided {
+  background: transparent !important;
 }

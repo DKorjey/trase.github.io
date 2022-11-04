@@ -512,34 +512,26 @@ $(() => {
   const [x, y] = [$("#x"), $("#y")];
 
   /**
-   * @type {"brush" | "ereaser" | "pippet"}
+   * @type {"brush" | "ereaser" | "pippet" | "select"}
    */
   let mode = "brush";
   const brush = $("#brush");
   const ereaser = $("#ereaser");
   const pippet = $("#pippet");
+  const selecter = $("#select");
 
-  brush.on("click", function () {
-    brush.addClass("active");
-    ereaser.removeClass("active");
-    pippet.removeClass("active");
-    mode = "brush";
-  });
-  ereaser.on("click", function () {
-    ereaser.addClass("active");
-    brush.removeClass("active");
-    pippet.removeClass("active");
-    mode = "ereaser";
-  });
-  pippet.on("click", function () {
-    ereaser.removeClass("active");
-    brush.removeClass("active");
-    pippet.addClass("active");
-    mode = "pippet";
-  });
+  const instruments = [brush, ereaser, pippet, selecter];
+
+  instruments.forEach((el) =>
+    el.on("click", () => {
+      instruments.forEach((e) =>
+        e[(e == el ? "add" : "remove") + "Class"]("active")
+      );
+      mode = el.text().toLowerCase();
+    })
+  );
 
   let isClicked = false;
-  // let isBordered = true;
 
   let val = clr.val();
 
@@ -585,14 +577,9 @@ $(() => {
                     (el.style.background =
                       mode == "brush" ? val : "transparent")
                 );
-            } // else {
-            // $(this).css("border-color", val);
-            // }
+            }
           });
 
-          // td.on("mouseleave", function () {
-          //   td.removeClass("mouseEnter");
-          // });
           td.on("mousedown", function (e) {
             if (e.button == 0)
               if (mode != "pippet") {
@@ -637,6 +624,7 @@ $(() => {
           } else if (arrayForImportLayer[i][j] == "rgb(173, 173, 173)") {
             td.addClass("darkhead");
           }
+          td.addClass("mainLooper");
         }
 
         tr.append(td);
@@ -734,6 +722,14 @@ $(() => {
   }
 
   let tds = $("table tbody td.notMain");
+
+  const looper = $("td.mainLooper");
+  const looperDisabler = $("#disblL");
+  looperDisabler.on("change", () =>
+    looper[(looperDisabler.prop("checked") ? "remove" : "add") + "Class"](
+      "hided"
+    )
+  );
 
   $("#reset").click(() => {
     tds.css("background", "unset");
