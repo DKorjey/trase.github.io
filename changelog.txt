@@ -1,0 +1,19 @@
+Nebula Update (0.5.2):
+  added brush range
+  added switch colors function
+  added hotkeys
+  added instruments' icons (before was text)
+  added pippet
+
+  removed file music.js (merged with tbl.js)
+
+  in development:
+    "select instrument"
+    custom brush width & height
+    replacing colors in skin
+
+    bugfix
+
+  waiting for development:
+    layers
+    saving skin(s) using local storage
