@@ -4,6 +4,13 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css"
+      integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
     <script src="https://cdn.jsdelivr.net/pako/1.0.3/pako.min.js"></script>
     <link rel="stylesheet" href="style.css" />
     <script
@@ -17,10 +24,9 @@
       href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.13.2/themes/smoothness/jquery-ui.css"
     />
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
-    <script src="../scripts/music.js"></script>
     <script src="../scripts/staranim.js"></script>
     <script src="../scripts/tbl.js"></script>
-    <title>TRASE</title>
+    <title>TRASE (Nebula)</title>
   </head>
   <body>
     <div id="xy">X: <span id="x">0</span>Y: <span id="y">0</span></div>
@@ -35,9 +41,18 @@
         <div class="liss">
           <h2>Color</h2>
           <ul>
-            <li><input type="color" id="clr" value="#ffffff" /></li>
             <li>
               <input type="text" id="clrHelp" value="#ffffff" maxlength="7" />
+            </li>
+            <li><input type="color" id="clr" value="#ffffff" /></li>
+            <li>
+              <button id="switchCols">
+                <i class="fa-sharp fa-solid fa-repeat"></i>
+              </button>
+            </li>
+            <li><input type="color" id="clr2" value="#000000" /></li>
+            <li>
+              <input type="text" id="clr2Help" value="#000000" maxlength="7" />
             </li>
           </ul>
         </div>
@@ -45,18 +60,27 @@
       <li>
         <div id="instrs" class="liss">
           <h2>Instruments</h2>
-          <ul>
+          <ul id="instruments" class="liul">
             <li>
-              <ul id="instruments" class="liul">
-                <li><button id="brush" class="active">Brush</button></li>
-                <li><button id="ereaser">Eraser</button></li>
-              </ul>
+              <button id="brush" title="Brush (B or 1)" class="active">
+                <i class="fa-solid fa-paintbrush"></i>
+              </button>
             </li>
             <li>
-              <ul class="liul">
-                <li><button id="pippet">Pippet</button></li>
-                <li><button id="select">Select</button></li>
-              </ul>
+              <button id="ereaser" title="Ereaser (E or 2)">
+                <i class="fa-solid fa-eraser"></i>
+              </button>
+            </li>
+
+            <li>
+              <button id="pippet" title="Pippet (P or 3)">
+                <i class="fa-solid fa-eye-dropper"></i>
+              </button>
+            </li>
+            <li>
+              <button id="select" title="Select (Q or 4)">
+                <i class="fa-solid fa-object-ungroup"></i>
+              </button>
             </li>
           </ul>
         </div>
@@ -75,6 +99,14 @@
           </ul>
           <ul>
             <li><button id="resetEvr" class="danger">Everything</button></li>
+          </ul>
+        </div>
+      </li>
+      <li>
+        <div id="devDK" class="liss">
+          <h2>Developer Lifehacks</h2>
+          <ul>
+            <li><button onclick="location.reload()">Reload page</button></li>
           </ul>
         </div>
       </li>
@@ -100,18 +132,28 @@
                   type="checkbox"
                   class="gridder"
                   id="gridManager"
+                  title="Show grid (A or 9)"
                   checked
                 />
                 Enable Grid
               </label>
             </li>
             <li>
-              <label
-                ><input type="checkbox" id="disblL" checked /> Show Looper
+              <label>
+                <input
+                  type="checkbox"
+                  id="disblL"
+                  checked
+                  title="Show looper (S or 0)"
+                />
+                Show Looper
               </label>
             </li>
             <li>
-              <label><input type="checkbox" id="mus" /> Enable Music</label>
+              <label
+                ><input type="checkbox" id="mus" title="Enable music (M)" />
+                Enable Music</label
+              >
             </li>
             <li>
               <label
@@ -158,7 +200,7 @@
           type="range"
           id="brushRange"
           min="1"
-          max="10"
+          max="11"
           value="1"
         />
       </li>

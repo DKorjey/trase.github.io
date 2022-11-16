@@ -14,7 +14,7 @@ function componentToHex(c) {
   return hex.length == 1 ? "0" + hex : hex;
 }
 
-const rgbToHex = (r, g, b, a = "FF") =>
+const rgbToHex = (r, g, b, a = "") =>
   "#" +
   componentToHex(r) +
   componentToHex(g) +
@@ -103,6 +103,7 @@ function hslDark(hsl, percent) {
   hsl[2] -= Math.floor(hsl[2] * 0.32);
   return packHsl(...hsl);
 }
+let musC;
 $(() => {
   const root = $(":root");
 
@@ -505,9 +506,13 @@ $(() => {
     ],
   ];
   const clr = $("#clr");
-  const inp = $("#clrHelp");
+  const clr2 = $("#clr2");
+  const clr1help = $("#clrHelp");
+  const clr2help = $("#clr2Help");
   const table = $("#tblLooper");
   const rangeInput = $("#brushRange");
+
+  const switchCols = $("button#switchCols");
 
   const [x, y] = [$("#x"), $("#y")];
 
@@ -527,18 +532,37 @@ $(() => {
       instruments.forEach((e) =>
         e[(e == el ? "add" : "remove") + "Class"]("active")
       );
-      mode = el.text().toLowerCase();
+      mode = el.attr("id");
     })
   );
 
   let isClicked = false;
 
-  let val = clr.val();
-
-  clr.on("input", () => {
+  let [val, val2] = [clr.val(), clr2.val()];
+  const clrs = [clr, clr2];
+  clrs.forEach((e, i) =>
+    e.on("input", () => {
+      if (i == 0) {
+        val = clr.val();
+        clr1help.val(val);
+      } else {
+        val2 = clr2.val();
+        clr2help.val(val2);
+      }
+      clr1help.val(val);
+      root.css("--clr", val + "aa");
+    })
+  );
+  switchCols.on("click", function () {
+    let promezhClr = clr.val(),
+      promezhText = clr1help.val();
+    clr1help.val(clr2help.val());
+    clr.val(clr2.val());
+    clr2help.val(promezhText);
+    clr2.val(promezhClr);
     val = clr.val();
-    inp.val(clr.val());
-    root.css("--clr", val + "aa");
+    root.css("--clr", `${val}aa`);
+    promezhClr = null;
   });
 
   window.onmousedown = (e) => {
@@ -558,31 +582,18 @@ $(() => {
       const tr = $("<tr></tr>");
 
       for (let j = 0; j < 20; j++) {
-        const td = $("<td></td>");
-        td.prop("draggable", false);
+        const td = $(`<td draggable="false"></td>`);
         td.css("background", arrayForImportLayer[i][j]);
 
         if (!isMain) {
-          td.attr("data-x", j).attr("data-y", i);
-          td.addClass("notMain");
-          td.on("mouseover", function () {
-            x.text(td.attr("data-x"));
-            y.text(td.attr("data-y"));
-            if (isClicked) {
-              $(this).css("background", mode == "brush" ? val : "transparent");
-              document
-                .querySelectorAll(".neighbour")
-                .forEach(
-                  (el) =>
-                    (el.style.background =
-                      mode == "brush" ? val : "transparent")
-                );
-            }
-          });
-
-          td.on("mousedown", function (e) {
-            if (e.button == 0)
-              if (mode != "pippet") {
+          td.attr("data-x", j)
+            .attr("data-y", i)
+            .attr("data-bg", "#000000")
+            .addClass("notMain")
+            .on("mouseover", function () {
+              x.text(td.attr("data-x"));
+              y.text(td.attr("data-y"));
+              if (isClicked) {
                 $(this).css(
                   "background",
                   mode == "brush" ? val : "transparent"
@@ -594,10 +605,33 @@ $(() => {
                       (el.style.background =
                         mode == "brush" ? val : "transparent")
                   );
+              }
+            });
+
+          td.on("mousedown", function (e) {
+            if (e.button == 0)
+              if (mode != "pippet") {
+                $(this)
+                  .css("background", mode == "brush" ? val : "transparent")
+                  .attr("data-bg", mode == "brush" ? val : "transparent");
+                document
+                  .querySelectorAll(".neighbour")
+                  .forEach(
+                    (el) =>
+                      (el.style.background =
+                        mode == "brush" ? val : "transparent")
+                  );
               } else {
-                let valu = $(this).css("background");
-                // valu = ['transparent', 'unset'].includes(valu) ? arrayForImportLayer[table.children] : ;
-                clr.val(rgbToHex(valu));
+                let valu = rgbToHex(
+                  ...rgbToArray(
+                    td
+                      .css("background-color")
+                      .replace(/rgba\(.+\)/i, "rgb(0, 0, 0)")
+                  )
+                );
+                console.log(valu);
+                clr.val(valu);
+                clr1help.val(valu)
               }
           });
           td.on("mouseup", function (e) {
@@ -667,7 +701,7 @@ $(() => {
 
     clean();
 
-    $target.classList.add("mouseEnter");
+    if (mode !== "pippet") $target.classList.add("mouseEnter");
     neighbours.forEach((neighbour) => neighbour.classList.add("neighbour"));
   }
 
@@ -732,7 +766,7 @@ $(() => {
   );
 
   $("#reset").click(() => {
-    tds.css("background", "unset");
+    tds.css("background", "transparent");
   });
 
   const allTds = $("td");
@@ -745,26 +779,27 @@ $(() => {
   };
 
   function forClrHelper() {
-    if (inp.val().length === 7) {
-      if (/#[0-9a-f]{6,6}/i.test(inp.val())) {
-        clr.val(inp.val());
-        val = inp.val();
-        root.css("--clr", inp.val() + "aa");
+    if (clr1help.val().length === 7) {
+      if (/#[0-9a-f]{6,6}/i.test(clr1help.val())) {
+        clr.val(clr1help.val());
+        val = clr1help.val();
+        root.css("--clr", clr1help.val() + "aa");
       } else {
-        inp.val("#ffffff");
+        clr1help.val("#ffffff");
         clr.val("#ffffff");
-        val = inp.val();
-        root.css("--clr", inp.val() + "aa");
+        val = clr1help.val();
+        root.css("--clr", clr1help.val() + "aa");
       }
     }
   }
-  inp.on("input", forClrHelper);
-  inp.on("paste", forClrHelper);
+  clr1help.on("input", forClrHelper);
+  clr1help.on("paste", forClrHelper);
 
   $("#noClr").on("click", function () {
     clr.val("#ffffff");
-    inp.val("#ffffff");
+    clr1help.val("#ffffff");
     val = "#ffffff";
+    root.css("--clr", `${val}aa`);
   });
 
   const legsPixels = $(".legs");
@@ -840,9 +875,69 @@ $(() => {
     head.css("background", "#ffffff");
     darkhead.css("background", "#adadad");
     legsPixels.css("background", "#000");
-    inp.val("#ffffff");
+    clr1help.val("#ffffff");
+    clr2help.val("#000000");
     clr.val("#ffffff");
-    val = inp.val();
+    clr2.val("#000000");
+    val = clr1help.val();
+    val2 = clr2help.val();
     tds.css("background", "#00000000");
+    root.css("--clr", `${val}aa`);
   });
+
+  musC = $("#mus");
+  let mus;
+  musC.on("change", async () => {
+    if (musC.prop("checked")) {
+      const rand = Math.random();
+      mus = new Audio("../music/menu.wav");
+      mus.loop = true;
+      console.log(rand);
+      mus.play();
+    } else {
+      mus.pause();
+      mus = null;
+    }
+  });
+
+  window.onkeydown = function (e) {
+    if (document.activeElement.tagName != "INPUT") {
+      switch (e.code) {
+        case "KeyX":
+          switchCols.click();
+          break;
+        case "KeyS":
+        case "Digit0":
+        case "Numpad0":
+          looperDisabler.click();
+          break;
+        case "KeyA":
+        case "Digit9":
+        case "Numpad9":
+          gridM.click();
+          break;
+        case "KeyM":
+          musC.click();
+          break;
+
+        // instruments
+        case "KeyB":
+        case "Digit1":
+          brush.click();
+          break;
+        case "KeyE":
+        case "Digit2":
+          ereaser.click();
+          break;
+        case "KeyP":
+        case "Digit3":
+          pippet.click();
+          break;
+        case "KeyQ":
+        case "Digit4":
+          selecter.click();
+          break;
+      }
+    }
+  };
 });

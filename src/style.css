@@ -33,7 +33,7 @@ body {
   align-items: center;
   justify-content: center;
   text-align: center;
-  /* overflow: hidden; */
+  overflow: hidden;
   transition: 0.5s;
   width: 100%;
   min-height: 85vh;
@@ -77,6 +77,7 @@ table {
   body {
     height: 240vh !important;
     overflow-x: hidden;
+    overflow-y: scroll;
   }
   table {
     position: absolute;
@@ -183,14 +184,14 @@ ul li i {
 }
 canvas {
   width: 100% !important;
-  height: 100% !important;
+  height: 125% !important;
   position: absolute;
   z-index: -1;
 }
 
 .active {
-  background: #65abcf !important;
-  color: #000 !important;
+  background: #151a1d !important;
+  border-color: #87b9d3;
 }
 
 .incorrect {
@@ -285,4 +286,8 @@ input {
 }
 .hided {
   background: transparent !important;
+}
+
+.fa-solid {
+  padding: 0;
 }
