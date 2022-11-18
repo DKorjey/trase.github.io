@@ -7,13 +7,23 @@ Nebula Update (0.5.2):
 
   removed file music.js (merged with tbl.js)
 
-  in development:
-    "select instrument"
-    custom brush width & height
-    replacing colors in skin
+Ocarina Update (0.6.0):
+  added replacing colors function
+  added sorting of list
+  added saving of skin
 
-    bugfix
+  fixed bug with color2 input (text)
 
-  waiting for development:
-    layers
-    saving skin(s) using local storage
+  removed startanim.js (merged with tbl.js)
+
+
+In development:
+  add accent color
+  "select instrument"
+  custom brush width & height
+
+  bugfix
+
+Waiting for start of development:
+  layers
+  saving skin(s) using local storage

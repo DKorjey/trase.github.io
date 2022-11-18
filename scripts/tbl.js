@@ -1,3 +1,8 @@
+// TODO:
+// Add saving
+// Add autoimport
+// Add saving two skins
+
 function get2dimensional(array, limit) {
   const array2 = [];
   let section;
@@ -104,7 +109,20 @@ function hslDark(hsl, percent) {
   return packHsl(...hsl);
 }
 let musC;
+let { width: scrWidth, height: scrHeight } = window.screen;
+window.onresize = function () {
+  scrWidth = this.screen.width;
+  scrHeight = this.screen.height;
+};
+
+let settings = localStorage.getItem("settings");
+let tds;
 $(() => {
+  if (!settings) {
+    settings = {
+      savedSkin: "trSkin17cYhAQAACMCwSvf074WgBGJTqzOJiIiIiIj8yAI=",
+    };
+  } else settings = JSON.parse(settings);
   const root = $(":root");
 
   const looperLayer = [
@@ -511,10 +529,37 @@ $(() => {
   const clr2help = $("#clr2Help");
   const table = $("#tblLooper");
   const rangeInput = $("#brushRange");
+  const jquiSort = $(".jquiSort");
 
   const switchCols = $("button#switchCols");
 
   const [x, y] = [$("#x"), $("#y")];
+
+  let starCount = 0;
+
+  const minStars = 100;
+  const maxStars = 7;
+  const ticksBetweenChecks = 50;
+  const tickCount = 0;
+
+  const minStarSize = 10;
+  const maxStarSize = 30;
+
+  const canvas = document.getElementById("bgCanvas");
+  canvas.width = scrWidth;
+  canvas.height = scrHeight;
+  const ctx = canvas.getContext("2d");
+  ctx.imageSmoothingEnabled = false;
+
+  const srces = [
+    "../imgs/StarSpriteSheetPink.png",
+    "../imgs/StarSpriteSheetYellow.png",
+    "../imgs/StarSpriteSheetBlue.png",
+  ];
+  const starSheets = [new Image(), new Image(), new Image()];
+  for (let i = 0; i < 3; i++) starSheets[i].src = srces[i];
+
+  let prevMode = "brush";
 
   /**
    * @type {"brush" | "ereaser" | "pippet" | "select"}
@@ -631,7 +676,7 @@ $(() => {
                 );
                 console.log(valu);
                 clr.val(valu);
-                clr1help.val(valu)
+                clr1help.val(valu);
               }
           });
           td.on("mouseup", function (e) {
@@ -755,7 +800,7 @@ $(() => {
     return list;
   }
 
-  let tds = $("table tbody td.notMain");
+  tds = $("table tbody td.notMain");
 
   const looper = $("td.mainLooper");
   const looperDisabler = $("#disblL");
@@ -767,6 +812,8 @@ $(() => {
 
   $("#reset").click(() => {
     tds.css("background", "transparent");
+    settings.savedSkin = "trSkin17cYhAQAACMCwSvf074WgBGJTqzOJiIiIiIj8yAI=";
+    unreload();
   });
 
   const allTds = $("td");
@@ -792,8 +839,22 @@ $(() => {
       }
     }
   }
+  function forClrHelper2() {
+    if (clr2help.val().length === 7) {
+      if (/#[0-9a-f]{6,6}/i.test(clr2help.val())) {
+        clr2.val(clr2help.val());
+        val = clr2help.val();
+      } else {
+        clr2help.val("#ffffff");
+        clr2.val("#ffffff");
+        val = clr1help.val();
+      }
+    }
+  }
   clr1help.on("input", forClrHelper);
   clr1help.on("paste", forClrHelper);
+  clr2help.on("input", forClrHelper2);
+  clr2help.on("paste", forClrHelper2);
 
   $("#noClr").on("click", function () {
     clr.val("#ffffff");
@@ -824,7 +885,7 @@ $(() => {
   imprt.on("click", function () {
     navigator.clipboard.readText().then((text) => {
       try {
-        const strdata = atob(text.replace("trSkin1", ""));
+        const strdata = atob(text.replace("trSkin1", "").trim());
 
         const charData = strdata.split("").map(function (x) {
           return x.charCodeAt(0);
@@ -844,6 +905,24 @@ $(() => {
       }
     });
   });
+  function imprtSkinFromSave() {
+    const strdata = atob(settings.savedSkin.replace("trSkin1", "").trim());
+
+    const charData = strdata.split("").map(function (x) {
+      return x.charCodeAt(0);
+    });
+
+    const binData = new Uint8Array(charData);
+
+    const data = window.pako.inflateRaw(binData);
+
+    const result = String.fromCharCode.apply(null, new Uint16Array(data));
+    const arrr = result.split(";").map((e) => "#" + e);
+    tds.each(function (ind, el) {
+      el.style.backgroundColor = arrr[ind];
+    });
+  }
+  imprtSkinFromSave();
   exprt.on("click", function () {
     let csses = [];
     tds.each(function () {
@@ -883,7 +962,71 @@ $(() => {
     val2 = clr2help.val();
     tds.css("background", "#00000000");
     root.css("--clr", `${val}aa`);
+    unreload();
   });
+
+  const fromRepl = $("#fromRepl");
+  const fromReplHelp = $("#fromReplHelp");
+  const toRepl = $("#toRepl");
+  const toReplHelp = $("#toReplHelp");
+
+  const repls = [fromRepl, toRepl];
+  repls.forEach(function (e, i) {
+    e.on("input", function () {
+      i == 0 ? fromReplHelp.val(e.val()) : toReplHelp.val(e.val());
+    });
+  });
+  $("#replSwitch").on("click", function () {
+    let promezhClr = fromRepl.val(),
+      promezhText = fromReplHelp.val();
+    fromReplHelp.val(toReplHelp.val());
+    fromRepl.val(toRepl.val());
+    toReplHelp.val(promezhText);
+    toRepl.val(promezhClr);
+    promezhClr, (promezhText = null);
+  });
+
+  $("#replClr").on("click", function () {
+    console.log(
+      tds.each(function () {
+        if (
+          rgbToHex(...rgbToArray($(this).css("background-color"))) ==
+          fromRepl.val()
+        ) {
+          $(this).css("background-color", toRepl.val());
+        }
+      })
+    );
+  });
+
+  function forFromReplHelper() {
+    if (fromReplHelp.val().length === 7) {
+      if (/#[0-9a-f]{6,6}/i.test(fromReplHelp.val())) {
+        fromRepl.val(fromReplHelp.val());
+        val = fromReplHelp.val();
+      } else {
+        fromReplHelp.val("#ffffff");
+        fromRepl.val("#ffffff");
+        val = clr1help.val();
+      }
+    }
+  }
+  function forToReplHelper() {
+    if (toReplHelp.val().length === 7) {
+      if (/#[0-9a-f]{6,6}/i.test(toReplHelp.val())) {
+        toRepl.val(toReplHelp.val());
+        val = toReplHelp.val();
+      } else {
+        toReplHelp.val("#ffffff");
+        toRepl.val("#ffffff");
+        val = clr1help.val();
+      }
+    }
+  }
+  fromReplHelp.on("input", forFromReplHelper);
+  fromReplHelp.on("paste", forFromReplHelper);
+  toReplHelp.on("input", forToReplHelper);
+  toReplHelp.on("paste", forToReplHelper);
 
   musC = $("#mus");
   let mus;
@@ -900,8 +1043,19 @@ $(() => {
     }
   });
 
+  jquiSort.each(function () {
+    $(this).sortable({
+      start: function (_, ui) {
+        ui.item.first().css("background-color", "#0008");
+      },
+      stop: function (_, ui) {
+        ui.item.first().css("background-color", "#0000");
+      },
+    });
+  });
+
   window.onkeydown = function (e) {
-    if (document.activeElement.tagName != "INPUT") {
+    if (/<input.+type="color".+>/.test(document.activeElement.outerHTML)) {
       switch (e.code) {
         case "KeyX":
           switchCols.click();
@@ -937,7 +1091,112 @@ $(() => {
         case "Digit4":
           selecter.click();
           break;
+
+        // Brush range
+        case "Equal":
+        case "NumpadAdd":
+          rangeInput.val(parseInt(rangeInput.val()) + 1);
+          bRangeVal.text(rangeInput.val());
+          break;
+        case "Minus":
+        case "NumpadSubtract":
+          rangeInput.val(rangeInput.val() - 1);
+          bRangeVal.text(rangeInput.val());
+          break;
       }
     }
   };
+
+  class Star {
+    constructor(options) {
+      this.ctx = options.ctx;
+
+      this.image = options.image;
+
+      this.width = options.width;
+      this.height = options.height;
+
+      this.starSize = Math.floor(
+        Math.random() * (maxStarSize - minStarSize) + minStarSize
+      );
+
+      this.frameIndex = 0;
+      this.tickCount = 0;
+      this.ticksPerFrame = options.ticksPerFrame || 0;
+      this.numberOfFrames = options.numberOfFrames || 1;
+      this.x = Math.floor(Math.random() * scrWidth);
+      this.y = Math.floor(Math.random() * scrHeight);
+
+      this.rgb = options.rgb;
+
+      this.start();
+    }
+
+    render() {
+      this.ctx.drawImage(
+        this.image,
+        this.frameIndex * (this.width / this.numberOfFrames),
+        0,
+        10,
+        10,
+        this.x,
+        this.y,
+        this.starSize,
+        this.starSize
+      );
+    }
+
+    update() {
+      this.tickCount++;
+
+      if (this.tickCount > this.ticksPerFrame) {
+        this.ctx.clearRect(this.x, this.y, 30, 30);
+        this.tickCount = 0;
+        this.frameIndex++;
+      }
+    }
+    start() {
+      const loop = () => {
+        this.update();
+        this.render();
+
+        if (this.frameIndex < this.numberOfFrames)
+          window.requestAnimationFrame(loop);
+        else {
+          starCount--;
+        }
+      };
+
+      window.requestAnimationFrame(loop);
+    }
+  }
+
+  setInterval(() => {
+    if (starCount < minStars && starCount < maxStars) {
+      new Star({
+        ctx: canvas.getContext("2d"),
+        image: starSheets[Math.floor(Math.random() * 3)],
+        width: 50,
+        height: 10,
+        numberOfFrames: 5,
+        ticksPerFrame: 20,
+      });
+      starCount++;
+    }
+  }, 100);
 });
+function unreload() {
+  let csses = [];
+  tds.each(function () {
+    csses.push(
+      rgbToHex(...rgbToArray($(this).css("background-color")))
+        .toUpperCase()
+        .replace("#", "")
+    );
+  });
+  csses.push("");
+  csses = csses.join(";");
+  settings.savedSkin =
+    "trSkin1" + btoa(window.pako.deflateRaw(csses, { to: "string" }));
+  localStorage.setItem("settings", JSON.stringify(settings));
+}

@@ -146,8 +146,7 @@ table {
 #btns::-webkit-scrollbar {
   appearance: none;
 }
-ul li input[type="color"],
-ul li button {
+ul li input[type="color"] {
   background: #000 !important;
 }
 ul li input[type="color"] {
@@ -255,7 +254,7 @@ h2 {
 #brushSettings {
   position: absolute;
   bottom: 5vh;
-  width: 35%;
+  width: 15%;
   z-index: 10000;
   box-shadow: 0 0 0 2.5px #65abcf, 0 0 0 10px #20485988, 0 0 0 15px #253d4888,
     0 0 0 20px #15232d88, inset 0 0 0 2.5px #65abcf88,
@@ -265,9 +264,9 @@ h2 {
   margin: 0 auto;
 }
 
-#bRange {
-  text-align: left;
-}
+/* #bRange { */
+/* text-align: left; */
+/* } */
 
 #xy {
   position: absolute;
@@ -290,4 +289,13 @@ input {
 
 .fa-solid {
   padding: 0;
+}
+
+#instruments li button {
+  min-width: 39px !important;
+}
+
+
+.jquiSort {
+  transition: 0.5s !important;
 }

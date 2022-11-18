@@ -19,14 +19,21 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"
+      integrity="sha512-57oZ/vW8ANMjR/KQ6Be9v/+/h6bq9/l3f0Oc7vn6qMqyhvPd1cvKBRWWpzu0QoneImqr2SkmO4MSqU+RpHom3Q=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
     <link
       rel="stylesheet"
-      href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.13.2/themes/smoothness/jquery-ui.css"
+      href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/base/jquery-ui.min.css"
+      integrity="sha512-ELV+xyi8IhEApPS/pSj66+Jiw+sOT1Mqkzlh8ExXihe4zfqbWkxPRi8wptXIO9g73FSlhmquFlUOuMSoXz5IRw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
     />
-    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
-    <script src="../scripts/staranim.js"></script>
     <script src="../scripts/tbl.js"></script>
-    <title>TRASE (Nebula)</title>
+    <title>TRASE (Alameda)</title>
   </head>
   <body>
     <div id="xy">X: <span id="x">0</span>Y: <span id="y">0</span></div>
@@ -36,7 +43,7 @@
     <table draggable="false" id="tbl">
       <tbody></tbody>
     </table>
-    <ul id="btns">
+    <ul id="btns" class="jquiSort">
       <li>
         <div class="liss">
           <h2>Color</h2>
@@ -112,7 +119,7 @@
       </li>
     </ul>
 
-    <ul id="layers">
+    <ul id="layers" class="jquiSort">
       <li>
         <div class="liss">
           <h2>Apply</h2>
@@ -156,9 +163,7 @@
               >
             </li>
             <li>
-              <label
-                ><input type="checkbox" id="autoimport" /> Auto Import</label
-              >
+              <button id="skinSave" onclick="unreload()">Save all</button>
             </li>
           </ul>
         </div>
@@ -177,10 +182,27 @@
           <h2>Replace</h2>
           <ul>
             <li>
-              <input type="color" id="fromRepl" /> to
-              <input type="color" id="toRepl" />
+              <input
+                type="text"
+                maxlength="7"
+                id="fromReplHelp"
+                value="#ffffff"
+              />
             </li>
-            <li><input type="button" value="Replace" /></li>
+            <li><input type="color" id="fromRepl" value="#ffffff" /></li>
+            <li>
+              <button id="replSwitch" title="Click for replace">to</button>
+            </li>
+            <li><input type="color" id="toRepl" /></li>
+            <li>
+              <input
+                type="text"
+                id="toReplHelp"
+                maxlength="7"
+                value="#000000"
+              />
+            </li>
+            <li><input type="button" value="Replace" id="replClr" /></li>
           </ul>
         </div>
       </li>
