@@ -78,6 +78,13 @@ function hexToCssHsl(hex, valuesOnly = false) {
   return cssString;
 }
 /**
+ * @param {number} charsLength
+ * @returns {string[]}
+ */
+String.prototype.splitByCharsNumber = function (charsLength = 1) {
+  return this.match(new RegExp(`.{1,${charsLength}}`, "g"));
+};
+/**
  *
  * @param {string} hsl
  * @returns {number[]}
@@ -821,7 +828,7 @@ $(() => {
   gridM.onchange = function () {
     allTds.css(
       "border-color",
-      gridM.checked ? "#65abcf" : allTds.css("background-color")
+      gridM.checked ? "var(--accent)" : allTds.css("background-color")
     );
   };
 
@@ -1001,7 +1008,7 @@ $(() => {
 
   function forFromReplHelper() {
     if (fromReplHelp.val().length === 7) {
-      if (/#[0-9a-f]{6,6}/i.test(fromReplHelp.val())) {
+      if (/#[0-9a-f]{6}/i.test(fromReplHelp.val())) {
         fromRepl.val(fromReplHelp.val());
         val = fromReplHelp.val();
       } else {
@@ -1055,7 +1062,7 @@ $(() => {
   });
 
   window.onkeydown = function (e) {
-    if (/<input.+type="color".+>/.test(document.activeElement.outerHTML)) {
+    if (document.activeElement.tagName !== "INPUT" && document.activeElement.type !== "text") {
       switch (e.code) {
         case "KeyX":
           switchCols.click();
@@ -1106,6 +1113,53 @@ $(() => {
       }
     }
   };
+
+  const acsnt = $("#acsntClr");
+  const acsntClrHelp = $("#acsntClrHelp");
+
+  acsnt.on("change", function () {
+    const hsl = hexToCssHsl(acsnt.val(), true).split(",");
+
+    root.css({
+      "--accent-h": hsl[0],
+      "--accent-s": hsl[1],
+      "--accent-l": hsl[2],
+    });
+    acsntClrHelp.val(acsnt.val());
+  });
+  function forAcsntHelper() {
+    if (acsntClrHelp.val().length === 7) {
+      if (/#[0-9a-f]{6,6}/i.test(acsntClrHelp.val())) {
+        acsnt.val(acsntClrHelp.val());
+        val = acsntClrHelp.val();
+        const hsl = hexToCssHsl(acsnt.val(), true).split(",");
+
+        root.css({
+          "--accent-h": hsl[0],
+          "--accent-s": hsl[1],
+          "--accent-l": hsl[2],
+        });
+      } else {
+        acsntClrHelp.val("#ffffff");
+        acsnt.val("#ffffff");
+        val = clr1help.val();
+      }
+    }
+  }
+  acsntClrHelp.on("keyup", forAcsntHelper);
+  acsntClrHelp.on("paste", forAcsntHelper);
+
+  $("#resAcsnt").on("click", function () {
+    const hsl = hexToCssHsl("#65abcf", true).split(",");
+
+    root.css({
+      "--accent-h": hsl[0],
+      "--accent-s": hsl[1],
+      "--accent-l": hsl[2],
+    });
+    acsntClrHelp.val("#65abcf");
+    acsnt.val("#65abcf");
+  });
 
   class Star {
     constructor(options) {

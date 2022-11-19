@@ -17,13 +17,15 @@ Ocarina Update (0.6.0):
   removed startanim.js (merged with tbl.js)
 
 
+Alameda Update (0.7.0):
+  added accent color
+
 In development:
-  add accent color
-  "select instrument"
-  custom brush width & height
 
   bugfix
 
 Waiting for start of development:
+  custom brush width & height
+  "select instrument"
   layers
   saving skin(s) using local storage
