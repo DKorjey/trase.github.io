@@ -67,7 +67,7 @@
       <li>
         <div id="instrs" class="liss">
           <h2>Instruments</h2>
-          <ul id="instruments" class="liul">
+          <ul id="instr" class="liul">
             <li>
               <button id="brush" title="Brush (B or 1)" class="active">
                 <i class="fa-solid fa-paintbrush"></i>
@@ -78,18 +78,31 @@
                 <i class="fa-solid fa-eraser"></i>
               </button>
             </li>
-
             <li>
               <button id="pippet" title="Pippet (P or 3)">
                 <i class="fa-solid fa-eye-dropper"></i>
               </button>
             </li>
             <li>
-              <button id="select" title="Select (Q or 4)">
+              <button id="fill" title="Filler (F of 4)">
+                <i class="fa-solid fa-fill-drip"></i>
+              </button>
+            </li>
+            <li>
+              <button id="select" title="Select (Q or 5)">
                 <i class="fa-solid fa-object-ungroup"></i>
               </button>
             </li>
-          </ul>
+          </ul><br>
+          <div id="brng">
+            Brush range: <span id="bRangeVal">1</span> <br /><input
+            type="range"
+            id="brushRange"
+            min="1"
+            max="11"
+            value="1"
+                    />
+          </div>
         </div>
       </li>
 
@@ -220,22 +233,17 @@
           <h2>Settings</h2>
           <ul>
             <li><input type="color" id="acsntClr" value="#65abcf" /></li>
-            <li><input type="text" id="acsntClrHelp" maxlength="7" value="#65abcf"/></li>
+            <li>
+              <input
+                type="text"
+                id="acsntClrHelp"
+                maxlength="7"
+                value="#65abcf"
+              />
+            </li>
             <li><button id="resAcsnt">Reset to default</button></li>
           </ul>
         </div>
-      </li>
-    </ul>
-
-    <ul id="brushSettings">
-      <li id="bRange">
-        Brush range: <span id="bRangeVal">1</span> <br /><input
-          type="range"
-          id="brushRange"
-          min="1"
-          max="11"
-          value="1"
-        />
       </li>
     </ul>
     <canvas id="bgCanvas" width="100%" height="100%"></canvas>

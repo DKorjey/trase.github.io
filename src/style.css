@@ -78,13 +78,9 @@ table {
   width: 20px * 64;
   height: 18px * 64;
   margin: 0 auto !important;
-
   z-index: 1000;
   user-select: none;
   background-color: transparent;
-
-  /* background-image: url("../imgs/looperBlack.png"), */
-  /* url("../imgs/looperWhite.png"); */
   background-size: contain;
   background-repeat: no-repeat;
   background-position: bottom;
@@ -176,25 +172,45 @@ table {
   appearance: none;
 }
 ul li input[type="color"] {
-  background: #000 !important;
-}
-ul li input[type="color"] {
   padding: 0;
   background: transparent !important;
-  border: 1px solid var(--accent);
+  border: none !important;
 }
 input[type="text"] {
-  background: transparent;
-  border: 2px solid var(--accent);
+  background: hsla(
+    var(--accent-h),
+    var(--accent-s),
+    calc(var(--accent-l) - 50%),
+    0.25
+  );
+  border: none;
+  border-bottom: 2px solid var(--accent) !important;
+  border-radius: 10px 10px 0 0;
   outline: none;
   overflow: visible;
   font-size: 1.02rem;
+  transition: 0.15s;
 }
+input[type="text"]:focus {
+  background: hsla(
+    var(--accent-h),
+    var(--accent-s),
+    calc(var(--accent-l) - 40%),
+    0.25
+  );
+}
+
 button,
 input[type="button"] {
-  background: transparent !important;
-  border: 2px solid var(--accent);
+  background: hsl(
+    var(--accent-h),
+    var(--accent-s),
+    calc(var(--accent-l) - 47.5%)
+  ) !important;
+  border: none;
+  border-radius: 5px;
   outline: none;
+  transition: 0.15s;
 }
 button:hover,
 input[type="button"]:hover {
@@ -202,16 +218,11 @@ input[type="button"]:hover {
 }
 button:active,
 input[type="button"]:active {
-  border-color: hsl(
+  background-color: hsl(
     var(--accent-h),
-    calc(var(--accent-s)),
-    calc(var(--accent-l) + 10%)
-  );
-  color: hsl(
-    var(--accent-h),
-    calc(var(--accent-s)),
-    calc(var(--accent-l) + 10%)
-  );
+    var(--accent-s),
+    calc(var(--accent-l) - 49%)
+  ) !important;
 }
 ul li i {
   z-index: 100;
@@ -232,11 +243,6 @@ canvas {
     calc(var(--accent-l) - 50%),
     0.5
   ) !important;
-  border-color: hsl(
-    var(--accent-h),
-    var(--accent-s),
-    calc(var(--accent-l) + 20%)
-  );
 }
 
 .incorrect {
@@ -264,6 +270,7 @@ canvas {
       hsla(var(--accent-h), var(--accent-s), calc(var(--accent-l) - 40%), 0.5);
   list-style: none;
   width: 347px;
+  z-index: 10000;
 }
 .layer {
   border: 2px solid var(--accent);
@@ -284,8 +291,10 @@ h2 {
 
 .danger {
   color: #000;
-  border-color: #f00;
   background: #f00 !important;
+}
+.danger:active {
+  background: #a00 !important;
 }
 
 #blackscreen {
@@ -370,8 +379,10 @@ input {
   padding: 0;
 }
 
-#instruments li button {
+#instr button {
   min-width: 39px !important;
+  min-height: 39px !important;
+  margin: -5px;
 }
 
 .jquiSort {

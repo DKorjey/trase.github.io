@@ -566,18 +566,20 @@ $(() => {
   const starSheets = [new Image(), new Image(), new Image()];
   for (let i = 0; i < 3; i++) starSheets[i].src = srces[i];
 
-  let prevMode = "brush";
+  const brng = $("#brng");
 
   /**
-   * @type {"brush" | "ereaser" | "pippet" | "select"}
+   * @type {"brush" | "ereaser" | "pippet" | "fill" | "select"}
    */
   let mode = "brush";
+
   const brush = $("#brush");
   const ereaser = $("#ereaser");
   const pippet = $("#pippet");
+  const filler = $("#fill");
   const selecter = $("#select");
 
-  const instruments = [brush, ereaser, pippet, selecter];
+  const instruments = [brush, ereaser, pippet, filler, selecter];
 
   instruments.forEach((el) =>
     el.on("click", () => {
@@ -585,6 +587,10 @@ $(() => {
         e[(e == el ? "add" : "remove") + "Class"]("active")
       );
       mode = el.attr("id");
+      brng.css(
+        "display",
+        ["brush", "ereaser"].includes(mode) ? "block" : "none"
+      );
     })
   );
 
@@ -662,7 +668,7 @@ $(() => {
 
           td.on("mousedown", function (e) {
             if (e.button == 0)
-              if (mode != "pippet") {
+              if (!["pippet", "fill"].includes(mode)) {
                 $(this)
                   .css("background", mode == "brush" ? val : "transparent")
                   .attr("data-bg", mode == "brush" ? val : "transparent");
@@ -673,7 +679,7 @@ $(() => {
                       (el.style.background =
                         mode == "brush" ? val : "transparent")
                   );
-              } else {
+              } else if (mode != "fill") {
                 let valu = rgbToHex(
                   ...rgbToArray(
                     td
@@ -807,7 +813,52 @@ $(() => {
     return list;
   }
 
-  tds = $("table tbody td.notMain");
+  tds = $("table tbody td.notMain").on("click", function (e) {
+    if (mode == "fill") {
+      console.log(true)
+      const picture = $(this);
+      console.log(tds)
+
+      let pic_size = [20, 18]; // ее размер
+
+      function draw_pic() {
+        // ну тут все понятно
+        for (const elem of picture) console.log(...elem);
+      }
+
+      function filling(stx, sty, newcolor) {
+        let fill = [stx, sty]; // начинаем с клетки, куда тыкают
+        let color = picture.css("background"); // запоминаем цвет, который надо залить
+
+        while (fill.length) {
+          // пока есть что заливать
+
+          let fill1 = []; // ь
+
+          for (const cell of fill) {
+            // смотрим выбранные в прошлый шаг клетки и ищем новые
+
+            let [x, y] = cell;
+            picture.css("background", newcolor); // заливаем
+
+            // чекаем соседей, если они того же начального цвета, то выбираем для следующего шага
+            if (x > 0 && picture.prev().css("background") == color) fill1.push(picture.prev());
+            if (y > 0 && picture.parent().prev().children()[picture.index()].style.background == color) fill1.push([x, y - 1]);
+            if (x < pic_size[1] - 1 && picture.next().css("background") == color)
+              fill1.push([x + 1, y]);
+            if (y < pic_size[0] - 1 && picture.parent().prev().children()[picture.index()].style.background == color)
+              fill1.push([x, y + 1]);
+
+            filler.css("background", "#65abcf") // ъ
+          }
+        }
+      }
+        console.log($(this), e.target)
+        console.log("\n\n\nТыкаем на центральную клетку\n\n");
+        filling(e.target.dataset.x, e.target.dataset.y, "#65abcf");
+        console.log($(this), e.target);
+    }
+  });
 
   const looper = $("td.mainLooper");
   const looperDisabler = $("#disblL");
@@ -1062,7 +1113,10 @@ $(() => {
   });
 
   window.onkeydown = function (e) {
-    if (document.activeElement.tagName !== "INPUT" && document.activeElement.type !== "text") {
+    if (
+      document.activeElement.tagName !== "INPUT" &&
+      document.activeElement.type !== "text"
+    ) {
       switch (e.code) {
         case "KeyX":
           switchCols.click();
@@ -1094,8 +1148,12 @@ $(() => {
         case "Digit3":
           pippet.click();
           break;
-        case "KeyQ":
+        case "KeyF":
         case "Digit4":
+          filler.click();
+          break;
+        case "KeyQ":
+        case "Digit5":
           selecter.click();
           break;
 
@@ -1238,6 +1296,8 @@ $(() => {
       starCount++;
     }
   }, 100);
+
+  $('#input[type="color"]').on("change", (e) => e.target.blur());
 });
 function unreload() {
   let csses = [];
