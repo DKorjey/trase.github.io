@@ -67,41 +67,56 @@
       <li>
         <div id="instrs" class="liss">
           <h2>Instruments</h2>
-          <ul id="instr" class="liul">
-            <li>
-              <button id="brush" title="Brush (B or 1)" class="active">
-                <i class="fa-solid fa-paintbrush"></i>
-              </button>
-            </li>
-            <li>
-              <button id="ereaser" title="Ereaser (E or 2)">
-                <i class="fa-solid fa-eraser"></i>
-              </button>
-            </li>
-            <li>
-              <button id="pippet" title="Pippet (P or 3)">
-                <i class="fa-solid fa-eye-dropper"></i>
-              </button>
-            </li>
-            <li>
-              <button id="fill" title="Filler (F of 4)">
-                <i class="fa-solid fa-fill-drip"></i>
-              </button>
-            </li>
-            <li>
-              <button id="select" title="Select (Q or 5)">
-                <i class="fa-solid fa-object-ungroup"></i>
-              </button>
-            </li>
-          </ul><br>
-          <div id="brng">
-            Brush range: <span id="bRangeVal">1</span> <br /><input
-            type="range"
-            id="brushRange"
-            min="1"
-            max="11"
-            value="1"
-                    />
+          <div id="instr">
+            <button id="brush" title="Brush (B or 1)" class="active">
+              <i class="fa-solid fa-paintbrush"></i>
+            </button>
+
+            <button id="ereaser" title="Ereaser (E or 2)">
+              <i class="fa-solid fa-eraser"></i>
+            </button>
+
+            <button id="pippet" title="Pippet (P or 3)">
+              <i class="fa-solid fa-eye-dropper"></i>
+            </button>
+
+            <button id="fill" title="Filler (F of 4)">
+              <i class="fa-solid fa-fill-drip"></i>
+            </button>
+
+            <br />
+
+            <button id="lighter" title="Lighten (L or 5)">
+              <i class="fa-solid fa-sun"></i>
+            </button>
+
+            <button id="darker" title="Darker (D or 6)">
+              <i class="fa-solid fa-moon"></i>
+            </button>
+
+            <button id="select" title="Select (Q or 7)">
+              <i class="fa-solid fa-object-ungroup"></i>
+            </button>
+
+            <button id="wand" title="Wand (K or 8)">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </button>
+          </div>
+          <br />
+          <div>
+            <div id="brng">
+              Brush range: <span id="bRangeVal">1</span> <br /><input
+                type="range"
+                id="brushRange"
+                min="1"
+                max="11"
+                value="1"
+              />
+            </div>
+            <div id="deepDL">
+              Power: <span id="deepDLVal">10</span>%<br />
+              <input type="range" id="deepLDark" min="1" max="60" value="1">
+            </div>
           </div>
         </div>
       </li>
@@ -175,8 +190,20 @@
                 Enable Music</label
               >
             </li>
+            <li><button id="flipH">Flip horizontal</button></li>
+            <li><button id="flipV">Flip vertical</button></li>
             <li>
-              <button id="skinSave" onclick="unreload()">Save all</button>
+              Table cell size:
+              <input
+                type="range"
+                id="paddingTbl"
+                min="10"
+                max="20"
+                value="10"
+              /><br /><span style="color: #f00"
+                >WARNING! This function under development. So far it will look
+                ugly</span
+              >
             </li>
           </ul>
         </div>

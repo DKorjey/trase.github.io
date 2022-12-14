@@ -1,8 +1,9 @@
-// TODO:
-// Add saving
-// Add autoimport
-// Add saving two skins
-
+//#region
+/**
+ * @param {any[]} array
+ * @param {number} limit
+ * @returns {any[][]}
+ */
 function get2dimensional(array, limit) {
   const array2 = [];
   let section;
@@ -14,6 +15,27 @@ function get2dimensional(array, limit) {
 
   return array2;
 }
+const RGBToHSL = (r, g, b) => {
+  r /= 255;
+  g /= 255;
+  b /= 255;
+  const l = Math.max(r, g, b);
+  const s = l - Math.min(r, g, b);
+  const h = s
+    ? l === r
+      ? (g - b) / s
+      : l === g
+      ? 2 + (b - r) / s
+      : 4 + (r - g) / s
+    : 0;
+  return [
+    Math.floor(60 * h < 0 ? 60 * h + 360 : 60 * h),
+    Math.floor(
+      100 * (s ? (l <= 0.5 ? s / (2 * l - s) : s / (2 - (2 * l - s))) : 0)
+    ),
+    Math.floor((100 * (2 * l - s)) / 2),
+  ];
+};
 function componentToHex(c) {
   var hex = c.toString(16);
   return hex.length == 1 ? "0" + hex : hex;
@@ -115,6 +137,23 @@ function hslDark(hsl, percent) {
   hsl[2] -= Math.floor(hsl[2] * 0.32);
   return packHsl(...hsl);
 }
+//#endregion
+/**
+ * @param {JQuery<HTMLElement>} jqThis
+ * @param {number} percents
+ */
+function doDarker(jqThis, percents) {
+  const color = RGBToHSL(rgbToArray(jqThis.css("background-color")));
+  if (color[2] - percents < 0) color[2] = 0;
+  jqThis.css("background-color", "hsl(" + color[0] + ", " + color[1] + ", ");
+}
+
+/**
+ * @param {JQuery<HTMLElement>} jqThis
+ * @param {number} percents
+ */
+function doLighter(jqThis, percents) {}
+
 let musC;
 let { width: scrWidth, height: scrHeight } = window.screen;
 window.onresize = function () {
@@ -123,7 +162,6 @@ window.onresize = function () {
 };
 
 let settings = localStorage.getItem("settings");
-let tds;
 $(() => {
   if (!settings) {
     settings = {
@@ -538,6 +576,8 @@ $(() => {
   const rangeInput = $("#brushRange");
   const jquiSort = $(".jquiSort");
 
+  const deepLDark = $("#deepLDark");
+
   const switchCols = $("button#switchCols");
 
   const [x, y] = [$("#x"), $("#y")];
@@ -569,7 +609,7 @@ $(() => {
   const brng = $("#brng");
 
   /**
-   * @type {"brush" | "ereaser" | "pippet" | "fill" | "select"}
+   * @type {"brush" | "ereaser" | "pippet" | "fill" | "darker" | "lighter" | "select" | "wand"}
    */
   let mode = "brush";
 
@@ -577,9 +617,21 @@ $(() => {
   const ereaser = $("#ereaser");
   const pippet = $("#pippet");
   const filler = $("#fill");
+  const lighter = $("#lighter");
+  const darker = $("#darker");
   const selecter = $("#select");
+  const wand = $("#wand");
 
-  const instruments = [brush, ereaser, pippet, filler, selecter];
+  const instruments = [
+    brush,
+    ereaser,
+    pippet,
+    filler,
+    darker,
+    lighter,
+    selecter,
+    wand,
+  ];
 
   instruments.forEach((el) =>
     el.on("click", () => {
@@ -589,7 +641,9 @@ $(() => {
       mode = el.attr("id");
       brng.css(
         "display",
-        ["brush", "ereaser"].includes(mode) ? "block" : "none"
+        ["brush", "ereaser", "darker", "lighter"].includes(mode)
+          ? "block"
+          : "none"
       );
     })
   );
@@ -664,50 +718,62 @@ $(() => {
                         mode == "brush" ? val : "transparent")
                   );
               }
+            })
+            .on("mousedown", function (e) {
+              if (e.button == 0)
+                if (!["pippet", "fill"].includes(mode)) {
+                  $(this).css(
+                    "background",
+                    mode == "brush"
+                      ? val
+                      : mode == "ereaser"
+                      ? "transparent"
+                      : mode == "lighter"
+                      ? doLighter($(this), deepLDark.val())
+                      : mode == "darker"
+                      ? doDarker($(this), deepLDark.val())
+                      : $(this).css("background-color")
+                  );
+                  document
+                    .querySelectorAll(".neighbour")
+                    .forEach(
+                      (el) =>
+                        (el.style.background =
+                          mode == "brush"
+                            ? val
+                            : mode == "ereaser"
+                            ? "transparent"
+                            : "#000cba")
+                    );
+                } else if (mode != "fill") {
+                  let valu = rgbToHex(
+                    ...rgbToArray(
+                      td
+                        .css("background-color")
+                        .replace(/rgba\(.+\)/i, "rgb(0, 0, 0)")
+                    )
+                  );
+                  console.log(valu);
+                  clr.val(valu);
+                  clr1help.val(valu);
+                }
+            })
+            .on("mouseup", function (e) {
+              if (e.button == 0)
+                if (mode != "pippet") {
+                  $(this).css(
+                    "background",
+                    mode == "brush" ? val : "transparent"
+                  );
+                  document
+                    .querySelectorAll(".neighbour")
+                    .forEach(
+                      (el) =>
+                        (el.style.background =
+                          mode == "brush" ? val : "transparent")
+                    );
+                }
             });
-
-          td.on("mousedown", function (e) {
-            if (e.button == 0)
-              if (!["pippet", "fill"].includes(mode)) {
-                $(this)
-                  .css("background", mode == "brush" ? val : "transparent")
-                  .attr("data-bg", mode == "brush" ? val : "transparent");
-                document
-                  .querySelectorAll(".neighbour")
-                  .forEach(
-                    (el) =>
-                      (el.style.background =
-                        mode == "brush" ? val : "transparent")
-                  );
-              } else if (mode != "fill") {
-                let valu = rgbToHex(
-                  ...rgbToArray(
-                    td
-                      .css("background-color")
-                      .replace(/rgba\(.+\)/i, "rgb(0, 0, 0)")
-                  )
-                );
-                console.log(valu);
-                clr.val(valu);
-                clr1help.val(valu);
-              }
-          });
-          td.on("mouseup", function (e) {
-            if (e.button == 0)
-              if (mode != "pippet") {
-                $(this).css(
-                  "background",
-                  mode == "brush" ? val : "transparent"
-                );
-                document
-                  .querySelectorAll(".neighbour")
-                  .forEach(
-                    (el) =>
-                      (el.style.background =
-                        mode == "brush" ? val : "transparent")
-                  );
-              }
-          });
         } else {
           if (arrayForImportLayer[i][j] == "rgb(0, 0, 0)") {
             td.addClass("legs");
@@ -759,7 +825,8 @@ $(() => {
 
     clean();
 
-    if (mode !== "pippet") $target.classList.add("mouseEnter");
+    if (mode !== "pippet")
+      if (mode !== "fill") $target.classList.add("mouseEnter");
     neighbours.forEach((neighbour) => neighbour.classList.add("neighbour"));
   }
 
@@ -813,50 +880,51 @@ $(() => {
     return list;
   }
 
-  tds = $("table tbody td.notMain").on("click", function (e) {
+  const tds = $("#tbl tbody td.notMain");
+
+  tds.on("click", function (e) {
     if (mode == "fill") {
-      console.log(true)
-      const picture = $(this);
-      console.log(tds)
+      const colors = [];
+      tds.each(function () {
+        colors.push(rgbToHex(...rgbToArray($(this).css("background-color"))));
+      });
+      const picture = get2dimensional(colors, 20);
+      console.log(JSON.stringify(picture));
 
-      let pic_size = [20, 18]; // ее размер
+      const pic_size = [18, 20];
+      console.log("pic_size", pic_size);
 
-      function draw_pic() {
-        // ну тут все понятно
-        for (const elem of picture) console.log(...elem);
+      function drawPic() {
+        picture.forEach((e) => console.log(...e));
       }
 
       function filling(stx, sty, newcolor) {
-        let fill = [stx, sty]; // начинаем с клетки, куда тыкают
-        let color = picture.css("background"); // запоминаем цвет, который надо залить
-
+        let fill = [[stx, sty]];
+        const color = picture[stx][sty];
         while (fill.length) {
-          // пока есть что заливать
-
-          let fill1 = []; // ь
-
+          const fill1 = [];
           for (const cell of fill) {
-            // смотрим выбранные в прошлый шаг клетки и ищем новые
-
-            let [x, y] = cell;
-            picture.css("background", newcolor); // заливаем
-
-            // чекаем соседей, если они того же начального цвета, то выбираем для следующего шага
-            if (x > 0 && picture.prev().css("background") == color) fill1.push(picture.prev());
-            if (y > 0 && picture.parent().prev().children()[picture.index()].style.background == color) fill1.push([x, y - 1]);
-            if (x < pic_size[1] - 1 && picture.next().css("background") == color)
-              fill1.push([x + 1, y]);
-            if (y < pic_size[0] - 1 && picture.parent().prev().children()[picture.index()].style.background == color)
-              fill1.push([x, y + 1]);
-
-            filler.css("background", "#65abcf") // ъ
+            const [x, y] = cell;
+            console.log(x, y);
+            picture[x][y] = newcolor;
+            if (x > 0 && picture[x - 1][y] == color)
+              picture[x - 1][y] = newcolor;
+            if (y > 0 && picture[x][y - 1] == color)
+              picture[x][y - 1] = newcolor;
+            if (x < pic_size[1] - 1 && picture[x + 1][y] == color)
+              picture[x + 1][y] = newcolor;
+            if (y < pic_size[0] - 1 && picture[x][y + 1] == color)
+              picture[x][y + 1] = newcolor;
           }
+          fill = fill1.slice();
+          console.log(fill);
         }
       }
-        console.log($(this), e.target)
-        console.log("\n\n\nТыкаем на центральную клетку\n\n");
-        filling(e.target.dataset.x, e.target.dataset.y, "#65abcf");
-        console.log($(this), e.target);
+      drawPic();
+      console.log("\n\n\nТыкаем на центральную клетку\n\n");
+      console.log(e.target.dataset.y, e.target.dataset.x);
+      filling(e.target.dataset.x, e.target.dataset.y, val);
+      drawPic();
     }
   });
 
@@ -1006,12 +1074,12 @@ $(() => {
     darkhead.css("background", "#adadad");
   });
   $("#resLgsClr").on("click", function () {
-    legsPixels.css("background", "#000");
+    legsPixels.css("background", "#000000");
   });
   $("#resetEvr").on("click", function () {
     head.css("background", "#ffffff");
     darkhead.css("background", "#adadad");
-    legsPixels.css("background", "#000");
+    legsPixels.css("background", "#000000");
     clr1help.val("#ffffff");
     clr2help.val("#000000");
     clr.val("#ffffff");
@@ -1152,9 +1220,21 @@ $(() => {
         case "Digit4":
           filler.click();
           break;
-        case "KeyQ":
+        case "KeyL":
         case "Digit5":
+          lighter.click();
+          break;
+        case "KeyD":
+        case "Digit6":
+          darker.click();
+          break;
+        case "KeyQ":
+        case "Digit7":
           selecter.click();
+          break;
+        case "KeyK":
+        case "Digit8":
+          wand.click();
           break;
 
         // Brush range
@@ -1218,6 +1298,49 @@ $(() => {
     acsntClrHelp.val("#65abcf");
     acsnt.val("#65abcf");
   });
+
+  $("#paddingTbl").on("input", function () {
+    allTds.css("padding", $(this).val());
+  });
+
+  const notMainTable = $("#tbl");
+  $("#flipH").on("click", function () {
+    notMainTable
+      .children(0)
+      .children("tr")
+      .each(function () {
+        $(this).each(function () {
+          $(this).html(
+            $(this)
+              .html()
+              .split("</td>")
+              .reduce((prev, curr, index, arr) => {
+                if (index !== arr.length - 1) prev[index] = curr + "</td>";
+                return prev;
+              }, [])
+              .reverse()
+              .join("")
+          );
+        });
+      });
+  });
+  $("#flipV").on("click", function () {
+
+    notMainTable.children(0).each(function () {
+      $(this).html(
+        $(this)
+          .html()
+          .split("</tr>")
+          .reduce((prev, curr, index, arr) => {
+            if (index !== arr.length - 1) prev[index] = curr + "</tr>";
+            return prev;
+          }, [])
+          .reverse()
+          .join("")
+      );
+    });
+  })
+
 
   class Star {
     constructor(options) {
@@ -1299,8 +1422,10 @@ $(() => {
 
   $('#input[type="color"]').on("change", (e) => e.target.blur());
 });
+window.onbeforeunload = unreload;
 function unreload() {
   let csses = [];
+  const tds = $("#tbl tbody td.notMain");
   tds.each(function () {
     csses.push(
       rgbToHex(...rgbToArray($(this).css("background-color")))
