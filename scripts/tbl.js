@@ -1,4 +1,5 @@
 //#region
+
 /**
  * @param {any[]} array
  * @param {number} limit
@@ -161,11 +162,22 @@ window.onresize = function () {
   scrHeight = this.screen.height;
 };
 
+let acsnt;
 let settings = localStorage.getItem("settings");
 $(() => {
+  if (new MobileDetect(window.navigator.userAgent).mobile()) {
+    $("#mobileSmall").addClass("yesMobileSmall");
+    $(document.body).css({overflow: "hidden !important", width: "1vh !important"})
+  }
+  // alert("Hi, this website under development. The features in development marked as yellow and underlined, have a nice day")
+
+  const undoArr = [];
+  let undoArrI = 0;
+
   if (!settings) {
     settings = {
       savedSkin: "trSkin17cYhAQAACMCwSvf074WgBGJTqzOJiIiIiIj8yAI=",
+      accent: undefined
     };
   } else settings = JSON.parse(settings);
   const root = $(":root");
@@ -724,15 +736,7 @@ $(() => {
                 if (!["pippet", "fill"].includes(mode)) {
                   $(this).css(
                     "background",
-                    mode == "brush"
-                      ? val
-                      : mode == "ereaser"
-                      ? "transparent"
-                      : mode == "lighter"
-                      ? doLighter($(this), deepLDark.val())
-                      : mode == "darker"
-                      ? doDarker($(this), deepLDark.val())
-                      : $(this).css("background-color")
+                    mode == "brush" ? val : "transparent"
                   );
                   document
                     .querySelectorAll(".neighbour")
@@ -748,7 +752,7 @@ $(() => {
                 } else if (mode != "fill") {
                   let valu = rgbToHex(
                     ...rgbToArray(
-                      td
+                      $(this)
                         .css("background-color")
                         .replace(/rgba\(.+\)/i, "rgb(0, 0, 0)")
                     )
@@ -758,7 +762,7 @@ $(() => {
                   clr1help.val(valu);
                 }
             })
-            .on("mouseup", function (e) {
+            .on("mouseup", ".notMain", function (e) {
               if (e.button == 0)
                 if (mode != "pippet") {
                   $(this).css(
@@ -772,6 +776,7 @@ $(() => {
                         (el.style.background =
                           mode == "brush" ? val : "transparent")
                     );
+
                 }
             });
         } else {
@@ -806,6 +811,24 @@ $(() => {
       $neighbour.classList.remove("neighbour")
     );
   }
+  function exprtSkin(returnRes = false) {
+    let csses = [];
+    tds.each(function () {
+      csses.push(
+        rgbToHex(...rgbToArray($(this).css("background-color")))
+          .toUpperCase()
+          .replace("#", "")
+      );
+    });
+    csses.push("");
+    csses = csses.join(";");
+    const lel = btoa(
+      window.pako.deflateRaw(csses, { to: "string" })
+    );
+    if (returnRes) return lel;
+    undoArr.push(lel);
+    console.log(undoArr);
+  };
 
   function indexOf($element) {
     return Array.prototype.slice
@@ -891,8 +914,9 @@ $(() => {
       const picture = get2dimensional(colors, 20);
       console.log(JSON.stringify(picture));
 
-      const pic_size = [18, 20];
-      console.log("pic_size", pic_size);
+      // const pic_size = [18, 20];
+      const height = 18;
+      const width = 20;
 
       function drawPic() {
         picture.forEach((e) => console.log(...e));
@@ -907,13 +931,14 @@ $(() => {
             const [x, y] = cell;
             console.log(x, y);
             picture[x][y] = newcolor;
+            console.log("y:", y, "x:", x, "picture:", picture[x]);
             if (x > 0 && picture[x - 1][y] == color)
               picture[x - 1][y] = newcolor;
             if (y > 0 && picture[x][y - 1] == color)
               picture[x][y - 1] = newcolor;
-            if (x < pic_size[1] - 1 && picture[x + 1][y] == color)
+            if (x < width - 1 && picture[x + 1][y] == color)
               picture[x + 1][y] = newcolor;
-            if (y < pic_size[0] - 1 && picture[x][y + 1] == color)
+            if (y < height - 1 && picture[x][y + 1] == color)
               picture[x][y + 1] = newcolor;
           }
           fill = fill1.slice();
@@ -987,13 +1012,13 @@ $(() => {
     clr1help.val("#ffffff");
     val = "#ffffff";
     root.css("--clr", `${val}aa`);
+    clr2.val("#000000");
+    clr2help.val("#000000");
   });
 
   const legsPixels = $(".legs");
   const head = $(".head");
   const darkhead = $(".darkhead");
-
-  const adadad = "rgb(173, 173, 173)";
 
   $("#lgclr").on("click", () => legsPixels.css("background", val));
   $("#bdclr").on("click", () => {
@@ -1012,15 +1037,11 @@ $(() => {
     navigator.clipboard.readText().then((text) => {
       try {
         const strdata = atob(text.replace("trSkin1", "").trim());
-
         const charData = strdata.split("").map(function (x) {
           return x.charCodeAt(0);
         });
-
         const binData = new Uint8Array(charData);
-
         const data = window.pako.inflateRaw(binData);
-
         const result = String.fromCharCode.apply(null, new Uint16Array(data));
         const arrr = result.split(";").map((e) => "#" + e);
         tds.each(function (ind, el) {
@@ -1077,18 +1098,20 @@ $(() => {
     legsPixels.css("background", "#000000");
   });
   $("#resetEvr").on("click", function () {
-    head.css("background", "#ffffff");
-    darkhead.css("background", "#adadad");
-    legsPixels.css("background", "#000000");
-    clr1help.val("#ffffff");
-    clr2help.val("#000000");
-    clr.val("#ffffff");
-    clr2.val("#000000");
-    val = clr1help.val();
-    val2 = clr2help.val();
-    tds.css("background", "#00000000");
-    root.css("--clr", `${val}aa`);
-    unreload();
+    if (confirm("This will reset absolutely everything! ARE YOU SURE?!")) {
+      head.css("background", "#ffffff");
+      darkhead.css("background", "#adadad");
+      legsPixels.css("background", "#000000");
+      clr1help.val("#ffffff");
+      clr2help.val("#000000");
+      clr.val("#ffffff");
+      clr2.val("#000000");
+      val = clr1help.val();
+      val2 = clr2help.val();
+      tds.css("background", "#00000000");
+      root.css("--clr", `${val}aa`);
+      unreload();
+    }
   });
 
   const fromRepl = $("#fromRepl");
@@ -1156,7 +1179,7 @@ $(() => {
 
   musC = $("#mus");
   let mus;
-  musC.on("change", async () => {
+  musC.on("change", () => {
     if (musC.prop("checked")) {
       const rand = Math.random();
       mus = new Audio("../music/menu.wav");
@@ -1172,10 +1195,10 @@ $(() => {
   jquiSort.each(function () {
     $(this).sortable({
       start: function (_, ui) {
-        ui.item.first().css("background-color", "#0008");
+        ui.item.first().addClass("jqsortActive");
       },
       stop: function (_, ui) {
-        ui.item.first().css("background-color", "#0000");
+        ui.item.first().removeClass("jqsortActive");
       },
     });
   });
@@ -1325,7 +1348,6 @@ $(() => {
       });
   });
   $("#flipV").on("click", function () {
-
     notMainTable.children(0).each(function () {
       $(this).html(
         $(this)
@@ -1339,8 +1361,23 @@ $(() => {
           .join("")
       );
     });
-  })
+  });
 
+  $("#undo").on("click", function () {
+    if (undoArr.length == 1) {
+      const strdata = atob(undoArr.trim());
+        const charData = strdata.split("").map(function (x) {
+          return x.charCodeAt(0);
+        });
+        const binData = new Uint8Array(charData);
+        const data = window.pako.inflateRaw(binData);
+        const result = String.fromCharCode.apply(null, new Uint16Array(data));
+        const arrr = result.split(";").map((e) => "#" + e);
+        tds.each(function (ind, el) {
+          el.style.backgroundColor = arrr[ind];
+        });
+    }
+  });
 
   class Star {
     constructor(options) {
@@ -1437,5 +1474,6 @@ function unreload() {
   csses = csses.join(";");
   settings.savedSkin =
     "trSkin1" + btoa(window.pako.deflateRaw(csses, { to: "string" }));
+  settings.accent = hexToCssHsl(acsnt.val(), true).split(",")
   localStorage.setItem("settings", JSON.stringify(settings));
 }

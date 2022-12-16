@@ -4,17 +4,19 @@
 }
 
 .liss {
-  /* box-shadow: inset 0 0 0 2.5px
-      hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.5),
-    inset 0 0 0 10px
-      hsla(var(--accent-h), var(--accent-s), calc(var(--accent-l) - 20%), 0.5),
-    inset 0 0 0 15px
-      hsla(var(--accent-h), var(--accent-s), calc(var(--accent-l) - 30%), 0.5),
-    inset 0 0 0 20px
-      hsla(var(--accent-h), var(--accent-s), calc(var(--accent-l) - 40%), 0.5); */
   border: 5px solid
     hsl(var(--accent-h), var(--accent-s), calc(var(--accent-l) - 35%));
   z-index: 10;
+}
+
+.liss h2 {
+  background-color: hsl(
+    var(--accent-h),
+    var(--accent-s),
+    calc(var(--accent-l) - 35%)
+  );
+  margin: -15px !important;
+  margin-bottom: 0 !important;
 }
 
 .liul {
@@ -73,6 +75,11 @@ td {
   padding: 10px;
   user-select: none;
 }
+
+table:hover {
+  cursor: crosshair;
+}
+
 table {
   table-layout: fixed;
   border-collapse: collapse;
@@ -89,9 +96,8 @@ table {
   background-size: calc(16px * 22);
   image-rendering: pixelated;
 }
-@media (min-width: 400px) and (max-width: 1000px) {
+@media (min-width: 400px) and (max-width: 765px) {
   body {
-    height: 240vh !important;
     overflow-x: hidden;
     overflow-y: scroll;
   }
@@ -108,31 +114,33 @@ table {
   }
   #layers {
     position: absolute;
-    top: 150vh !important;
+    top: 50vh !important;
     left: 50%;
     width: 90%;
   }
   canvas {
     display: none;
   }
-}
-@media screen and (max-width: 399px) {
-  body {
-    overflow: hidden;
-  }
-  #mobileSmall {
-    display: block !important;
-    position: absolute;
-    top: 0;
+  #xy {
     left: 0;
-    width: 100%;
-    height: 100%;
-    background: #000;
-    z-index: 99999;
-    color: #fff;
-    text-align: center !important;
   }
 }
+#mobileSmall.yesMobileSmall {
+  display: block !important;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 300%;
+  padding: 25%;
+  padding-top: 50%;
+  font-size: 1.5rem;
+  background: #000;
+  z-index: 99999;
+  color: #fff;
+  text-align: center !important;
+}
+
 #mobileSmall {
   display: none;
 }
@@ -305,10 +313,15 @@ h2 {
 }
 
 .danger {
+  color: #f00;
+  background: #400 !important;
+}
+.danger:hover {
   color: #000;
   background: #f00 !important;
 }
 .danger:active {
+  color: #000;
   background: #a00 !important;
 }
 
@@ -409,7 +422,28 @@ input {
   transition: 0.5s !important;
 }
 
+.jqsortActive h2:hover {
+  background-color: hsl(
+    var(--accent-h),
+    var(--accent-s),
+    calc(var(--accent-l) - 45%)
+  );
+  cursor: grabbing;
+}
+
 #deepDL {
   display: none;
 }
-
+*:disabled {
+  cursor: not-allowed;
+}
+.switcher {
+  display: none;
+}
+.reset {
+  display: none;
+}
+.indev {
+  text-decoration: underline !important;
+  color: #ff0 !important;
+}
