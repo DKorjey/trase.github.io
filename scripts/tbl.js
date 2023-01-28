@@ -1,4 +1,4 @@
-//#region
+// TODO: make export as image
 
 /**
  * @param {any[]} array
@@ -15,6 +15,9 @@ function get2dimensional(array, limit) {
   }
 
   return array2;
+}
+function doRGBA(r, g, b, a) {
+  return `rgba(${r}, ${g}, ${b}, ${a})`;
 }
 const RGBToHSL = (r, g, b) => {
   r /= 255;
@@ -73,7 +76,7 @@ function hexToCssHsl(hex, valuesOnly = false) {
     s,
     l = (max + min) / 2;
   if (max == min) {
-    h = s = 0; // achromatic
+    h = s = 0;
   } else {
     var d = max - min;
     s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
@@ -138,7 +141,6 @@ function hslDark(hsl, percent) {
   hsl[2] -= Math.floor(hsl[2] * 0.32);
   return packHsl(...hsl);
 }
-//#endregion
 /**
  * @param {JQuery<HTMLElement>} jqThis
  * @param {number} percents
@@ -167,17 +169,18 @@ let settings = localStorage.getItem("settings");
 $(() => {
   if (new MobileDetect(window.navigator.userAgent).mobile()) {
     $("#mobileSmall").addClass("yesMobileSmall");
-    $(document.body).css({overflow: "hidden !important", width: "1vh !important"})
+    $(document.body).css({
+      overflow: "hidden !important",
+      width: "1vh !important",
+    });
   }
-  // alert("Hi, this website under development. The features in development marked as yellow and underlined, have a nice day")
 
-  const undoArr = [];
-  let undoArrI = 0;
+  const undoArr = ["7cYhAQAACMCwSvf074WgBGJTqzOJiIiIiIj8yAI="];
 
   if (!settings) {
     settings = {
       savedSkin: "trSkin17cYhAQAACMCwSvf074WgBGJTqzOJiIiIiIj8yAI=",
-      accent: undefined
+      accent: undefined,
     };
   } else settings = JSON.parse(settings);
   const root = $(":root");
@@ -588,6 +591,10 @@ $(() => {
   const rangeInput = $("#brushRange");
   const jquiSort = $(".jquiSort");
 
+  const acsnt = $("#acsntClr");
+
+  const allowerToCombine = $("#allowCombine");
+
   const deepLDark = $("#deepLDark");
 
   const switchCols = $("button#switchCols");
@@ -604,11 +611,11 @@ $(() => {
   const minStarSize = 10;
   const maxStarSize = 30;
 
-  const canvas = document.getElementById("bgCanvas");
-  canvas.width = scrWidth;
-  canvas.height = scrHeight;
-  const ctx = canvas.getContext("2d");
-  ctx.imageSmoothingEnabled = false;
+  const starsCanv = document.getElementById("bgCanvas");
+  starsCanv.width = scrWidth;
+  starsCanv.height = scrHeight;
+  const starsCtx = starsCanv.getContext("2d");
+  starsCtx.imageSmoothingEnabled = false;
 
   const srces = [
     "../imgs/StarSpriteSheetPink.png",
@@ -620,11 +627,6 @@ $(() => {
 
   const brng = $("#brng");
 
-  /**
-   * @type {"brush" | "ereaser" | "pippet" | "fill" | "darker" | "lighter" | "select" | "wand"}
-   */
-  let mode = "brush";
-
   const brush = $("#brush");
   const ereaser = $("#ereaser");
   const pippet = $("#pippet");
@@ -633,6 +635,11 @@ $(() => {
   const darker = $("#darker");
   const selecter = $("#select");
   const wand = $("#wand");
+
+  /**
+   * @type { "brush" | "ereaser" | "pippet" | "fill" | "darker" | "lighter" | "select" | "wand"}}
+   */
+  let mode = "brush";
 
   const instruments = [
     brush,
@@ -645,6 +652,8 @@ $(() => {
     wand,
   ];
 
+  /**@type {JQuery<HTMLElement>} */
+  let targetTD;
   instruments.forEach((el) =>
     el.on("click", () => {
       instruments.forEach((e) =>
@@ -657,6 +666,12 @@ $(() => {
           ? "block"
           : "none"
       );
+      if (["brush", "ereaser", "darker", "lighter"].includes(mode)) {
+        rangeInput.val(1);
+      }
+      if (mode == "fill") {
+        targetTD.hasClass("mouseEnter") && targetTD.removeClass("mouseEnter");
+      }
     })
   );
 
@@ -689,6 +704,8 @@ $(() => {
     promezhClr = null;
   });
 
+  const currClrSpan = $("#currClr");
+
   window.onmousedown = (e) => {
     if (e.button == 0) isClicked = true;
   };
@@ -699,8 +716,8 @@ $(() => {
   rangeInput.on("input", function () {
     bRangeVal.text($(this).val());
   });
+  let activeTd;
   const nativeTBL = document.querySelector("#tbl");
-
   function createField(tbl = table, arrayForImportLayer, isMain) {
     for (let i = 0; i < 18; i++) {
       const tr = $("<tr></tr>");
@@ -717,7 +734,8 @@ $(() => {
             .on("mouseover", function () {
               x.text(td.attr("data-x"));
               y.text(td.attr("data-y"));
-              if (isClicked) {
+              targetTD = td;
+              if (isClicked && mode != "fill") {
                 $(this).css(
                   "background",
                   mode == "brush" ? val : "transparent"
@@ -760,23 +778,42 @@ $(() => {
                   console.log(valu);
                   clr.val(valu);
                   clr1help.val(valu);
+                  val = clr.val();
+                  root.css("--clr", val);
                 }
             })
-            .on("mouseup", ".notMain", function (e) {
+            .on("mouseup", function (e) {
               if (e.button == 0)
                 if (mode != "pippet") {
-                  $(this).css(
-                    "background",
-                    mode == "brush" ? val : "transparent"
-                  );
-                  document
-                    .querySelectorAll(".neighbour")
-                    .forEach(
-                      (el) =>
-                        (el.style.background =
-                          mode == "brush" ? val : "transparent")
+                  if (mode != "fill") {
+                    $(this).css(
+                      "background",
+                      mode == "brush" ? val : "transparent"
                     );
-
+                    document
+                      .querySelectorAll(".neighbour")
+                      .forEach(
+                        (el) =>
+                          (el.style.background =
+                            mode == "brush" ? val : "transparent")
+                      );
+                  }
+                  let csses = [];
+                  tds.each(function () {
+                    csses.push(
+                      rgbToHex(...rgbToArray($(this).css("background-color")))
+                        .toUpperCase()
+                        .replace("#", "")
+                    );
+                  });
+                  csses.push("");
+                  csses = csses.join(";");
+                  const lel = btoa(
+                    window.pako.deflateRaw(csses, { to: "string" })
+                  );
+                  if (lel != undoArr.at(-1)) {
+                    undoArr.splice(undoArr.indexOf(lel) + 1, Infinity);
+                  } else undoArr.push(lel);
                 }
             });
         } else {
@@ -822,13 +859,11 @@ $(() => {
     });
     csses.push("");
     csses = csses.join(";");
-    const lel = btoa(
-      window.pako.deflateRaw(csses, { to: "string" })
-    );
+    const lel = btoa(window.pako.deflateRaw(csses, { to: "string" }));
     if (returnRes) return lel;
     undoArr.push(lel);
     console.log(undoArr);
-  };
+  }
 
   function indexOf($element) {
     return Array.prototype.slice
@@ -849,7 +884,16 @@ $(() => {
     clean();
 
     if (mode !== "pippet")
-      if (mode !== "fill") $target.classList.add("mouseEnter");
+      if (mode !== "fill") {
+        currClrSpan.text(
+          !$target.style.backgroundColor ||
+            $target.style.backgroundColor === "rgba(0, 0, 0, 0)"
+            ? "None"
+            : rgbToHex(...rgbToArray($target.style.backgroundColor))
+        );
+        $target.classList.add("mouseEnter");
+      }
+    activeTd = $(event.target);
     neighbours.forEach((neighbour) => neighbour.classList.add("neighbour"));
   }
 
@@ -861,35 +905,24 @@ $(() => {
    */
   function getNeighbors($cell, far = 1) {
     far--;
-    // выбираем строку ячейки
     const $row = $cell.parentElement;
-    // выбираем элемент, который держит все строки (обычно это <table> или <tbody>)
     const $wrapper = $row.parentElement;
 
-    // находим индекс исходной ячеки
-    const index = [
-      indexOf($row), // индекс строки
-      indexOf($cell), // индекс ячейки
-    ];
+    const index = [indexOf($row), indexOf($cell)];
 
-    // вычисляем ограничивающий "ящик"
     const bbox = [
-      Math.max(index[0] - far, 0), // индекс минимальной строки
-      Math.max(index[1] - far, 0), // индекс минимальной ячейки
-      Math.min(index[0] + far, $wrapper.children.length - 1), // индекс максимальной строки
-      Math.min(index[1] + far, $row.children.length - 1), // индекс максимальной ячейки
+      Math.max(index[0] - far, 0),
+      Math.max(index[1] - far, 0),
+      Math.min(index[0] + far, $wrapper.children.length - 1),
+      Math.min(index[1] + far, $row.children.length - 1),
     ];
 
-    // массив с результатом
     const list = [];
 
-    // перебираем все строки из bbox
     for (let i = bbox[0]; i < bbox[2] + 1; i++) {
       const $sRow = $wrapper.children.item(i);
 
-      // в рамках каждой строки, перебираем все ячейки из bbox
       for (let j = bbox[1]; j < bbox[3] + 1; j++) {
-        // если сейчас ячейка является исходной, пропускаем её
         if (i === index[0] && j === index[1]) {
           continue;
         }
@@ -904,53 +937,49 @@ $(() => {
   }
 
   const tds = $("#tbl tbody td.notMain");
+  const trs = $("#tbl tbody tr");
+  const test = [];
+  tds.each(function () {
+    test.push(rgbToHex(...rgbToArray($(this).css("background-color"))));
+  });
+  tds.each(function () {
+    $(this).on("click", function () {
+      if (mode == "fill") {
+        function fill(data, x, y, newValue) {
+          // get target value
+          var target = data[x][y];
 
-  tds.on("click", function (e) {
-    if (mode == "fill") {
-      const colors = [];
-      tds.each(function () {
-        colors.push(rgbToHex(...rgbToArray($(this).css("background-color"))));
-      });
-      const picture = get2dimensional(colors, 20);
-      console.log(JSON.stringify(picture));
-
-      // const pic_size = [18, 20];
-      const height = 18;
-      const width = 20;
-
-      function drawPic() {
-        picture.forEach((e) => console.log(...e));
-      }
-
-      function filling(stx, sty, newcolor) {
-        let fill = [[stx, sty]];
-        const color = picture[stx][sty];
-        while (fill.length) {
-          const fill1 = [];
-          for (const cell of fill) {
-            const [x, y] = cell;
-            console.log(x, y);
-            picture[x][y] = newcolor;
-            console.log("y:", y, "x:", x, "picture:", picture[x]);
-            if (x > 0 && picture[x - 1][y] == color)
-              picture[x - 1][y] = newcolor;
-            if (y > 0 && picture[x][y - 1] == color)
-              picture[x][y - 1] = newcolor;
-            if (x < width - 1 && picture[x + 1][y] == color)
-              picture[x + 1][y] = newcolor;
-            if (y < height - 1 && picture[x][y + 1] == color)
-              picture[x][y + 1] = newcolor;
+          function flow(x, y) {
+            // bounds check what we were passed
+            if (x >= 0 && x < data.length && y >= 0 && y < data[x].length) {
+              if (data[x][y] === target) {
+                data[x][y] = newValue;
+                flow(x - 1, y); // check up
+                flow(x + 1, y); // check down
+                flow(x, y - 1); // check left
+                flow(x, y + 1); // check right
+              }
+            }
           }
-          fill = fill1.slice();
-          console.log(fill);
+
+          flow(x, y);
         }
+
+        const onedclrs = [];
+        tds.each(function () {
+          onedclrs.push(
+            rgbToHex(...rgbToArray($(this).css("background-color")))
+          );
+        });
+        const clrs = get2dimensional(onedclrs, 20);
+        fill(clrs, $(this).attr("data-y"), $(this).attr("data-x"), clr.val());
+        const res = clrs.flat();
+        tds.each(function (i) {
+          $(this).css("background-color", res[i] + " !important");
+        });
       }
-      drawPic();
-      console.log("\n\n\nТыкаем на центральную клетку\n\n");
-      console.log(e.target.dataset.y, e.target.dataset.x);
-      filling(e.target.dataset.x, e.target.dataset.y, val);
-      drawPic();
-    }
+      console.log();
+    });
   });
 
   const looper = $("td.mainLooper");
@@ -962,9 +991,9 @@ $(() => {
   );
 
   $("#reset").click(() => {
-    tds.css("background", "transparent");
+    tds.css("background", "#00000000");
     settings.savedSkin = "trSkin17cYhAQAACMCwSvf074WgBGJTqzOJiIiIiIj8yAI=";
-    unreload();
+    unreload(acsnt);
   });
 
   const allTds = $("td");
@@ -1022,12 +1051,11 @@ $(() => {
 
   $("#lgclr").on("click", () => legsPixels.css("background", val));
   $("#bdclr").on("click", () => {
-    const meow = hexToCssHsl(val);
+    const hslval = hexToCssHsl(val);
     head.css("background", val);
-    darkhead.css("background", hslDark(meow, 68));
+    darkhead.css("background", hslDark(hslval, 68));
   });
 
-  // Import/Export
   const imprt = $("#importBtn");
   const exprt = $("#exportBtn");
 
@@ -1044,11 +1072,14 @@ $(() => {
         const data = window.pako.inflateRaw(binData);
         const result = String.fromCharCode.apply(null, new Uint16Array(data));
         const arrr = result.split(";").map((e) => "#" + e);
-        tds.each(function (ind, el) {
-          el.style.backgroundColor = arrr[ind];
+        tds.each(function (i) {
+          if (allowerToCombine.prop("checked") && /#?[0-9a-f]{4}00/i.test(arrr[i]))
+            return;
+          $(this).css("background-color", arrr[i]);
         });
-      } catch (_) {
+      } catch (e) {
         alert("Somethig went wrong!");
+        console.error(e);
       }
     });
   });
@@ -1087,8 +1118,10 @@ $(() => {
     balckscreen.css("display", "block");
     setTimeout(() => {
       balckscreen.css("display", "none");
-      exprt.val("Export").css({ color: "#65abcf", borderColor: "#65abcf" });
-    }, 1500);
+      exprt
+        .val("Export as text")
+        .css({ color: "#65abcf", borderColor: "#65abcf" });
+    }, 500);
   });
   $("#resBdyClr").on("click", function () {
     head.css("background", "#ffffff");
@@ -1110,7 +1143,7 @@ $(() => {
       val2 = clr2help.val();
       tds.css("background", "#00000000");
       root.css("--clr", `${val}aa`);
-      unreload();
+      unreload(acsnt);
     }
   });
 
@@ -1208,6 +1241,8 @@ $(() => {
       document.activeElement.tagName !== "INPUT" &&
       document.activeElement.type !== "text"
     ) {
+      activeTd?.mousemove();
+      $("#tbl").mousemove();
       switch (e.code) {
         case "KeyX":
           switchCols.click();
@@ -1226,7 +1261,6 @@ $(() => {
           musC.click();
           break;
 
-        // instruments
         case "KeyB":
         case "Digit1":
           brush.click();
@@ -1260,7 +1294,6 @@ $(() => {
           wand.click();
           break;
 
-        // Brush range
         case "Equal":
         case "NumpadAdd":
           rangeInput.val(parseInt(rangeInput.val()) + 1);
@@ -1274,8 +1307,6 @@ $(() => {
       }
     }
   };
-
-  const acsnt = $("#acsntClr");
   const acsntClrHelp = $("#acsntClrHelp");
 
   acsnt.on("change", function () {
@@ -1327,55 +1358,103 @@ $(() => {
   });
 
   const notMainTable = $("#tbl");
+  const notMainTbody = notMainTable.children(":first");
   $("#flipH").on("click", function () {
-    notMainTable
-      .children(0)
-      .children("tr")
-      .each(function () {
-        $(this).each(function () {
-          $(this).html(
-            $(this)
-              .html()
-              .split("</td>")
-              .reduce((prev, curr, index, arr) => {
-                if (index !== arr.length - 1) prev[index] = curr + "</td>";
-                return prev;
-              }, [])
-              .reverse()
-              .join("")
-          );
-        });
-      });
+    trs.each(function () {
+      $(this).append($(this).children("td").get().reverse());
+    });
   });
   $("#flipV").on("click", function () {
-    notMainTable.children(0).each(function () {
-      $(this).html(
-        $(this)
-          .html()
-          .split("</tr>")
-          .reduce((prev, curr, index, arr) => {
-            if (index !== arr.length - 1) prev[index] = curr + "</tr>";
-            return prev;
-          }, [])
-          .reverse()
-          .join("")
-      );
-    });
+    notMainTbody.append(notMainTbody.children("tr").get().reverse());
   });
 
   $("#undo").on("click", function () {
-    if (undoArr.length == 1) {
-      const strdata = atob(undoArr.trim());
-        const charData = strdata.split("").map(function (x) {
-          return x.charCodeAt(0);
-        });
-        const binData = new Uint8Array(charData);
-        const data = window.pako.inflateRaw(binData);
-        const result = String.fromCharCode.apply(null, new Uint16Array(data));
-        const arrr = result.split(";").map((e) => "#" + e);
-        tds.each(function (ind, el) {
-          el.style.backgroundColor = arrr[ind];
-        });
+    if (undoArr.length >= 1) {
+      const strdata = atob(undoArr[undoArr.length - 2].trim());
+      const charData = strdata.split("").map(function (x) {
+        return x.charCodeAt(0);
+      });
+      const binData = new Uint8Array(charData);
+      const data = window.pako.inflateRaw(binData);
+      const result = String.fromCharCode.apply(null, new Uint16Array(data));
+      const arrr = result.split(";").map((e) => "#" + e.slice(0, 9));
+      tds.each(function (ind) {
+        console.log(arrr[ind]);
+        $(this).css("background-color", arrr[ind] + "!important");
+      });
+    }
+  });
+
+  $("#redo");
+
+  let isApply = true;
+  $("#applRes").on("click", function () {
+    const container = $(this).closest("div").find("#closest");
+    $(this).text(isApply ? "Reset" : "Apply");
+    if (isApply) {
+      container.children(":last").css("display", "block");
+      container.children(":first").css("display", "none");
+      $(this).parent().addClass("Res").removeClass("appl");
+      $(this).addClass("Res").removeClass("appl");
+    } else {
+      container.children(":last").css("display", "none");
+      container.children(":first").css("display", "block");
+      $(this).parent().addClass("appl").removeClass("Res");
+      $(this).addClass("appl").removeClass("Res");
+    }
+    isApply = !isApply;
+  });
+
+  /**@type {HTMLCanvasElement} */
+  const imgCanv = document.querySelector("#canvSkin");
+  const cx = imgCanv.getContext("2d");
+
+  const importImg = $("#importImg");
+  $("#btnImImg").on("click", () => importImg.click());
+
+  importImg.on("change", function (e) {
+    const img = new Image();
+    img.src = URL.createObjectURL(e.target.files[0]);
+    img.onload = function () {
+      if (img.naturalWidth != 20 || img.naturalHeight != 18) {
+        return alert("The image must be 20x18 px");
+      }
+      cx.drawImage(img, 0, 0, 20, 18);
+      const data = get2dimensional(cx.getImageData(0, 0, 20, 18).data, 4);
+      const rgba = data.map((e) => doRGBA(...e));
+      cx.clearRect(0, 0, 20, 18);
+      tds.each(function (i) {
+        if (allowerToCombine.prop("checked") && rgba[i].endsWith("0)")) return;
+        $(this).css("background-color", rgba[i]);
+      });
+      console.log(rgba);
+    };
+  });
+
+  $("#exportImg").on("click", function () {
+    try {
+      cx.clearRect(0, 0, 20, 18);
+      const twodmarr = [];
+      tds.each(function () {
+        twodmarr.push(rgbToArray($(this).css("background-color")));
+      });
+      const editedArr = new Uint8ClampedArray(
+        twodmarr.map((e) => (e.length == 3 ? e.concat(255) : e)).flat()
+      );
+      const imgData = new ImageData(editedArr, 20, 18);
+      for (let i = 0; i < imgData.data.length; i += 4) {
+        imgData.data[i + 0] = editedArr[i + 0];
+        imgData.data[i + 1] = editedArr[i + 1];
+        imgData.data[i + 2] = editedArr[i + 2];
+        imgData.data[i + 3] = editedArr[i + 3];
+      }
+      cx.putImageData(imgData, 0, 0);
+      link = document.createElement("a");
+      link.download = "skin.png";
+      link.href = imgCanv.toDataURL();
+      link.click();
+    } catch (_) {
+      alert("SkinError");
     }
   });
 
@@ -1446,7 +1525,7 @@ $(() => {
   setInterval(() => {
     if (starCount < minStars && starCount < maxStars) {
       new Star({
-        ctx: canvas.getContext("2d"),
+        ctx: starsCanv.getContext("2d"),
         image: starSheets[Math.floor(Math.random() * 3)],
         width: 50,
         height: 10,
@@ -1458,9 +1537,9 @@ $(() => {
   }, 100);
 
   $('#input[type="color"]').on("change", (e) => e.target.blur());
+  window.onbeforeunload = () => unreload(acsnt);
 });
-window.onbeforeunload = unreload;
-function unreload() {
+function unreload(acsnt) {
   let csses = [];
   const tds = $("#tbl tbody td.notMain");
   tds.each(function () {
@@ -1474,6 +1553,6 @@ function unreload() {
   csses = csses.join(";");
   settings.savedSkin =
     "trSkin1" + btoa(window.pako.deflateRaw(csses, { to: "string" }));
-  settings.accent = hexToCssHsl(acsnt.val(), true).split(",")
+  settings.accent = hexToCssHsl(acsnt.val(), true).split(",");
   localStorage.setItem("settings", JSON.stringify(settings));
 }

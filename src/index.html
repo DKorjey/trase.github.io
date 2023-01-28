@@ -34,10 +34,14 @@
     />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mobile-detect/1.4.4/mobile-detect.min.js"></script>
     <script src="../scripts/tbl.js"></script>
-    <title>TRASE (Alameda)</title>
+    <title>TRASE (Qwertsal)</title>
   </head>
   <body>
-    <div id="xy">X: <span id="x">0</span>Y: <span id="y">0</span></div>
+    <canvas id="canvSkin" width="20" height="18"></canvas>
+    <div id="xy">
+      X: <span id="x">0</span>Y: <span id="y">0</span><br />Pixel's color under
+      cursor: <span id="currClr">None</span>
+    </div>
     <table draggable="false" id="tblLooper">
       <tbody></tbody>
     </table>
@@ -45,18 +49,6 @@
       <tbody></tbody>
     </table>
     <ul id="btns" class="jquiSort">
-      <li>
-        <div class="liss">
-          <h2>Time machine :)</h2>
-          <div>
-            <button id="undo"><i class="fa-solid fa-rotate-left"></i></button>
-
-            <button id="redo">
-              <i class="fa-solid fa-rotate-right indev"></i>
-            </button>
-          </div>
-        </div>
-      </li>
       <li>
         <div class="liss">
           <h2>Color</h2>
@@ -82,37 +74,66 @@
         <div id="instrs" class="liss">
           <h2>Instruments</h2>
           <div id="instr">
-            <button id="brush" title="Brush (B or 1)" class="active">
+            <button
+              id="brush"
+              title="Brush (B or 1)"
+              class="active"
+              data-isHighlighted="true"
+            >
               <i class="fa-solid fa-paintbrush"></i>
             </button>
 
-            <button id="ereaser" title="Ereaser (E or 2)">
+            <button
+              id="ereaser"
+              title="Ereaser (E or 2)"
+              data-isHighlighted="true"
+            >
               <i class="fa-solid fa-eraser"></i>
             </button>
 
-            <button id="pippet" title="Pippet (P or 3)">
+            <button
+              id="pippet"
+              title="Pippet (P or 3)"
+              data-isHighlighted="false"
+            >
               <i class="fa-solid fa-eye-dropper"></i>
             </button>
 
-            <button id="fill" title="Filler (F of 4)">
-              <i class="fa-solid fa-fill-drip indev"></i>
+            <button
+              id="fill"
+              title="Filler (F of 4)"
+              data-isHighlighted="false"
+            >
+              <i class="fa-solid fa-fill-drip"></i>
             </button>
 
             <br />
 
-            <button id="lighter" title="Lighten (L or 5)">
+            <button
+              id="lighter"
+              title="Lighten (L or 5)"
+              data-isHighlighted="true"
+            >
               <i class="fa-solid fa-sun indev"></i>
             </button>
 
-            <button id="darker" title="Darker (D or 6)">
+            <button
+              id="darker"
+              title="Darker (D or 6)"
+              data-isHighlighted="true"
+            >
               <i class="fa-solid fa-moon indev"></i>
             </button>
 
-            <button id="select" title="Select (Q or 7)">
-              <i class="fa-solid fa-object-ungroup indev"></i>
+            <button
+              id="select"
+              title="Select (Q or 7)"
+              data-isHighlighted="false"
+            >
+              <i class="fa-solid fa-object-ungroup infdev"></i>
             </button>
 
-            <button id="wand" title="Wand (K or 8)">
+            <button id="wand" title="Wand (K or 8)" data-isHighlighted="false">
               <i class="fa-solid fa-wand-magic-sparkles indev"></i>
             </button>
           </div>
@@ -142,19 +163,67 @@
           </ul>
         </div>
       </li>
+      <li>
+        <div class="liss">
+          <h2>Time machine :)</h2>
+          <div>
+            <button id="undo">
+              <i class="fa-solid fa-rotate-left indev"></i>
+            </button>
+
+            <button id="redo">
+              <i class="fa-solid fa-rotate-right indev"></i>
+            </button>
+          </div>
+        </div>
+      </li>
     </ul>
 
     <ul id="layers" class="jquiSort">
       <li>
         <div class="liss">
-          <h2>Apply</h2>
-          <ul class="apply">
-            <li><input type="button" id="bdclr" value="Body color" /></li>
-            <li><input type="button" id="lgclr" value="Legs color" /></li>
-          </ul>
-          <ul class="reset">
-            <li><button id="resBdyClr" class="danger">Body color</button></li>
-            <li><button id="resLgsClr" class="danger">Legs color</button></li>
+          <h2>Skin</h2>
+
+          <input
+            type="button"
+            value="Import from text"
+            class="div2"
+            id="importBtn"
+          /><br /><br />
+
+          <input type="button" value="Import from image" id="btnImImg" />
+          <input type="file" id="importImg" accept="image/png" />
+
+          <br />
+          <br />
+
+          <input type="checkbox" id="allowCombine" />
+          <label for="allowCombine">Combine</label>
+
+          <br />
+          <br />
+
+          <input
+            type="button"
+            value="Export as text"
+            class="div2"
+            id="exportBtn"
+          /><br /><br />
+
+          <input type="button" value="Export as image" id="exportImg" />
+
+          <ul>
+            <li>
+              Skin size:
+              <input
+                type="range"
+                id="paddingTbl"
+                min="10"
+                max="20"
+                value="10"
+              />
+            </li>
+            <li><button id="reset" class="danger">Reset</button></li>
           </ul>
         </div>
       </li>
@@ -207,28 +276,18 @@
         </div>
       </li>
       <li>
-        <div class="liss">
-          <h2>Skin</h2>
-          <ul id="impexp" class="liul">
-            <li><input type="button" value="Import" id="importBtn" /></li>
-            <li><input type="button" value="Export" id="exportBtn" /></li>
-          </ul>
-          <ul>
-            <li class="indev">
-              Skin size:
-              <input
-                type="range"
-                id="paddingTbl"
-                min="10"
-                max="20"
-                value="10"
-              /><br /><span style="color: #f00"
-                >WARNING! This function under development. So far it will look
-                ugly</span
-              >
-            </li>
-            <li><button id="reset" class="danger">Reset</button></li>
-          </ul>
+        <div class="liss resetMode">
+          <h2 id="applRes" class="appl">Apply</h2>
+          <div id="closest">
+            <ul class="apply">
+              <li><input type="button" id="bdclr" value="Body color" /></li>
+              <li><input type="button" id="lgclr" value="Legs color" /></li>
+            </ul>
+            <ul class="reset">
+              <li><button id="resBdyClr" class="danger">Body color</button></li>
+              <li><button id="resLgsClr" class="danger">Legs color</button></li>
+            </ul>
+          </div>
         </div>
       </li>
       <li>
@@ -245,7 +304,7 @@
             </li>
             <li><input type="color" id="fromRepl" value="#ffffff" /></li>
             <li>
-              <button id="replSwitch" title="Click for replace">to</button>
+              <button id="replSwitch" title="CLick to switch colors">to</button>
             </li>
             <li><input type="color" id="toRepl" /></li>
             <li>
@@ -256,7 +315,14 @@
                 value="#000000"
               />
             </li>
-            <li><input type="button" value="Replace" id="replClr" /></li>
+            <li>
+              <input
+                type="button"
+                value="Replace"
+                title="Click for replace"
+                id="replClr"
+              />
+            </li>
           </ul>
         </div>
       </li>

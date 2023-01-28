@@ -9,7 +9,7 @@
   z-index: 10;
 }
 
-.liss h2 {
+.liss > h2 {
   background-color: hsl(
     var(--accent-h),
     var(--accent-s),
@@ -64,6 +64,10 @@ body {
 #bgCanvas {
   position: absolute;
   z-index: -10000;
+  width: 100% !important;
+  height: 125% !important;
+  position: absolute;
+  z-index: -1;
 }
 
 ul {
@@ -149,22 +153,6 @@ table {
   right: 20px;
   list-style: none;
   top: 5vh;
-  /* border: 2px solid #65abcf;
-   box-shadow: 0 0 0 2.5px var(--accent),
-    0 0 0 10px
-      hsla(var(--accent-h), var(--accent-s), calc(var(--accent-l) - 20%), 0.5),
-    0 0 0 15px
-      hsla(var(--accent-h), var(--accent-s), calc(var(--accent-l) - 30%), 0.5),
-    0 0 0 20px
-      hsla(var(--accent-h), var(--accent-s), calc(var(--accent-l) - 40%), 0.5),
-    inset 0 0 0 2.5px
-      hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.5),
-    inset 0 0 0 10px
-      hsla(var(--accent-h), var(--accent-s), calc(var(--accent-l) - 20%), 0.5),
-    inset 0 0 0 15px
-      hsla(var(--accent-h), var(--accent-s), calc(var(--accent-l) - 30%), 0.5),
-    inset 0 0 0 20px
-      hsla(var(--accent-h), var(--accent-s), calc(var(--accent-l) - 40%), 0.5); */
   overflow-y: scroll;
   max-height: 90%;
   z-index: 10000;
@@ -238,6 +226,11 @@ input[type="button"] {
 button:hover,
 input[type="button"]:hover {
   cursor: pointer;
+  background-color: hsl(
+    var(--accent-h),
+    var(--accent-s),
+    calc(var(--accent-l) - 45%)
+  ) !important;
 }
 button:active,
 input[type="button"]:active {
@@ -251,12 +244,6 @@ ul li i {
   z-index: 100;
   right: 0;
   color: var(--accent);
-}
-canvas {
-  width: 100% !important;
-  height: 125% !important;
-  position: absolute;
-  z-index: -1;
 }
 
 .active {
@@ -276,21 +263,6 @@ canvas {
 #layers {
   position: absolute;
   left: 20px;
-  /*box-shadow: 0 0 0 2.5px var(--accent),
-    0 0 0 10px
-      hsla(var(--accent-h), var(--accent-s), calc(var(--accent-l) - 20%), 0.5),
-    0 0 0 15px
-      hsla(var(--accent-h), var(--accent-s), calc(var(--accent-l) - 30%), 0.5),
-    0 0 0 20px
-      hsla(var(--accent-h), var(--accent-s), calc(var(--accent-l) - 40%), 0.5),
-    inset 0 0 0 2.5px
-      hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.5),
-    inset 0 0 0 10px
-      hsla(var(--accent-h), var(--accent-s), calc(var(--accent-l) - 20%), 0.5),
-    inset 0 0 0 15px
-      hsla(var(--accent-h), var(--accent-s), calc(var(--accent-l) - 30%), 0.5),
-    inset 0 0 0 20px
-      hsla(var(--accent-h), var(--accent-s), calc(var(--accent-l) - 40%), 0.5);*/
   list-style: none;
   width: 347px;
   z-index: 10000;
@@ -389,6 +361,10 @@ h2 {
   top: 0;
 }
 
+#canvSkin {
+  display: none;
+}
+
 .mouseEnter {
   background: var(--clr) !important;
 }
@@ -446,4 +422,60 @@ input {
 .indev {
   text-decoration: underline !important;
   color: #ff0 !important;
+}
+
+.infdev {
+  text-decoration: underline !important;
+  color: #000cba !important;
+}
+
+#applRes.appl:hover {
+  background: hsl(
+    var(--accent-h),
+    var(--accent-s),
+    calc(var(--accent-l) - 15%)
+  ) !important;
+  color: hsl(
+    var(--accent-h),
+    calc(var(--accent-s) - 20%),
+    calc(var(--accent-l) - 35%)
+  );
+  cursor: pointer;
+}
+
+#applRes.Res:hover {
+  background-color: #a00;
+  color: #400;
+  cursor: pointer;
+}
+#applRes.Res {
+  background-color: #f00;
+  color: #400;
+}
+
+.Res:not(#applRes) {
+  border-color: #f00;
+  box-shadow: 0 0 30px 0 #f00;
+  background-color: #300;
+}
+
+.divider {
+  background: hsl(
+    var(--accent-h),
+    var(--accent-s),
+    calc(var(--accent-l) - 47.5%)
+  );
+  padding: 0 !important;
+  margin: 0;
+  /* max-width: 10em; */
+}
+.div1 {
+  background-color: hsl(
+    var(--accent-h),
+    var(--accent-s),
+    calc(var(--accent-l) - 42.5%)
+  );
+}
+#importImg {
+  display: none;
 }
