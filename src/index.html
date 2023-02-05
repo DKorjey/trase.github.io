@@ -33,7 +33,13 @@
       referrerpolicy="no-referrer"
     />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mobile-detect/1.4.4/mobile-detect.min.js"></script>
-    <script src="../scripts/tbl.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.4.2/chroma.min.js"
+      integrity="sha512-zInFF17qBFVvvvFpIfeBzo7Tj7+rQxLeTJDmbxjBz5/zIr89YVbTNelNhdTT+/DCrxoVzBeUPVFJsczKbB7sew=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script type="module" src="../scripts/tbl.js"></script>
     <title>TRASE (Qwertsal)</title>
   </head>
   <body>
@@ -54,7 +60,7 @@
           <h2>Color</h2>
           <ul>
             <li>
-              <input type="text" id="clrHelp" value="#ffffff" maxlength="7" />
+              #<input type="text" id="clrHelp" value="ffffff" maxlength="6" />
             </li>
             <li><input type="color" id="clr" value="#ffffff" /></li>
             <li>
@@ -64,8 +70,9 @@
             </li>
             <li><input type="color" id="clr2" value="#000000" /></li>
             <li>
-              <input type="text" id="clr2Help" value="#000000" maxlength="7" />
+              #<input type="text" id="clr2Help" value="000000" maxlength="6" />
             </li>
+            <li><button id="mixClrs">Mix colors</button></li>
             <li><button id="noClr" class="danger">Reset</button></li>
           </ul>
         </div>
@@ -107,33 +114,15 @@
               <i class="fa-solid fa-fill-drip"></i>
             </button>
 
-            <br />
-
-            <button
-              id="lighter"
-              title="Lighten (L or 5)"
-              data-isHighlighted="true"
-            >
-              <i class="fa-solid fa-sun indev"></i>
-            </button>
-
-            <button
-              id="darker"
-              title="Darker (D or 6)"
-              data-isHighlighted="true"
-            >
-              <i class="fa-solid fa-moon indev"></i>
-            </button>
-
             <button
               id="select"
-              title="Select (Q or 7)"
+              title="Select (Q or 5)"
               data-isHighlighted="false"
             >
               <i class="fa-solid fa-object-ungroup infdev"></i>
             </button>
 
-            <button id="wand" title="Wand (K or 8)" data-isHighlighted="false">
+            <button id="wand" title="Wand (K or 6)" data-isHighlighted="false">
               <i class="fa-solid fa-wand-magic-sparkles indev"></i>
             </button>
           </div>
@@ -161,20 +150,6 @@
           <ul>
             <li><button onclick="location.reload()">Reload page</button></li>
           </ul>
-        </div>
-      </li>
-      <li>
-        <div class="liss">
-          <h2>Time machine :)</h2>
-          <div>
-            <button id="undo">
-              <i class="fa-solid fa-rotate-left indev"></i>
-            </button>
-
-            <button id="redo">
-              <i class="fa-solid fa-rotate-right indev"></i>
-            </button>
-          </div>
         </div>
       </li>
     </ul>
@@ -290,51 +265,6 @@
           </div>
         </div>
       </li>
-      <li>
-        <div class="liss">
-          <h2>Replace</h2>
-          <ul>
-            <li>
-              <input
-                type="text"
-                maxlength="7"
-                id="fromReplHelp"
-                value="#ffffff"
-              />
-            </li>
-            <li><input type="color" id="fromRepl" value="#ffffff" /></li>
-            <li>
-              <button id="replSwitch" title="CLick to switch colors">to</button>
-            </li>
-            <li><input type="color" id="toRepl" /></li>
-            <li>
-              <input
-                type="text"
-                id="toReplHelp"
-                maxlength="7"
-                value="#000000"
-              />
-            </li>
-            <li>
-              <input
-                type="button"
-                value="Replace"
-                title="Click for replace"
-                id="replClr"
-              />
-            </li>
-          </ul>
-        </div>
-      </li>
-      <!-- <li>
-        <div class="liss">
-          <h2>Layers</h2>
-          <ul>
-            <li class="layer layer1 active">Layer 2</li>
-            <li class="layer">Layer 1 (Main)</li>
-          </ul>
-        </div>
-      </li> -->
       <li>
         <div class="liss">
           <h2>Accent color</h2>

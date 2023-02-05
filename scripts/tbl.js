@@ -1,5 +1,3 @@
-// TODO: make export as image
-
 /**
  * @param {any[]} array
  * @param {number} limit
@@ -631,26 +629,15 @@ $(() => {
   const ereaser = $("#ereaser");
   const pippet = $("#pippet");
   const filler = $("#fill");
-  const lighter = $("#lighter");
-  const darker = $("#darker");
   const selecter = $("#select");
   const wand = $("#wand");
 
   /**
-   * @type { "brush" | "ereaser" | "pippet" | "fill" | "darker" | "lighter" | "select" | "wand"}}
+   * @type { "brush" | "ereaser" | "pippet" | "fill" | "darker" | "wand"}}
    */
   let mode = "brush";
 
-  const instruments = [
-    brush,
-    ereaser,
-    pippet,
-    filler,
-    darker,
-    lighter,
-    selecter,
-    wand,
-  ];
+  const instruments = [brush, ereaser, pippet, filler, selecter, wand];
 
   /**@type {JQuery<HTMLElement>} */
   let targetTD;
@@ -662,11 +649,9 @@ $(() => {
       mode = el.attr("id");
       brng.css(
         "display",
-        ["brush", "ereaser", "darker", "lighter"].includes(mode)
-          ? "block"
-          : "none"
+        ["brush", "ereaser"].includes(mode) ? "block" : "none"
       );
-      if (["brush", "ereaser", "darker", "lighter"].includes(mode)) {
+      if (["brush", "ereaser"].includes(mode)) {
         rangeInput.val(1);
       }
       if (mode == "fill") {
@@ -678,40 +663,29 @@ $(() => {
   let isClicked = false;
 
   let [val, val2] = [clr.val(), clr2.val()];
-  const clrs = [clr, clr2];
-  clrs.forEach((e, i) =>
-    e.on("input", () => {
-      if (i == 0) {
-        val = clr.val();
-        clr1help.val(val);
-      } else {
-        val2 = clr2.val();
-        clr2help.val(val2);
-      }
-      clr1help.val(val);
-      root.css("--clr", val + "aa");
-    })
-  );
+  val = clr.val();
+  val2 = clr2.val();
+  clr1help.val(val.slice(1));
+  clr2help.val(val2.slice(1));
+  root.css("--clr", `${val}aa`);
+
   switchCols.on("click", function () {
-    let promezhClr = clr.val(),
-      promezhText = clr1help.val();
+    let tmpClr = clr.val(),
+      tmpText = clr1help.val();
     clr1help.val(clr2help.val());
     clr.val(clr2.val());
-    clr2help.val(promezhText);
-    clr2.val(promezhClr);
+    clr2help.val(tmpText);
+    clr2.val(tmpClr);
     val = clr.val();
     root.css("--clr", `${val}aa`);
-    promezhClr = null;
+    [tmpClr, tmpText] = [null, null];
   });
 
   const currClrSpan = $("#currClr");
 
-  window.onmousedown = (e) => {
-    if (e.button == 0) isClicked = true;
-  };
-  window.onmouseup = (e) => {
-    if (e.button == 0) isClicked = false;
-  };
+  window.onmousedown = (e) => e.button == 0 && (isClicked = true);
+  window.onmouseup = (e) => e.button == 0 && (isClicked = false);
+
   const bRangeVal = $("#bRangeVal");
   rangeInput.on("input", function () {
     bRangeVal.text($(this).val());
@@ -768,16 +742,12 @@ $(() => {
                             : "#000cba")
                     );
                 } else if (mode != "fill") {
-                  let valu = rgbToHex(
-                    ...rgbToArray(
-                      $(this)
-                        .css("background-color")
-                        .replace(/rgba\(.+\)/i, "rgb(0, 0, 0)")
-                    )
-                  );
+                  let valu = chroma($(this).css("background-color"))
+                    .hex()
+                    .slice(0, 7);
                   console.log(valu);
                   clr.val(valu);
-                  clr1help.val(valu);
+                  clr1help.val(valu.slice(1));
                   val = clr.val();
                   root.css("--clr", val);
                 }
@@ -1004,45 +974,52 @@ $(() => {
       gridM.checked ? "var(--accent)" : allTds.css("background-color")
     );
   };
-
+  clr1help.on("keydown", function (e) {
+    if (!/[0-9a-f]/i.test(e.key)) {
+      return false;
+    }
+  });
   function forClrHelper() {
-    if (clr1help.val().length === 7) {
-      if (/#[0-9a-f]{6,6}/i.test(clr1help.val())) {
-        clr.val(clr1help.val());
-        val = clr1help.val();
-        root.css("--clr", clr1help.val() + "aa");
-      } else {
-        clr1help.val("#ffffff");
-        clr.val("#ffffff");
-        val = clr1help.val();
-        root.css("--clr", clr1help.val() + "aa");
-      }
+    if (clr1help.val().length === 6) {
+      clr.val("#" + clr1help.val());
+      val = "#" + clr1help.val();
+      root.css("--clr", "#" + clr1help.val() + "aa");
+    }
+    if (clr1help.val().length === 3) {
+      const tmp = "#" + [...clr1help.val()].map((e) => e + e).join("");
+      clr.val(tmp);
+      val = tmp;
     }
   }
   function forClrHelper2() {
-    if (clr2help.val().length === 7) {
-      if (/#[0-9a-f]{6,6}/i.test(clr2help.val())) {
-        clr2.val(clr2help.val());
-        val = clr2help.val();
-      } else {
-        clr2help.val("#ffffff");
-        clr2.val("#ffffff");
-        val = clr1help.val();
-      }
+    if (clr2help.val().length === 6 && /[0-9a-f]{6,6}/i.test(clr2help.val())) {
+      clr2.val("#" + clr2help.val());
+    }
+    if (clr2help.val().length === 3 && /[0-9a-f]{3,3}/i.test(clr2help.val())) {
+      clr2.val("#" + [...clr2help.val()].map((e) => e + e).join(""));
     }
   }
+
+  function clrHelpBlur() {
+    if ($(this).val().length === 3) {
+      $(this).val([...$(this).val()].map((e) => e + e).join(""));
+    }
+  }
+
   clr1help.on("input", forClrHelper);
   clr1help.on("paste", forClrHelper);
+  clr1help.on("blur", clrHelpBlur);
   clr2help.on("input", forClrHelper2);
   clr2help.on("paste", forClrHelper2);
+  clr2help.on("blur", clrHelpBlur);
 
   $("#noClr").on("click", function () {
     clr.val("#ffffff");
-    clr1help.val("#ffffff");
-    val = "#ffffff";
+    clr1help.val("ffffff");
+    val = "ffffff";
     root.css("--clr", `${val}aa`);
     clr2.val("#000000");
-    clr2help.val("#000000");
+    clr2help.val("000000");
   });
 
   const legsPixels = $(".legs");
@@ -1073,7 +1050,10 @@ $(() => {
         const result = String.fromCharCode.apply(null, new Uint16Array(data));
         const arrr = result.split(";").map((e) => "#" + e);
         tds.each(function (i) {
-          if (allowerToCombine.prop("checked") && /#?[0-9a-f]{4}00/i.test(arrr[i]))
+          if (
+            allowerToCombine.prop("checked") &&
+            /#?[0-9a-f]{4}00/i.test(arrr[i])
+          )
             return;
           $(this).css("background-color", arrr[i]);
         });
@@ -1135,89 +1115,24 @@ $(() => {
       head.css("background", "#ffffff");
       darkhead.css("background", "#adadad");
       legsPixels.css("background", "#000000");
-      clr1help.val("#ffffff");
-      clr2help.val("#000000");
+      clr1help.val("ffffff");
+      clr2help.val("000000");
       clr.val("#ffffff");
       clr2.val("#000000");
-      val = clr1help.val();
-      val2 = clr2help.val();
+      val = "#" + clr1help.val();
+      val2 = "#" + clr2help.val();
       tds.css("background", "#00000000");
       root.css("--clr", `${val}aa`);
       unreload(acsnt);
     }
   });
 
-  const fromRepl = $("#fromRepl");
-  const fromReplHelp = $("#fromReplHelp");
-  const toRepl = $("#toRepl");
-  const toReplHelp = $("#toReplHelp");
-
-  const repls = [fromRepl, toRepl];
-  repls.forEach(function (e, i) {
-    e.on("input", function () {
-      i == 0 ? fromReplHelp.val(e.val()) : toReplHelp.val(e.val());
-    });
-  });
-  $("#replSwitch").on("click", function () {
-    let promezhClr = fromRepl.val(),
-      promezhText = fromReplHelp.val();
-    fromReplHelp.val(toReplHelp.val());
-    fromRepl.val(toRepl.val());
-    toReplHelp.val(promezhText);
-    toRepl.val(promezhClr);
-    promezhClr, (promezhText = null);
-  });
-
-  $("#replClr").on("click", function () {
-    console.log(
-      tds.each(function () {
-        if (
-          rgbToHex(...rgbToArray($(this).css("background-color"))) ==
-          fromRepl.val()
-        ) {
-          $(this).css("background-color", toRepl.val());
-        }
-      })
-    );
-  });
-
-  function forFromReplHelper() {
-    if (fromReplHelp.val().length === 7) {
-      if (/#[0-9a-f]{6}/i.test(fromReplHelp.val())) {
-        fromRepl.val(fromReplHelp.val());
-        val = fromReplHelp.val();
-      } else {
-        fromReplHelp.val("#ffffff");
-        fromRepl.val("#ffffff");
-        val = clr1help.val();
-      }
-    }
-  }
-  function forToReplHelper() {
-    if (toReplHelp.val().length === 7) {
-      if (/#[0-9a-f]{6,6}/i.test(toReplHelp.val())) {
-        toRepl.val(toReplHelp.val());
-        val = toReplHelp.val();
-      } else {
-        toReplHelp.val("#ffffff");
-        toRepl.val("#ffffff");
-        val = clr1help.val();
-      }
-    }
-  }
-  fromReplHelp.on("input", forFromReplHelper);
-  fromReplHelp.on("paste", forFromReplHelper);
-  toReplHelp.on("input", forToReplHelper);
-  toReplHelp.on("paste", forToReplHelper);
-
   musC = $("#mus");
   let mus;
   musC.on("change", () => {
     if (musC.prop("checked")) {
-      const rand = Math.random();
       mus = new Audio("../music/menu.wav");
       mus.loop = true;
-      console.log(rand);
       mus.play();
     } else {
       mus.pause();
@@ -1277,20 +1192,12 @@ $(() => {
         case "Digit4":
           filler.click();
           break;
-        case "KeyL":
-        case "Digit5":
-          lighter.click();
-          break;
-        case "KeyD":
-        case "Digit6":
-          darker.click();
-          break;
         case "KeyQ":
-        case "Digit7":
+        case "Digit5":
           selecter.click();
           break;
         case "KeyK":
-        case "Digit8":
+        case "Digit6":
           wand.click();
           break;
 
@@ -1334,7 +1241,7 @@ $(() => {
       } else {
         acsntClrHelp.val("#ffffff");
         acsnt.val("#ffffff");
-        val = clr1help.val();
+        val = "#" + clr1help.val();
       }
     }
   }
@@ -1453,8 +1360,8 @@ $(() => {
       link.download = "skin.png";
       link.href = imgCanv.toDataURL();
       link.click();
-    } catch (_) {
-      alert("SkinError");
+    } catch (e) {
+      alert("SkinError: " + e.message);
     }
   });
 
@@ -1538,6 +1445,13 @@ $(() => {
 
   $('#input[type="color"]').on("change", (e) => e.target.blur());
   window.onbeforeunload = () => unreload(acsnt);
+
+  $("#mixClrs").on("click", function () {
+    const res = chroma.mix(clr.val(), clr2.val()).hex().replace("#", "");
+    clr.val("#" + res);
+    clr1help.val(res);
+    val = res;
+  });
 });
 function unreload(acsnt) {
   let csses = [];
