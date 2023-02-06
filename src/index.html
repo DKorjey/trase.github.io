@@ -40,7 +40,7 @@
       referrerpolicy="no-referrer"
     ></script>
     <script type="module" src="../scripts/tbl.js"></script>
-    <title>TRASE (Qwertsal)</title>
+    <title>TRASE (Dephestra)</title>
   </head>
   <body>
     <canvas id="canvSkin" width="20" height="18"></canvas>
@@ -81,48 +81,29 @@
         <div id="instrs" class="liss">
           <h2>Instruments</h2>
           <div id="instr">
-            <button
-              id="brush"
-              title="Brush (B or 1)"
-              class="active"
-              data-isHighlighted="true"
-            >
+            <button id="brush" title="Brush (B or 1)" class="instr active">
               <i class="fa-solid fa-paintbrush"></i>
             </button>
 
-            <button
-              id="ereaser"
-              title="Ereaser (E or 2)"
-              data-isHighlighted="true"
-            >
+            <button id="ereaser" title="Ereaser (E or 2)" class="instr">
               <i class="fa-solid fa-eraser"></i>
             </button>
 
-            <button
-              id="pippet"
-              title="Pippet (P or 3)"
-              data-isHighlighted="false"
-            >
+            <button id="pippet" class="instr" title="Pippet (P or 3)">
               <i class="fa-solid fa-eye-dropper"></i>
             </button>
 
-            <button
-              id="fill"
-              title="Filler (F of 4)"
-              data-isHighlighted="false"
-            >
+            <br />
+
+            <button id="fill" class="instr" title="Filler (F of 4)">
               <i class="fa-solid fa-fill-drip"></i>
             </button>
 
-            <button
-              id="select"
-              title="Select (Q or 5)"
-              data-isHighlighted="false"
-            >
+            <button id="select" class="instr" title="Select (Q or 5)">
               <i class="fa-solid fa-object-ungroup infdev"></i>
             </button>
 
-            <button id="wand" title="Wand (K or 6)" data-isHighlighted="false">
+            <button id="wand" title="Wand (K or 6)" class="instr">
               <i class="fa-solid fa-wand-magic-sparkles indev"></i>
             </button>
           </div>
@@ -198,7 +179,7 @@
                 value="10"
               />
             </li>
-            <li><button id="reset" class="danger">Reset</button></li>
+            <li><button id="reset" class="danger reseter">Reset</button></li>
           </ul>
         </div>
       </li>
@@ -271,14 +252,14 @@
           <ul>
             <li><input type="color" id="acsntClr" value="#65abcf" /></li>
             <li>
-              <input
+              #<input
                 type="text"
                 id="acsntClrHelp"
-                maxlength="7"
-                value="#65abcf"
+                maxlength="6"
+                value="65abcf"
               />
             </li>
-            <li><button id="resAcsnt">Default</button></li>
+            <li><button id="resAcsnt" class="danger">Default</button></li>
           </ul>
         </div>
       </li>
@@ -291,5 +272,6 @@
       >
     </div>
     <div id="blackscreen"><span class="waiting">Wait</span></div>
+    <div id="flashbang"></div>
   </body>
 </html>

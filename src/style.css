@@ -120,7 +120,7 @@ table {
     position: absolute;
     top: 50vh !important;
     left: 50%;
-    width: 90%;
+    width: 90% !important;
   }
   canvas {
     display: none;
@@ -175,6 +175,7 @@ table {
   );
   overflow-y: scroll;
   max-height: 90%;
+  /* width: 28% !important; */
   border: 5px solid
     hsl(var(--accent-h), var(--accent-s), calc(var(--accent-l) - 35%));
 }
@@ -202,6 +203,7 @@ input[type="text"] {
   overflow: visible;
   font-size: 1.02rem;
   transition: 0.15s;
+  width: 5.25em !important;
 }
 input[type="text"]:focus {
   background: hsla(
@@ -478,4 +480,14 @@ input {
 }
 #importImg {
   display: none;
+}
+
+#flashbang {
+  z-index: 99999;
+  position: absolute;
+  background: #fff;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }

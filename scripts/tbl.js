@@ -165,13 +165,24 @@ window.onresize = function () {
 let acsnt;
 let settings = localStorage.getItem("settings");
 $(() => {
+  const flashbang = $("#flashbang");
+  flashbang.hide();
   if (new MobileDetect(window.navigator.userAgent).mobile()) {
     $("#mobileSmall").addClass("yesMobileSmall");
     $(document.body).css({
       overflow: "hidden !important",
       width: "1vh !important",
     });
+    return;
   }
+
+  const clack = new Audio("../src/music/clack.wav");
+  $("button:not(.instr), input[type=button], input[type=color]").on(
+    "click",
+    () => clack.play()
+  );
+
+  const boo = new Audio("../src/music/reset.wav");
 
   const undoArr = ["7cYhAQAACMCwSvf074WgBGJTqzOJiIiIiIj8yAI="];
 
@@ -638,10 +649,14 @@ $(() => {
   let mode = "brush";
 
   const instruments = [brush, ereaser, pippet, filler, selecter, wand];
+  /**@type {WeakMap<JQuery<HTMLElement>, HTMLAudioElement>} */
+  const sounds = new WeakMap();
+  instruments.forEach((e) => sounds[e.attr("id")]);
 
   /**@type {JQuery<HTMLElement>} */
   let targetTD;
-  instruments.forEach((el) =>
+  instruments.forEach((el) => {
+    sounds.set(el, new Audio(`../src/music/${el.attr("id")}.wav`));
     el.on("click", () => {
       instruments.forEach((e) =>
         e[(e == el ? "add" : "remove") + "Class"]("active")
@@ -655,19 +670,33 @@ $(() => {
         rangeInput.val(1);
       }
       if (mode == "fill") {
-        targetTD.hasClass("mouseEnter") && targetTD.removeClass("mouseEnter");
+        targetTD?.hasClass("mouseEnter") && targetTD?.removeClass("mouseEnter");
       }
-    })
-  );
+      sounds.get(el).play();
+    });
+  });
 
   let isClicked = false;
 
   let [val, val2] = [clr.val(), clr2.val()];
   val = clr.val();
   val2 = clr2.val();
-  clr1help.val(val.slice(1));
-  clr2help.val(val2.slice(1));
+  clr1help.val(clr.val().slice(1));
+  clr2help.val(clr2.val().slice(1));
   root.css("--clr", `${val}aa`);
+
+  [clr, clr2].forEach((e, i) =>
+    e.on("input", () => {
+      if (i == 0) {
+        val = clr.val();
+        clr1help.val(val.slice(1));
+      } else {
+        val2 = clr2.val();
+        clr2help.val(val2.slice(1));
+      }
+      root.css("--clr", `${val}aa`);
+    })
+  );
 
   switchCols.on("click", function () {
     let tmpClr = clr.val(),
@@ -964,6 +993,7 @@ $(() => {
     tds.css("background", "#00000000");
     settings.savedSkin = "trSkin17cYhAQAACMCwSvf074WgBGJTqzOJiIiIiIj8yAI=";
     unreload(acsnt);
+    boo.play();
   });
 
   const allTds = $("td");
@@ -974,11 +1004,6 @@ $(() => {
       gridM.checked ? "var(--accent)" : allTds.css("background-color")
     );
   };
-  clr1help.on("keydown", function (e) {
-    if (!/[0-9a-f]/i.test(e.key)) {
-      return false;
-    }
-  });
   function forClrHelper() {
     if (clr1help.val().length === 6) {
       clr.val("#" + clr1help.val());
@@ -992,10 +1017,10 @@ $(() => {
     }
   }
   function forClrHelper2() {
-    if (clr2help.val().length === 6 && /[0-9a-f]{6,6}/i.test(clr2help.val())) {
+    if (clr2help.val().length === 6) {
       clr2.val("#" + clr2help.val());
     }
-    if (clr2help.val().length === 3 && /[0-9a-f]{3,3}/i.test(clr2help.val())) {
+    if (clr2help.val().length === 3) {
       clr2.val("#" + [...clr2help.val()].map((e) => e + e).join(""));
     }
   }
@@ -1004,22 +1029,37 @@ $(() => {
     if ($(this).val().length === 3) {
       $(this).val([...$(this).val()].map((e) => e + e).join(""));
     }
+    if ($(this).val().length === 1) {
+      $(this).val([...$(this).val()].map((e) => e.repeat(6)).join(""));
+    }
   }
 
-  clr1help.on("input", forClrHelper);
-  clr1help.on("paste", forClrHelper);
-  clr1help.on("blur", clrHelpBlur);
-  clr2help.on("input", forClrHelper2);
-  clr2help.on("paste", forClrHelper2);
-  clr2help.on("blur", clrHelpBlur);
+  function denyChars(e) {
+    if (!/[0-9a-f]/i.test(e.key)) {
+      return false;
+    }
+  }
+  clr1help.on({
+    keydown: denyChars,
+    input: forClrHelper,
+    paste: forClrHelper,
+    blur: clrHelpBlur,
+  });
+  clr2help.on({
+    keydown: denyChars,
+    input: forClrHelper2,
+    paste: forClrHelper2,
+    blur: clrHelpBlur,
+  });
 
   $("#noClr").on("click", function () {
     clr.val("#ffffff");
     clr1help.val("ffffff");
-    val = "ffffff";
+    val = "#ffffff";
     root.css("--clr", `${val}aa`);
     clr2.val("#000000");
     clr2help.val("000000");
+    boo.play();
   });
 
   const legsPixels = $(".legs");
@@ -1029,7 +1069,7 @@ $(() => {
   $("#lgclr").on("click", () => legsPixels.css("background", val));
   $("#bdclr").on("click", () => {
     const hslval = hexToCssHsl(val);
-    head.css("background", val);
+    head.css("background", hslval);
     darkhead.css("background", hslDark(hslval, 68));
   });
 
@@ -1106,32 +1146,19 @@ $(() => {
   $("#resBdyClr").on("click", function () {
     head.css("background", "#ffffff");
     darkhead.css("background", "#adadad");
+    boo.play();
   });
   $("#resLgsClr").on("click", function () {
     legsPixels.css("background", "#000000");
+    boo.play();
   });
-  $("#resetEvr").on("click", function () {
-    if (confirm("This will reset absolutely everything! ARE YOU SURE?!")) {
-      head.css("background", "#ffffff");
-      darkhead.css("background", "#adadad");
-      legsPixels.css("background", "#000000");
-      clr1help.val("ffffff");
-      clr2help.val("000000");
-      clr.val("#ffffff");
-      clr2.val("#000000");
-      val = "#" + clr1help.val();
-      val2 = "#" + clr2help.val();
-      tds.css("background", "#00000000");
-      root.css("--clr", `${val}aa`);
-      unreload(acsnt);
-    }
-  });
+  const explosion = new Audio(`../src/music/resetEvr.wav`);
 
   musC = $("#mus");
   let mus;
   musC.on("change", () => {
     if (musC.prop("checked")) {
-      mus = new Audio("../music/menu.wav");
+      mus = new Audio("../src/music/menu.wav");
       mus.loop = true;
       mus.play();
     } else {
@@ -1158,6 +1185,7 @@ $(() => {
     ) {
       activeTd?.mousemove();
       $("#tbl").mousemove();
+      blur();
       switch (e.code) {
         case "KeyX":
           switchCols.click();
@@ -1216,39 +1244,64 @@ $(() => {
   };
   const acsntClrHelp = $("#acsntClrHelp");
 
-  acsnt.on("change", function () {
-    const hsl = hexToCssHsl(acsnt.val(), true).split(",");
+  acsnt.on({
+    change: function () {
+      const hsl = hexToCssHsl(acsnt.val(), true).split(",");
 
-    root.css({
-      "--accent-h": hsl[0],
-      "--accent-s": hsl[1],
-      "--accent-l": hsl[2],
-    });
-    acsntClrHelp.val(acsnt.val());
+      root.css({
+        "--accent-h": hsl[0],
+        "--accent-s": hsl[1],
+        "--accent-l": hsl[2],
+      });
+      acsntClrHelp.val(acsnt.val().slice(1));
+    },
+    input: function () {
+      acsntClrHelp.val($(this).val().slice(1));
+    },
   });
-  function forAcsntHelper() {
-    if (acsntClrHelp.val().length === 7) {
-      if (/#[0-9a-f]{6,6}/i.test(acsntClrHelp.val())) {
-        acsnt.val(acsntClrHelp.val());
-        val = acsntClrHelp.val();
-        const hsl = hexToCssHsl(acsnt.val(), true).split(",");
 
-        root.css({
-          "--accent-h": hsl[0],
-          "--accent-s": hsl[1],
-          "--accent-l": hsl[2],
-        });
-      } else {
-        acsntClrHelp.val("#ffffff");
-        acsnt.val("#ffffff");
-        val = "#" + clr1help.val();
-      }
+  function forAcsntHelper() {
+    if (acsntClrHelp.val().length === 6) {
+      acsnt.val(`#${acsntClrHelp.val()}`);
+      const hsl = hexToCssHsl(acsnt.val(), true).split(",");
+
+      root.css({
+        "--accent-h": hsl[0],
+        "--accent-s": hsl[1],
+        "--accent-l": hsl[2],
+      });
+    }
+    if (acsntClrHelp.val().length === 3) {
+      acsnt.val(`#${[...acsntClrHelp.val()].map((e) => e + e).join("")}`);
+      console.log(acsnt.val());
+      const hsl = hexToCssHsl(acsnt.val(), true).split(",");
+
+      root.css({
+        "--accent-h": hsl[0],
+        "--accent-s": hsl[1],
+        "--accent-l": hsl[2],
+      });
+    }
+    if (acsntClrHelp.val().length === 1) {
+      acsnt.val(`#${[...acsntClrHelp.val()].map((e) => e.repeat(6))}`);
+      const hsl = hexToCssHsl(acsnt.val(), true).split(",");
+
+      root.css({
+        "--accent-h": hsl[0],
+        "--accent-s": hsl[1],
+        "--accent-l": hsl[2],
+      });
     }
   }
-  acsntClrHelp.on("keyup", forAcsntHelper);
-  acsntClrHelp.on("paste", forAcsntHelper);
+  acsntClrHelp.on({
+    keyup: forAcsntHelper,
+    paste: forAcsntHelper,
+    keydown: denyChars,
+    blur: clrHelpBlur,
+  });
 
-  $("#resAcsnt").on("click", function () {
+  const resAcsnt = $("#resAcsnt");
+  resAcsnt.on("click", function () {
     const hsl = hexToCssHsl("#65abcf", true).split(",");
 
     root.css({
@@ -1256,8 +1309,29 @@ $(() => {
       "--accent-s": hsl[1],
       "--accent-l": hsl[2],
     });
-    acsntClrHelp.val("#65abcf");
+    acsntClrHelp.val("65abcf");
     acsnt.val("#65abcf");
+    boo.play();
+  });
+
+  $("#resetEvr").on("click", function () {
+    if (confirm("This will reset absolutely everything! ARE YOU SURE?!")) {
+      head.css("background", "#ffffff");
+      darkhead.css("background", "#adadad");
+      legsPixels.css("background", "#000000");
+      clr1help.val("ffffff");
+      clr2help.val("000000");
+      clr.val("#ffffff");
+      clr2.val("#000000");
+      val = "#" + clr1help.val();
+      val2 = "#" + clr2help.val();
+      tds.css("background", "#00000000");
+      root.css("--clr", `${val}aa`);
+      unreload(acsnt);
+      explosion.play();
+      resAcsnt.click();
+      flashbang.show().fadeOut(Math.floor(Math.random() * 2000 + 3000));
+    }
   });
 
   $("#paddingTbl").on("input", function () {
@@ -1310,6 +1384,7 @@ $(() => {
       $(this).addClass("appl").removeClass("Res");
     }
     isApply = !isApply;
+    clack.play();
   });
 
   /**@type {HTMLCanvasElement} */
@@ -1450,7 +1525,7 @@ $(() => {
     const res = chroma.mix(clr.val(), clr2.val()).hex().replace("#", "");
     clr.val("#" + res);
     clr1help.val(res);
-    val = res;
+    val = "#" + res;
   });
 });
 function unreload(acsnt) {
