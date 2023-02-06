@@ -1,11 +1,13 @@
+WARNING!!! I'm not englishmen, so yea
+
 Nebula Update (0.5.2):
   added brush range
   added switch colors function
   added hotkeys
   added instruments' icons (before was text)
   added pippet
-
   removed file music.js (merged with tbl.js)
+
 
 Ocarina Update (0.6.0):
   added replacing colors function
@@ -19,13 +21,25 @@ Ocarina Update (0.6.0):
 
 Alameda Update (0.7.0):
   added accent color
+  filling mode
+  added flipping the skin
+  and so many stuff
+
+
+Qwertsal Update (0.8.0):
+  added import/export skins as 20x18 image
+  added combinating skins
+
+
+Dephestra Update (0.9.0):
+  some improves of color system
+  added mixing colors
+
 
 In development:
-
+  improving of mixing colors and more
   bugfix
 
+
 Waiting for start of development:
-  custom brush width & height
-  "select instrument"
-  layers
-  saving skin(s) using local storage
+  nothing yet
