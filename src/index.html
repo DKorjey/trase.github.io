@@ -60,20 +60,27 @@
           <h2>Color</h2>
           <ul>
             <li>
-              #<input type="text" id="clrHelp" value="ffffff" maxlength="6" />
+              <input type="color" id="clr" value="#ffffff" />&nbsp; #<input
+                type="text"
+                id="clrHelp"
+                value="ffffff"
+                maxlength="6"
+              />
             </li>
-            <li><input type="color" id="clr" value="#ffffff" /></li>
             <li>
               <button id="switchCols">
                 <i class="fa-sharp fa-solid fa-repeat"></i>
               </button>
             </li>
-            <li><input type="color" id="clr2" value="#000000" /></li>
             <li>
-              #<input type="text" id="clr2Help" value="000000" maxlength="6" />
+              <input type="color" id="clr2" value="#000000" />&nbsp; #<input
+                type="text"
+                id="clr2Help"
+                value="000000"
+                maxlength="6"
+              />
             </li>
-            <li><button id="mixClrs">Mix colors</button></li>
-            <li><button id="noClr" class="danger">Reset</button></li>
+            <li><button id="modMixClrs">Mix colors</button></li>
           </ul>
         </div>
       </li>
@@ -100,7 +107,7 @@
             </button>
 
             <button id="select" class="instr" title="Select (Q or 5)">
-              <i class="fa-solid fa-object-ungroup infdev"></i>
+              <i class="fa-solid fa-object-ungroup indev"></i>
             </button>
 
             <button id="wand" title="Wand (K or 6)" class="instr">
@@ -140,33 +147,28 @@
         <div class="liss">
           <h2>Skin</h2>
 
-          <input
-            type="button"
-            value="Import from text"
-            class="div2"
-            id="importBtn"
-          /><br /><br />
+          <button class="div2" id="importBtn" title="Paste from text">
+            <i class="fa-solid fa-paste"></i>
+          </button>
 
-          <input type="button" value="Import from image" id="btnImImg" />
+          <button id="btnImImg" title="Import from image (20x18)">
+            <i class="fa-solid fa-file-import"></i>
+          </button>
           <input type="file" id="importImg" accept="image/png" />
+
+          <button title="Export as text" class="div2" id="exportBtn">
+            <i class="fa-solid fa-copy"></i>
+          </button>
+
+          <button title="Export as image" id="exportImg">
+            <i class="fa-solid fa-file-export"></i>
+          </button>
 
           <br />
           <br />
 
           <input type="checkbox" id="allowCombine" />
           <label for="allowCombine">Combine</label>
-
-          <br />
-          <br />
-
-          <input
-            type="button"
-            value="Export as text"
-            class="div2"
-            id="exportBtn"
-          /><br /><br />
-
-          <input type="button" value="Export as image" id="exportImg" />
 
           <ul>
             <li>
@@ -179,16 +181,6 @@
                 value="10"
               />
             </li>
-            <li><button id="reset" class="danger reseter">Reset</button></li>
-          </ul>
-        </div>
-      </li>
-      <li>
-        <div class="liss">
-          <h2>Flip</h2>
-          <ul>
-            <li><button id="flipH">Horisontal</button></li>
-            <li><button id="flipV">Vertical</button></li>
           </ul>
         </div>
       </li>
@@ -220,30 +212,30 @@
               </label>
             </li>
             <li>
-              <label
-                ><input type="checkbox" id="mus" title="Enable music (M)" />
-                Enable Music</label
-              >
+              <button id="addSetsBtn" title="Additional setting">
+                <i class="fa-solid fa-gear"></i>
+              </button>
             </li>
+          </ul>
+        </div>
+      </li>
+      <li>
+        <div class="liss">
+          <h2>Flip</h2>
+          <ul>
             <li>
-              <button id="resetEvr" class="danger">Reset everything</button>
+              <button id="flipH">Horisontal</button>
+              <button id="flipV">Vertical</button>
             </li>
           </ul>
         </div>
       </li>
       <li>
         <div class="liss resetMode">
-          <h2 id="applRes" class="appl">Apply</h2>
-          <div id="closest">
-            <ul class="apply">
-              <li><input type="button" id="bdclr" value="Body color" /></li>
-              <li><input type="button" id="lgclr" value="Legs color" /></li>
-            </ul>
-            <ul class="reset">
-              <li><button id="resBdyClr" class="danger">Body color</button></li>
-              <li><button id="resLgsClr" class="danger">Legs color</button></li>
-            </ul>
-          </div>
+          <h2 id="applRes" class="appl">Apply color for</h2>
+
+          <input type="button" id="bdclr" value="Body" />
+          <input type="button" id="lgclr" value="Legs" />
         </div>
       </li>
       <li>
@@ -259,12 +251,57 @@
                 value="65abcf"
               />
             </li>
-            <li><button id="resAcsnt" class="danger">Default</button></li>
           </ul>
         </div>
       </li>
     </ul>
+
+    <div id="modMix">
+      Result:
+      <input type="color" id="resClr" />
+      (HEX: #<input type="text" id="resClrHelp" readonly />)
+
+      <br /><br />
+
+      Apply to:
+
+      <button id="frstClr">Color 1</button>
+      <button id="scndClr">Color 2</button>
+    </div>
+
+    <div id="addSets">
+      <ul>
+        <li>
+          <input type="checkbox" id="autocloser" checked />
+          <label for="autocloser"
+            >Automatically close dialog boxes after pressing "apply"</label
+          >
+        </li>
+        <li>
+          <label
+            ><input type="checkbox" id="mus" title="Enable music (M)" /> Enable
+            Music</label
+          >
+        </li>
+        <li>
+          <h2 style="color: #f00 !important; background: #700">Reset zone</h2>
+          <ul class="resetZone">
+            <li><button id="reset" class="danger reseter">Reset skin</button>
+              <button id="noClr" class="danger">Reset color</button></li><li>
+              <button id="resBdyClr" class="danger">Reset body color</button>
+
+              <button id="resLgsClr" class="danger">Reset legs color</button>
+            </li>
+            <li>
+              <button id="resAcsnt" class="danger">Default accent color</button>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
     <canvas id="bgCanvas" width="100%" height="100%"></canvas>
+
     <div id="mobileSmall">
       <span class="sorrySmall"
         >Sorry, but this site is not available for mobile devices :(<br /><br />Because

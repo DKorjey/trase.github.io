@@ -186,7 +186,7 @@ table {
   appearance: none;
 }
 ul li input[type="color"] {
-  padding: 0;
+  padding: 0 !important;
   background: transparent !important;
   border: none !important;
 }
@@ -215,18 +215,20 @@ input[type="text"]:focus {
 }
 
 button,
-input[type="button"] {
+input[type="button"],
+.ui-button {
   background: hsl(
     var(--accent-h),
     var(--accent-s),
     calc(var(--accent-l) - 47.5%)
   ) !important;
-  border: none;
+  border: none !important;
   outline: none;
   transition: 0.15s;
 }
 button:hover,
-input[type="button"]:hover {
+input[type="button"]:hover,
+.ui-button:hover {
   cursor: pointer;
   background-color: hsl(
     var(--accent-h),
@@ -235,7 +237,8 @@ input[type="button"]:hover {
   ) !important;
 }
 button:active,
-input[type="button"]:active {
+input[type="button"]:active,
+.ui-button:active {
   background-color: hsl(
     var(--accent-h),
     var(--accent-s),
@@ -287,15 +290,15 @@ h2 {
 }
 
 .danger {
-  color: #f00;
+  color: #f00 !important;
   background: #400 !important;
 }
 .danger:hover {
-  color: #000;
+  color: #000 !important;
   background: #f00 !important;
 }
 .danger:active {
-  color: #000;
+  color: #000 !important;
   background: #a00 !important;
 }
 
@@ -431,36 +434,6 @@ input {
   color: #000cba !important;
 }
 
-#applRes.appl:hover {
-  background: hsl(
-    var(--accent-h),
-    var(--accent-s),
-    calc(var(--accent-l) - 15%)
-  ) !important;
-  color: hsl(
-    var(--accent-h),
-    calc(var(--accent-s) - 20%),
-    calc(var(--accent-l) - 35%)
-  );
-  cursor: pointer;
-}
-
-#applRes.Res:hover {
-  background-color: #a00;
-  color: #400;
-  cursor: pointer;
-}
-#applRes.Res {
-  background-color: #f00;
-  color: #400;
-}
-
-.Res:not(#applRes) {
-  border-color: #f00;
-  box-shadow: 0 0 30px 0 #f00;
-  background-color: #300;
-}
-
 .divider {
   background: hsl(
     var(--accent-h),
@@ -490,4 +463,100 @@ input {
   left: 0;
   width: 100%;
   height: 100%;
+}
+
+.mixClrs {
+  position: absolute;
+  z-index: 42842 !important;
+  background: hsla(
+    var(--accent-h),
+    var(--accent-s),
+    calc(var(--accent-l) - 45%),
+    0.95
+  ) !important;
+  border: 5px solid
+    hsl(var(--accent-h), var(--accent-s), calc(var(--accent-l) - 35%)) !important;
+  border-radius: 0 !important;
+}
+
+.ui-dialog * {
+  font-family: "Diary of an 8-bit mage", sans-serif !important;
+  color: var(--accent) !important;
+}
+
+.ui-dialog input[type="color"] {
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+.ui-widget-overlay {
+  background: #111 !important;
+}
+
+.ui-button {
+  color: var(--accent) !important;
+  border-radius: 0 !important;
+}
+
+.ui-dialog-buttonpane {
+  background: #0000 !important;
+  border-top: 5px solid
+    hsl(var(--accent-h), var(--accent-s), calc(var(--accent-l) - 35%)) !important;
+  width: 100% !important;
+  padding: 0.1em !important;
+}
+
+.ui-dialog .ui-button:hover {
+  background-color: hsl(
+    var(--accent-h),
+    calc(var(--accent-s) - 20%),
+    calc(var(--accent-l) - 40%)
+  ) !important;
+}
+
+.ui-dialog .danger {
+  color: #f00 !important;
+  background: #400 !important;
+}
+.ui-dialog .danger:hover {
+  color: #000 !important;
+  background: #f00 !important;
+}
+.ui-dialog .danger:active {
+  color: #000 !important;
+  background: #a00 !important;
+}
+
+.ui-checkboxradio-icon {
+  background-color: var(--accent) !important;
+  color: var(--accent) !important;
+  box-shadow: none !important;
+  background: hsl(
+    var(--accent-h),
+    var(--accent-s),
+    calc(var(--accent-l) - 47.5%)
+  ) !important;
+  border: 2px solid
+    hsl(var(--accent-h), var(--accent-s), calc(var(--accent-l) - 35%)) !important;
+}
+.ui-visual-focus {
+  box-shadow: none !important;
+}
+
+.ui-checkboxradio-label {
+  font-family: "Diary of an 8-bit mage", sans-serif !important;
+  padding: 0.6em !important;
+}
+
+.ui-state-checked {
+  background: hsl(
+      var(--accent-h),
+      var(--accent-s),
+      calc(var(--accent-l) - 20%)
+    ) !important;
+}
+
+.resetZone {
+  background: #700;
 }

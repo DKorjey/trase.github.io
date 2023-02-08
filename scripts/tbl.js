@@ -1,3 +1,4 @@
+//#region
 /**
  * @param {any[]} array
  * @param {number} limit
@@ -17,6 +18,11 @@ function get2dimensional(array, limit) {
 function doRGBA(r, g, b, a) {
   return `rgba(${r}, ${g}, ${b}, ${a})`;
 }
+/**
+ * @param {[number, number, number]}
+ * @returns {string}
+ */
+const doRGB = (arr) => `rgb(${arr[0]}, ${arr[1]}, ${arr[2]})`;
 const RGBToHSL = (r, g, b) => {
   r /= 255;
   g /= 255;
@@ -39,7 +45,7 @@ const RGBToHSL = (r, g, b) => {
   ];
 };
 function componentToHex(c) {
-  var hex = c.toString(16);
+  const hex = c.toString(16);
   return hex.length == 1 ? "0" + hex : hex;
 }
 
@@ -62,21 +68,21 @@ const rgbToArray = (rgbString) =>
     .splice(0, 4)
     .map((e) => +e);
 function hexToCssHsl(hex, valuesOnly = false) {
-  var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  var r = parseInt(result[1], 16);
-  var g = parseInt(result[2], 16);
-  var b = parseInt(result[3], 16);
-  var cssString = "";
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  let r = parseInt(result[1], 16);
+  let g = parseInt(result[2], 16);
+  let b = parseInt(result[3], 16);
+  let cssString = "";
   (r /= 255), (g /= 255), (b /= 255);
-  var max = Math.max(r, g, b),
+  const max = Math.max(r, g, b),
     min = Math.min(r, g, b);
-  var h,
+  let h,
     s,
     l = (max + min) / 2;
   if (max == min) {
     h = s = 0;
   } else {
-    var d = max - min;
+    const d = max - min;
     s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
     switch (max) {
       case r:
@@ -148,7 +154,21 @@ function doDarker(jqThis, percents) {
   if (color[2] - percents < 0) color[2] = 0;
   jqThis.css("background-color", "hsl(" + color[0] + ", " + color[1] + ", ");
 }
-
+/**
+ * @param {string} skin
+ * @returns {string[][]}
+ */
+function arrFromSkin(skin) {
+  const strdata = atob(skin.replace("trSkin1", "").trim());
+  const charData = strdata.split("").map((x) => x.charCodeAt(0));
+  const binData = new Uint8Array(charData);
+  const data = window.pako.inflateRaw(binData);
+  const result = String.fromCharCode.apply(null, new Uint16Array(data));
+  return get2dimensional(
+    result.split(";").map((e) => "#" + e),
+    20
+  );
+}
 /**
  * @param {JQuery<HTMLElement>} jqThis
  * @param {number} percents
@@ -161,8 +181,18 @@ window.onresize = function () {
   scrWidth = this.screen.width;
   scrHeight = this.screen.height;
 };
+//#endregion
+/**@type {JQuery<HTMLElement>} */
+// let acsnt;
+/**@type {JQuery<HTMLElement>} */
+let autoclose;
 
-let acsnt;
+/**@type {{savedSkin: string, accent: string, autoclose: boolean} | string | null} */
+const defaultSettings = {
+  savedSkin: "trSkin17cYhAQAACMCwSvf074WgBGJTqzOJiIiIiIj8yAI=",
+  accent: "#65abcf",
+  autoclose: true,
+};
 let settings = localStorage.getItem("settings");
 $(() => {
   const flashbang = $("#flashbang");
@@ -171,13 +201,13 @@ $(() => {
     $("#mobileSmall").addClass("yesMobileSmall");
     $(document.body).css({
       overflow: "hidden !important",
-      width: "1vh !important",
+      width: "1vh !impo`#${clr1help.val()}`;rtant",
     });
     return;
   }
 
   const clack = new Audio("../src/music/clack.wav");
-  $("button:not(.instr), input[type=button], input[type=color]").on(
+  $("button:not(.instr), input[type=button], input[type=color], .ui-button").on(
     "click",
     () => clack.play()
   );
@@ -185,413 +215,17 @@ $(() => {
   const boo = new Audio("../src/music/reset.wav");
 
   const undoArr = ["7cYhAQAACMCwSvf074WgBGJTqzOJiIiIiIj8yAI="];
-
   if (!settings) {
-    settings = {
-      savedSkin: "trSkin17cYhAQAACMCwSvf074WgBGJTqzOJiIiIiIj8yAI=",
-      accent: undefined,
-    };
+    settings = Object.assign({}, defaultSettings);
   } else settings = JSON.parse(settings);
+  for (const k in defaultSettings) {
+    if (!(k in settings)) settings[k] = defaultSettings[k];
+  }
+  for (const k in settings) {
+    if (!(k in defaultSettings)) delete settings[k];
+  }
   const root = $(":root");
 
-  const looperLayer = [
-    [
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-    ],
-    [
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-    ],
-    [
-      "",
-      "",
-      "",
-      "rgb(173, 173, 173)",
-      "rgb(173, 173, 173)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "",
-      "",
-      "",
-    ],
-    [
-      "",
-      "",
-      "rgb(173, 173, 173)",
-      "rgb(173, 173, 173)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "",
-      "",
-    ],
-    [
-      "",
-      "",
-      "rgb(173, 173, 173)",
-      "rgb(173, 173, 173)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "",
-      "",
-    ],
-    [
-      "",
-      "",
-      "rgb(173, 173, 173)",
-      "rgb(173, 173, 173)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "",
-      "",
-    ],
-    [
-      "",
-      "",
-      "rgb(173, 173, 173)",
-      "rgb(173, 173, 173)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "",
-      "",
-    ],
-    [
-      "",
-      "",
-      "rgb(173, 173, 173)",
-      "rgb(173, 173, 173)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "",
-      "",
-    ],
-    [
-      "",
-      "",
-      "rgb(173, 173, 173)",
-      "rgb(173, 173, 173)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "",
-      "",
-    ],
-    [
-      "",
-      "",
-      "rgb(173, 173, 173)",
-      "rgb(173, 173, 173)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "",
-      "",
-    ],
-    [
-      "",
-      "",
-      "rgb(173, 173, 173)",
-      "rgb(173, 173, 173)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "rgb(255, 255, 255)",
-      "",
-      "",
-    ],
-    [
-      "",
-      "",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "",
-      "",
-    ],
-    [
-      "",
-      "",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "",
-      "",
-    ],
-    [
-      "",
-      "",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "",
-      "",
-    ],
-    [
-      "",
-      "",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "",
-      "",
-    ],
-    [
-      "",
-      "",
-      "",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "",
-      "",
-      "",
-    ],
-    [
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "",
-      "",
-      "",
-      "",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "",
-      "",
-      "",
-      "",
-    ],
-    [
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "",
-      "",
-      "",
-      "",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "rgb(0, 0, 0)",
-      "",
-      "",
-      "",
-      "",
-    ],
-  ];
   const clr = $("#clr");
   const clr2 = $("#clr2");
   const clr1help = $("#clrHelp");
@@ -601,8 +235,10 @@ $(() => {
   const jquiSort = $(".jquiSort");
 
   const acsnt = $("#acsntClr");
-
+  const acsntClrHelp = $("#acsntClrHelp");
   const allowerToCombine = $("#allowCombine");
+
+  autoclose = $("#autocloser").prop("checked", settings.autoclose);
 
   const deepLDark = $("#deepLDark");
 
@@ -670,7 +306,7 @@ $(() => {
         rangeInput.val(1);
       }
       if (mode == "fill") {
-        targetTD?.hasClass("mouseEnter") && targetTD?.removeClass("mouseEnter");
+        targetTD?.removeClass("mouseEnter");
       }
       sounds.get(el).play();
     });
@@ -816,11 +452,12 @@ $(() => {
                 }
             });
         } else {
-          if (arrayForImportLayer[i][j] == "rgb(0, 0, 0)") {
+          const elemRgb = doRGB(chroma(arrayForImportLayer[i][j]).rgb(true));
+          if (elemRgb == "rgb(0, 0, 0)") {
             td.addClass("legs");
-          } else if (arrayForImportLayer[i][j] == "rgb(255, 255, 255)") {
+          } else if (elemRgb == "rgb(255, 255, 255)") {
             td.addClass("head");
-          } else if (arrayForImportLayer[i][j] == "rgb(173, 173, 173)") {
+          } else if (elemRgb == "rgb(173, 173, 173)") {
             td.addClass("darkhead");
           }
           td.addClass("mainLooper");
@@ -831,10 +468,15 @@ $(() => {
       tbl.append(tr);
     }
   }
-  createField(table, looperLayer, true);
+  createField(
+    table,
+    arrFromSkin(
+      "trSkin1MzCAAGuDUcYAMRxdQBBGuYEBdalB5hzSHTcs3IRiAOlKRt006iZqUkPVTQNDjbppeLtpsDqHbCfTVOPgdycA"
+    ),
+    true
+  );
   createField($("#tbl"), new Array(18).fill(new Array(20).fill("")));
   window.createField = createField;
-
   nativeTBL.addEventListener("mousemove", onMove);
   nativeTBL.addEventListener("mouseleave", clean);
 
@@ -946,7 +588,7 @@ $(() => {
       if (mode == "fill") {
         function fill(data, x, y, newValue) {
           // get target value
-          var target = data[x][y];
+          const target = data[x][y];
 
           function flow(x, y) {
             // bounds check what we were passed
@@ -992,10 +634,9 @@ $(() => {
   $("#reset").click(() => {
     tds.css("background", "#00000000");
     settings.savedSkin = "trSkin17cYhAQAACMCwSvf074WgBGJTqzOJiIiIiIj8yAI=";
-    unreload(acsnt);
+    unreload(acsntClrHelp);
     boo.play();
   });
-
   const allTds = $("td");
   let gridM = document.querySelector("#gridManager");
   gridM.onchange = function () {
@@ -1014,6 +655,13 @@ $(() => {
       const tmp = "#" + [...clr1help.val()].map((e) => e + e).join("");
       clr.val(tmp);
       val = tmp;
+      root.css("--clr", `${tmp}aa`);
+    }
+    if (clr1help.val().length === 1) {
+      const tmp = "#" + clr1help.val().repeat(6);
+      clr.val(tmp);
+      val = tmp;
+      root.css("--clr", `${tmp}aa`);
     }
   }
   function forClrHelper2() {
@@ -1022,6 +670,9 @@ $(() => {
     }
     if (clr2help.val().length === 3) {
       clr2.val("#" + [...clr2help.val()].map((e) => e + e).join(""));
+    }
+    if (clr2help.val().length === 1) {
+      clr2.val(`#${clr2help.val().repeat(6)}`);
     }
   }
 
@@ -1077,7 +728,6 @@ $(() => {
   const exprt = $("#exportBtn");
 
   const balckscreen = $("#blackscreen");
-
   imprt.on("click", function () {
     navigator.clipboard.readText().then((text) => {
       try {
@@ -1152,7 +802,6 @@ $(() => {
     legsPixels.css("background", "#000000");
     boo.play();
   });
-  const explosion = new Audio(`../src/music/resetEvr.wav`);
 
   musC = $("#mus");
   let mus;
@@ -1242,7 +891,6 @@ $(() => {
       }
     }
   };
-  const acsntClrHelp = $("#acsntClrHelp");
 
   acsnt.on({
     change: function () {
@@ -1300,6 +948,19 @@ $(() => {
     blur: clrHelpBlur,
   });
 
+  ((c) => {
+    const hsl = hexToCssHsl(c, true).split(",");
+
+    root.css({
+      "--accent-h": hsl[0],
+      "--accent-s": hsl[1],
+      "--accent-l": hsl[2],
+    });
+
+    acsnt.val(c);
+    acsntClrHelp.val(c.slice(1));
+  })(settings.accent);
+
   const resAcsnt = $("#resAcsnt");
   resAcsnt.on("click", function () {
     const hsl = hexToCssHsl("#65abcf", true).split(",");
@@ -1312,26 +973,6 @@ $(() => {
     acsntClrHelp.val("65abcf");
     acsnt.val("#65abcf");
     boo.play();
-  });
-
-  $("#resetEvr").on("click", function () {
-    if (confirm("This will reset absolutely everything! ARE YOU SURE?!")) {
-      head.css("background", "#ffffff");
-      darkhead.css("background", "#adadad");
-      legsPixels.css("background", "#000000");
-      clr1help.val("ffffff");
-      clr2help.val("000000");
-      clr.val("#ffffff");
-      clr2.val("#000000");
-      val = "#" + clr1help.val();
-      val2 = "#" + clr2help.val();
-      tds.css("background", "#00000000");
-      root.css("--clr", `${val}aa`);
-      unreload(acsnt);
-      explosion.play();
-      resAcsnt.click();
-      flashbang.show().fadeOut(Math.floor(Math.random() * 2000 + 3000));
-    }
   });
 
   $("#paddingTbl").on("input", function () {
@@ -1365,27 +1006,11 @@ $(() => {
       });
     }
   });
-
+  // Сделаю позже
   $("#redo");
 
-  let isApply = true;
-  $("#applRes").on("click", function () {
-    const container = $(this).closest("div").find("#closest");
-    $(this).text(isApply ? "Reset" : "Apply");
-    if (isApply) {
-      container.children(":last").css("display", "block");
-      container.children(":first").css("display", "none");
-      $(this).parent().addClass("Res").removeClass("appl");
-      $(this).addClass("Res").removeClass("appl");
-    } else {
-      container.children(":last").css("display", "none");
-      container.children(":first").css("display", "block");
-      $(this).parent().addClass("appl").removeClass("Res");
-      $(this).addClass("appl").removeClass("Res");
-    }
-    isApply = !isApply;
-    clack.play();
-  });
+  $("input[type=checkbox]").checkboxradio();
+  $("select").selectmenu();
 
   /**@type {HTMLCanvasElement} */
   const imgCanv = document.querySelector("#canvSkin");
@@ -1431,7 +1056,7 @@ $(() => {
         imgData.data[i + 3] = editedArr[i + 3];
       }
       cx.putImageData(imgData, 0, 0);
-      link = document.createElement("a");
+      const link = document.createElement("a");
       link.download = "skin.png";
       link.href = imgCanv.toDataURL();
       link.click();
@@ -1518,15 +1143,62 @@ $(() => {
     }
   }, 100);
 
-  $('#input[type="color"]').on("change", (e) => e.target.blur());
-  window.onbeforeunload = () => unreload(acsnt);
+  $('#input[type="color"]').on("change", () => blur());
+  window.onbeforeunload = () => unreload(acsntClrHelp);
 
-  $("#mixClrs").on("click", function () {
-    const res = chroma.mix(clr.val(), clr2.val()).hex().replace("#", "");
-    clr.val("#" + res);
-    clr1help.val(res);
-    val = "#" + res;
+  const mixClrs = $("#modMix").dialog({
+    width: 400,
+    height: 250,
+    autoOpen: false,
+    modal: true,
+    dialogClass: "mixClrs",
+    resizable: false,
+    buttons: {
+      Close: function () {
+        mixClrs.dialog("close");
+      },
+    },
   });
+
+  const resClr = $("#resClr");
+  const resClrHelp = $("#resClrHelp");
+
+  $("#modMixClrs").on("click", function () {
+    mixClrs.dialog("open");
+    const qwe = chroma.mix(clr1help.val(), clr2help.val()).hex();
+    resClr.val(qwe);
+    resClrHelp.val(qwe.slice(1));
+  });
+
+  $("#frstClr").on("click", function () {
+    clr1help.val(resClrHelp.val());
+    clr.val(`#${clr1help.val()}`);
+    val = `#${clr1help.val()}`;
+    autoclose.prop("checked") && mixClrs.dialog("close");
+  });
+
+  $("#scndClr").on("click", function () {
+    clr2help.val(resClrHelp.val());
+    clr2.val(`#${clr2help.val()}`);
+    autoclose.prop("checked") && mixClrs.dialog("close");
+  });
+
+  const addSets = $("#addSets").dialog({
+    width: 500,
+    height: 600,
+    autoOpen: false,
+    dialogClass: "mixClrs",
+    modal: true,
+    resizable: false,
+    buttons: {
+      Close: function () {
+        addSets.dialog("close");
+      },
+    },
+  });
+  $("#addSetsBtn").on("click", () => addSets.dialog("open"));
+
+  $(".ui-dialog-titlebar").hide();
 });
 function unreload(acsnt) {
   let csses = [];
@@ -1542,6 +1214,13 @@ function unreload(acsnt) {
   csses = csses.join(";");
   settings.savedSkin =
     "trSkin1" + btoa(window.pako.deflateRaw(csses, { to: "string" }));
-  settings.accent = hexToCssHsl(acsnt.val(), true).split(",");
+  settings.accent = `#${acsnt.val()}`;
+  settings.autoclose = autoclose.prop("checked");
+  for (const k in defaultSettings) {
+    if (!(k in settings)) settings[k] = defaultSettings[k];
+  }
+  for (const k in settings) {
+    if (!(k in defaultSettings)) delete settings[k];
+  }
   localStorage.setItem("settings", JSON.stringify(settings));
 }
