@@ -1240,7 +1240,7 @@ function unreload(acsnt) {
   csses = csses.join(";");
   settings.savedSkin =
     "trSkin1" + btoa(window.pako.deflateRaw(csses, { to: "string" }));
-  settings.accent = `#${acsnt.val()}`;
+  settings.accent = chroma(acsnt.val()).hex();
   settings.autoclose = autoclose.prop("checked");
   for (const k in defaultSettings) {
     if (!(k in settings)) settings[k] = defaultSettings[k];
