@@ -39,6 +39,12 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
+      integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
     <script type="module" src="../scripts/tbl.js"></script>
     <title>TRASE (Dephestra)</title>
   </head>
@@ -164,6 +170,10 @@
             <i class="fa-solid fa-file-export"></i>
           </button>
 
+          <button id="exportQr" title="Share with QR code">
+            <i class="fa-solid fa-qrcode"></i>
+          </button>
+
           <br />
           <br />
 
@@ -286,8 +296,11 @@
         <li>
           <h2 style="color: #f00 !important; background: #700">Reset zone</h2>
           <ul class="resetZone">
-            <li><button id="reset" class="danger reseter">Reset skin</button>
-              <button id="noClr" class="danger">Reset color</button></li><li>
+            <li>
+              <button id="reset" class="danger reseter">Reset skin</button>
+              <button id="noClr" class="danger">Reset color</button>
+            </li>
+            <li>
               <button id="resBdyClr" class="danger">Reset body color</button>
 
               <button id="resLgsClr" class="danger">Reset legs color</button>
@@ -298,6 +311,11 @@
           </ul>
         </li>
       </ul>
+    </div>
+
+    <div id="exportQrDialog">
+      Result:<br /><br />
+      <div id="qrFiller"></div>
     </div>
 
     <canvas id="bgCanvas" width="100%" height="100%"></canvas>

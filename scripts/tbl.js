@@ -158,23 +158,18 @@ function doDarker(jqThis, percents) {
  * @param {string} skin
  * @returns {string[][]}
  */
-function arrFromSkin(skin) {
+function arrFromSkin(skin, twoDimensional = true) {
   const strdata = atob(skin.replace("trSkin1", "").trim());
   const charData = strdata.split("").map((x) => x.charCodeAt(0));
   const binData = new Uint8Array(charData);
   const data = window.pako.inflateRaw(binData);
-  const result = String.fromCharCode.apply(null, new Uint16Array(data));
-  return get2dimensional(
-    result.split(";").map((e) => "#" + e),
-    20
-  );
+  const result = String.fromCharCode
+    .apply(null, new Uint16Array(data))
+    .split(";")
+    .map((e) => "#" + e);
+  result.pop();
+  return twoDimensional ? get2dimensional(result, 20) : result;
 }
-/**
- * @param {JQuery<HTMLElement>} jqThis
- * @param {number} percents
- */
-function doLighter(jqThis, percents) {}
-
 let musC;
 let { width: scrWidth, height: scrHeight } = window.screen;
 window.onresize = function () {
@@ -410,7 +405,6 @@ $(() => {
                   let valu = chroma($(this).css("background-color"))
                     .hex()
                     .slice(0, 7);
-                  console.log(valu);
                   clr.val(valu);
                   clr1help.val(valu.slice(1));
                   val = clr.val();
@@ -452,13 +446,15 @@ $(() => {
                 }
             });
         } else {
-          const elemRgb = doRGB(chroma(arrayForImportLayer[i][j]).rgb(true));
-          if (elemRgb == "rgb(0, 0, 0)") {
+          const elemRgba = arrayForImportLayer[i][j].toUpperCase();
+          if (elemRgba == "#000000") {
             td.addClass("legs");
-          } else if (elemRgb == "rgb(255, 255, 255)") {
+          } else if (elemRgba == "#FFFFFF") {
             td.addClass("head");
-          } else if (elemRgb == "rgb(173, 173, 173)") {
+          } else if (elemRgba == "#ADADAD") {
             td.addClass("darkhead");
+          } else if (elemRgba == "#000CBA") {
+            td.addClass("darklegs").css("background", "#000000");
           }
           td.addClass("mainLooper");
         }
@@ -471,7 +467,7 @@ $(() => {
   createField(
     table,
     arrFromSkin(
-      "trSkin1MzCAAGuDUcYAMRxdQBBGuYEBdalB5hzSHTcs3IRiAOlKRt006iZqUkPVTQNDjbppeLtpsDqHbCfTVOPgdycA"
+      "trSkin1MzCAAGuDUcYAMRxdQBBGuYEBdalB5hzSHTcs3IRiAOlKRt006iZqUkPVTUDs7OSIRCGFOu2oUTcNYzfR13FUZ5BtC32cNyDuBAA="
     ),
     true
   );
@@ -503,7 +499,6 @@ $(() => {
     const lel = btoa(window.pako.deflateRaw(csses, { to: "string" }));
     if (returnRes) return lel;
     undoArr.push(lel);
-    console.log(undoArr);
   }
 
   function indexOf($element) {
@@ -619,7 +614,6 @@ $(() => {
           $(this).css("background-color", res[i] + " !important");
         });
       }
-      console.log();
     });
   });
 
@@ -691,13 +685,13 @@ $(() => {
     }
   }
   clr1help.on({
-    keydown: denyChars,
+    keypress: denyChars,
     input: forClrHelper,
     paste: forClrHelper,
     blur: clrHelpBlur,
   });
   clr2help.on({
-    keydown: denyChars,
+    keypress: denyChars,
     input: forClrHelper2,
     paste: forClrHelper2,
     blur: clrHelpBlur,
@@ -713,11 +707,16 @@ $(() => {
     boo.play();
   });
 
-  const legsPixels = $(".legs");
   const head = $(".head");
+  const legs = $(".legs");
   const darkhead = $(".darkhead");
+  const darklegs = $(".darklegs");
 
-  $("#lgclr").on("click", () => legsPixels.css("background", val));
+  $("#lgclr").on("click", () => {
+    const hslval = hexToCssHsl(val);
+    legs.css("background", hslval);
+    darklegs.css("background", hslDark(hslval, 68));
+  });
   $("#bdclr").on("click", () => {
     const hslval = hexToCssHsl(val);
     head.css("background", hslval);
@@ -799,7 +798,8 @@ $(() => {
     boo.play();
   });
   $("#resLgsClr").on("click", function () {
-    legsPixels.css("background", "#000000");
+    legs.css("background", "#000000");
+    darklegs.css("background", "#000000");
     boo.play();
   });
 
@@ -892,6 +892,16 @@ $(() => {
     }
   };
 
+  const qrFillier = $("#qrFiller");
+  let qr = new QRCode(qrFillier[0], {
+    text: `trSkin1${exprtSkin(true)}`,
+    width: 340,
+    height: 340,
+    colorDark: "#fff",
+    colorLight: "#000",
+    correctLevel: QRCode.CorrectLevel.H,
+  });
+
   acsnt.on({
     change: function () {
       const hsl = hexToCssHsl(acsnt.val(), true).split(",");
@@ -921,7 +931,6 @@ $(() => {
     }
     if (acsntClrHelp.val().length === 3) {
       acsnt.val(`#${[...acsntClrHelp.val()].map((e) => e + e).join("")}`);
-      console.log(acsnt.val());
       const hsl = hexToCssHsl(acsnt.val(), true).split(",");
 
       root.css({
@@ -944,7 +953,7 @@ $(() => {
   acsntClrHelp.on({
     keyup: forAcsntHelper,
     paste: forAcsntHelper,
-    keydown: denyChars,
+    keypress: denyChars,
     blur: clrHelpBlur,
   });
 
@@ -1001,7 +1010,6 @@ $(() => {
       const result = String.fromCharCode.apply(null, new Uint16Array(data));
       const arrr = result.split(";").map((e) => "#" + e.slice(0, 9));
       tds.each(function (ind) {
-        console.log(arrr[ind]);
         $(this).css("background-color", arrr[ind] + "!important");
       });
     }
@@ -1034,7 +1042,6 @@ $(() => {
         if (allowerToCombine.prop("checked") && rgba[i].endsWith("0)")) return;
         $(this).css("background-color", rgba[i]);
       });
-      console.log(rgba);
     };
   });
 
@@ -1182,7 +1189,6 @@ $(() => {
     clr2.val(`#${clr2help.val()}`);
     autoclose.prop("checked") && mixClrs.dialog("close");
   });
-
   const addSets = $("#addSets").dialog({
     width: 500,
     height: 600,
@@ -1197,6 +1203,26 @@ $(() => {
     },
   });
   $("#addSetsBtn").on("click", () => addSets.dialog("open"));
+
+  const qrDialog = $("#exportQrDialog").dialog({
+    width: 433,
+    height: 550,
+    modal: true,
+    autoOpen: false,
+    resizable: false,
+    dialogClass: "mixClrs",
+    buttons: {
+      Close: function () {
+        qrDialog.dialog("close");
+      },
+    },
+  });
+
+  $("#exportQr").on("click", () => {
+    qrDialog.dialog("open");
+    qr.clear();
+    qr.makeCode(`trSkin1${exprtSkin(true)}`);
+  });
 
   $(".ui-dialog-titlebar").hide();
 });

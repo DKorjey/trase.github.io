@@ -477,6 +477,7 @@ input {
   border: 5px solid
     hsl(var(--accent-h), var(--accent-s), calc(var(--accent-l) - 35%)) !important;
   border-radius: 0 !important;
+  overflow: hidden !important;
 }
 
 .ui-dialog * {
@@ -551,12 +552,17 @@ input {
 
 .ui-state-checked {
   background: hsl(
-      var(--accent-h),
-      var(--accent-s),
-      calc(var(--accent-l) - 20%)
-    ) !important;
+    var(--accent-h),
+    var(--accent-s),
+    calc(var(--accent-l) - 20%)
+  ) !important;
 }
 
 .resetZone {
   background: #700;
+}
+
+#qrFiller {
+  box-shadow: 0 0 30px 0 #000;
+  background: #000;
 }
