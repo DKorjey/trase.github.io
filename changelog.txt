@@ -35,9 +35,15 @@ Dephestra Update (0.9.0):
   some improves of color system
   added mixing colors
 
+Destralina update (1.0.0):
+  reworked interface
+  improved color picker
+  reworked UI
+  and etc
+
 
 In development:
-  improving of mixing colors and more
+  select and wand tool
   bugfix
 
 

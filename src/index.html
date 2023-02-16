@@ -32,6 +32,7 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js" integrity="sha512-WFN04846sdKMIP5LKNphMaWzU7YpMyCU245etK3g/2ARYbPK9Ub18eG+ljU96qKRCWh+quCY7yefSmlkQw1ANQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mobile-detect/1.4.4/mobile-detect.min.js"></script>
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.4.2/chroma.min.js"
@@ -45,15 +46,13 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     ></script>
-    <script type="module" src="../scripts/tbl.js"></script>
-    <title>TRASE (Dephestra)</title>
+    <script defer src="../scripts/main.js"></script>
+    <script defer src="../scripts/stars.js"></script>
+    <title>TRASE (R_1.0.0_Aplha)</title>
   </head>
   <body>
     <canvas id="canvSkin" width="20" height="18"></canvas>
-    <div id="xy">
-      X: <span id="x">0</span>Y: <span id="y">0</span><br />Pixel's color under
-      cursor: <span id="currClr">None</span>
-    </div>
+
     <table draggable="false" id="tblLooper">
       <tbody></tbody>
     </table>
@@ -66,7 +65,8 @@
           <h2>Color</h2>
           <ul>
             <li>
-              <input type="color" id="clr" value="#ffffff" />&nbsp; #<input
+              <input type="color" id="clr" value="#ffffff" />
+              &nbsp; #<input
                 type="text"
                 id="clrHelp"
                 value="ffffff"
@@ -74,73 +74,62 @@
               />
             </li>
             <li>
-              <button id="switchCols">
-                <i class="fa-sharp fa-solid fa-repeat"></i>
-              </button>
-            </li>
-            <li>
-              <input type="color" id="clr2" value="#000000" />&nbsp; #<input
+              <input type="color" id="clr2" value="#000000" />
+              &nbsp; #<input
                 type="text"
                 id="clr2Help"
                 value="000000"
                 maxlength="6"
               />
             </li>
-            <li><button id="modMixClrs">Mix colors</button></li>
+            <li>
+              <div class="nopadd">
+                <button id="switchCols" title="Switch colors (X)">
+                  <i class="fa-solid fa-rotate"></i>
+                </button>
+                <button id="modMixClrs" title="Mix colors">
+                  <i class="fa-solid fa-brands fa-mixer"></i>
+                </button>
+                <button id="applClrsB" title="Apply color for (Body or Legs)">
+                  <i class="fa-solid fa-brush"></i>
+                </button>
+              </div>
+            </li>
+            <li>
+              <div id="instr">
+                <button id="brush" title="Brush (B or 1)" class="instr active">
+                  <i class="fa-solid fa-paintbrush"></i>
+                </button>
+
+                <button id="ereaser" title="Ereaser (E or 2)" class="instr">
+                  <i class="fa-solid fa-eraser"></i>
+                </button>
+
+                <button id="pippet" class="instr" title="Pippet (P or 3)">
+                  <i class="fa-solid fa-eye-dropper"></i>
+                </button>
+
+                <br />
+
+                <button id="fill" class="instr" title="Filler (F of 4)">
+                  <i class="fa-solid fa-fill-drip"></i>
+                </button>
+
+                <button id="select" class="instr" title="Select (Q or 5)">
+                  <i class="fa-solid fa-object-ungroup indev"></i>
+                </button>
+
+                <button id="wand" title="Wand (K or 6)" class="instr">
+                  <i class="fa-solid fa-wand-magic-sparkles indev"></i>
+                </button>
+              </div>
+            </li>
           </ul>
         </div>
       </li>
       <li>
-        <div id="instrs" class="liss">
-          <h2>Instruments</h2>
-          <div id="instr">
-            <button id="brush" title="Brush (B or 1)" class="instr active">
-              <i class="fa-solid fa-paintbrush"></i>
-            </button>
-
-            <button id="ereaser" title="Ereaser (E or 2)" class="instr">
-              <i class="fa-solid fa-eraser"></i>
-            </button>
-
-            <button id="pippet" class="instr" title="Pippet (P or 3)">
-              <i class="fa-solid fa-eye-dropper"></i>
-            </button>
-
-            <br />
-
-            <button id="fill" class="instr" title="Filler (F of 4)">
-              <i class="fa-solid fa-fill-drip"></i>
-            </button>
-
-            <button id="select" class="instr" title="Select (Q or 5)">
-              <i class="fa-solid fa-object-ungroup indev"></i>
-            </button>
-
-            <button id="wand" title="Wand (K or 6)" class="instr">
-              <i class="fa-solid fa-wand-magic-sparkles indev"></i>
-            </button>
-          </div>
-          <br />
-          <div>
-            <div id="brng">
-              Brush range: <span id="bRangeVal">1</span> <br /><input
-                type="range"
-                id="brushRange"
-                min="1"
-                max="11"
-                value="1"
-              />
-            </div>
-            <div id="deepDL">
-              Power: <span id="deepDLVal">10</span>%<br />
-              <input type="range" id="deepLDark" min="1" max="60" value="1" />
-            </div>
-          </div>
-        </div>
-      </li>
-      <li>
         <div id="devDK" class="liss">
-          <h2>Developer Lifehacks</h2>
+          <h2>Dev lifehacks</h2>
           <ul>
             <li><button onclick="location.reload()">Reload page</button></li>
             <li>
@@ -185,93 +174,49 @@
           <input type="checkbox" id="allowCombine" />
           <label for="allowCombine">Combine</label>
 
-          <ul>
-            <li>
-              Skin size:
-              <input
-                type="range"
-                id="paddingTbl"
-                min="10"
-                max="20"
-                value="10"
-              />
-            </li>
-          </ul>
-        </div>
-      </li>
-      <li>
-        <div class="liss">
-          <h2>Parameters</h2>
-          <ul>
-            <li>
-              <label>
-                <input
-                  type="checkbox"
-                  class="gridder"
-                  id="gridManager"
-                  title="Show grid (A or 9)"
-                  checked
-                />
-                Enable Grid
-              </label>
-            </li>
-            <li>
-              <label>
-                <input
-                  type="checkbox"
-                  id="disblL"
-                  checked
-                  title="Show looper (S or 0)"
-                />
-                Show Looper
-              </label>
-            </li>
-            <li>
-              <button id="addSetsBtn" title="Additional setting">
-                <i class="fa-solid fa-gear"></i>
-              </button>
-            </li>
-          </ul>
-        </div>
-      </li>
-      <li>
-        <div class="liss">
-          <h2>Flip</h2>
-          <ul>
-            <li>
-              <button id="flipH">Horisontal</button>
-              <button id="flipV">Vertical</button>
-            </li>
-          </ul>
-        </div>
-      </li>
-      <li>
-        <div class="liss resetMode">
-          <h2 id="applRes" class="appl">Apply color for</h2>
+          <br />
+          <br />
 
-          <input type="button" id="bdclr" value="Body" />
-          <input type="button" id="lgclr" value="Legs" />
+          <button id="flipH" title="Flip (Horisontal)">
+            <i class="fa-solid fa-arrow-right-arrow-left"></i>
+          </button>
+          <button id="flipV" title="Flip (Vertical)" style="display: none">
+            <i class="fa-solid fa-arrow-right-arrow-left fa-rotate-90"></i>
+          </button>
         </div>
       </li>
+
       <li>
         <div class="liss">
-          <h2>Accent color</h2>
-          <ul>
-            <li><input type="color" id="acsntClr" value="#65abcf" /></li>
-            <li>
-              #<input
-                type="text"
-                id="acsntClrHelp"
-                maxlength="6"
-                value="65abcf"
+          <h2><span id="bParams">Brush</span> params</h2>
+          <div>
+            <div id="brng">
+              Brush range: <span id="bRangeVal">1</span> <br /><input
+                type="range"
+                id="brushRange"
+                min="1"
+                max="11"
+                value="1"
               />
-            </li>
-          </ul>
+            </div>
+            <div id="deepDL">
+              Power: <span id="deepDLVal">10</span>%<br />
+              <input type="range" id="deepLDark" min="1" max="60" value="1" />
+            </div>
+          </div>
         </div>
       </li>
     </ul>
 
+    <div id="applClr" title="Apply color for">
+      <input type="button" id="bdclr" value="Body" />
+      <input type="button" id="lgclr" value="Legs" />
+    </div>
+
     <div id="modMix">
+      Ratio: <span id="ratioMixTxt">0</span> <br />
+      <input type="range" id="ratioMix" min="0" max="1" step="0.01" value="0" />
+      <br />
       Result:
       <input type="color" id="resClr" />
       (HEX: #<input type="text" id="resClrHelp" readonly />)
@@ -299,6 +244,23 @@
           >
         </li>
         <li>
+          Skin size: <br />
+          <input type="range" id="paddingTbl" min="10" max="20" value="10" />
+        </li>
+        <li>
+          <h2>Accent color</h2>
+          <ul>
+            <li>
+              <input type="color" id="acsntClr" value="#65abcf" />&nbsp; #<input
+                type="text"
+                id="acsntClrHelp"
+                maxlength="6"
+                value="65abcf"
+              />
+            </li>
+          </ul>
+        </li>
+        <li>
           <h2 style="color: #f00 !important; background: #700">Reset zone</h2>
           <ul class="resetZone">
             <li>
@@ -318,6 +280,41 @@
       </ul>
     </div>
 
+    <div id="topBar">
+      <button id="addSetsBtn" title="Additional setting">
+        <i class="fa-solid fa-gear"></i>
+      </button>
+      <label class="lblLol">
+        <input
+          type="checkbox"
+          class="gridder"
+          id="gridManager"
+          title="Show grid (A or 9)"
+          checked
+        />
+        Grid
+      </label>
+
+      <label class="lblLol">
+        <input
+          type="checkbox"
+          id="disblL"
+          checked
+          title="Show looper (S or 0)"
+        />
+        Looper
+      </label>
+
+      <div id="xy" class="lblLol">
+        X: <span id="x">0</span>Y: <span id="y">0</span
+        ><span id="currClrDiv">
+          Pixel's color under cursor: <span id="currClr">None</span>
+        </span>
+      </div>
+    </div>
+
+    <div id="errorDialog" title="Error"></div>
+
     <div id="exportQrDialog">
       Result:<br /><br />
       <div id="qrFiller"></div>
@@ -331,7 +328,5 @@
         it's uncomfortable and doesn't look so pretty</span
       >
     </div>
-    <div id="blackscreen"><span class="waiting">Wait</span></div>
-    <div id="flashbang"></div>
   </body>
 </html>

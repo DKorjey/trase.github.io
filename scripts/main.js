@@ -170,13 +170,15 @@ function arrFromSkin(skin, twoDimensional = true) {
   result.pop();
   return twoDimensional ? get2dimensional(result, 20) : result;
 }
-let musC;
-let { width: scrWidth, height: scrHeight } = window.screen;
-window.onresize = function () {
-  scrWidth = this.screen.width;
-  scrHeight = this.screen.height;
-};
+/**
+ * @param {string} str
+ * @returns {string}
+ */
+function fromUpper(str) {
+  return str[0].toUpperCase() + str.slice(1).toLowerCase();
+}
 //#endregion
+let musC;
 /**@type {JQuery<HTMLElement>} */
 // let acsnt;
 /**@type {JQuery<HTMLElement>} */
@@ -189,6 +191,30 @@ const defaultSettings = {
   autoclose: true,
 };
 let settings = localStorage.getItem("settings");
+/**@type {JQuery<HTMLElement>} */
+let looper;
+
+class SkinError extends Error {
+  name = "SkinError";
+  /**
+   * @constructor
+   * @param {string | undefined} message
+   */
+  constructor(message = "") {
+    super(message);
+  }
+}
+class ResolutionError extends Error {
+  name = "ResolutionError";
+  /**
+   * @constructor
+   * @param {string | undefined} message
+   */
+  constructor(message = "") {
+    super(message);
+  }
+}
+
 $(() => {
   const flashbang = $("#flashbang");
   flashbang.hide();
@@ -202,12 +228,15 @@ $(() => {
   }
 
   const clack = new Audio("../src/music/clack.wav");
-  $("button:not(.instr), input[type=button], input[type=color], .ui-button").on(
-    "click",
-    () => clack.play()
-  );
+  const bonk = new Audio("../src/music/error.wav");
+
+  $(
+    "button, input[type=button], input[type=color], input[type=checkbox], .ui-button"
+  ).on("click", () => clack.play());
 
   const boo = new Audio("../src/music/reset.wav");
+
+  const camelSplit = [/([a-z0-9])([A-Z])/g, "$1 $2"];
 
   const undoArr = ["7cYhAQAACMCwSvf074WgBGJTqzOJiIiIiIj8yAI="];
   if (!settings) {
@@ -219,6 +248,13 @@ $(() => {
   for (const k in settings) {
     if (!(k in defaultSettings)) delete settings[k];
   }
+
+  $(".indev").each(function () {
+    $(this)
+      .parent()
+      .attr("title", $(this).parent().attr("title") + " (In developmant)");
+  });
+
   const root = $(":root");
 
   const clr = $("#clr");
@@ -233,6 +269,8 @@ $(() => {
   const acsntClrHelp = $("#acsntClrHelp");
   const allowerToCombine = $("#allowCombine");
 
+  const bParamsHeader = $("#bParams");
+
   autoclose = $("#autocloser").prop("checked", settings.autoclose);
 
   const deepLDark = $("#deepLDark");
@@ -240,30 +278,6 @@ $(() => {
   const switchCols = $("button#switchCols");
 
   const [x, y] = [$("#x"), $("#y")];
-
-  let starCount = 0;
-
-  const minStars = 100;
-  const maxStars = 7;
-  const ticksBetweenChecks = 50;
-  const tickCount = 0;
-
-  const minStarSize = 10;
-  const maxStarSize = 30;
-
-  const starsCanv = document.getElementById("bgCanvas");
-  starsCanv.width = scrWidth;
-  starsCanv.height = scrHeight;
-  const starsCtx = starsCanv.getContext("2d");
-  starsCtx.imageSmoothingEnabled = false;
-
-  const srces = [
-    "../imgs/StarSpriteSheetPink.png",
-    "../imgs/StarSpriteSheetYellow.png",
-    "../imgs/StarSpriteSheetBlue.png",
-  ];
-  const starSheets = [new Image(), new Image(), new Image()];
-  for (let i = 0; i < 3; i++) starSheets[i].src = srces[i];
 
   const brng = $("#brng");
 
@@ -275,19 +289,15 @@ $(() => {
   const wand = $("#wand");
 
   /**
-   * @type { "brush" | "ereaser" | "pippet" | "fill" | "darker" | "wand"}}
+   * @type { "brush" | "ereaser" | "pippet" | "fill" | "select" | "wand"}}
    */
   let mode = "brush";
 
   const instruments = [brush, ereaser, pippet, filler, selecter, wand];
-  /**@type {WeakMap<JQuery<HTMLElement>, HTMLAudioElement>} */
-  const sounds = new WeakMap();
-  instruments.forEach((e) => sounds[e.attr("id")]);
 
   /**@type {JQuery<HTMLElement>} */
   let targetTD;
   instruments.forEach((el) => {
-    sounds.set(el, new Audio(`../src/music/${el.attr("id")}.wav`));
     el.on("click", () => {
       instruments.forEach((e) =>
         e[(e == el ? "add" : "remove") + "Class"]("active")
@@ -297,13 +307,14 @@ $(() => {
         "display",
         ["brush", "ereaser"].includes(mode) ? "block" : "none"
       );
-      if (["brush", "ereaser"].includes(mode)) {
+      if (!["brush", "ereaser"].includes(mode)) {
         rangeInput.val(1);
+        bRangeVal.text(1);
       }
       if (mode == "fill") {
         targetTD?.removeClass("mouseEnter");
       }
-      sounds.get(el).play();
+      bParamsHeader.text(mode == "pippet" ? "Color picker" : fromUpper(mode))
     });
   });
 
@@ -351,6 +362,9 @@ $(() => {
     bRangeVal.text($(this).val());
   });
   let activeTd;
+
+  /**@type {JQuery<HTMLElement>} */
+  let startSelectTd;
   const nativeTBL = document.querySelector("#tbl");
   function createField(tbl = table, arrayForImportLayer, isMain) {
     for (let i = 0; i < 18; i++) {
@@ -369,10 +383,10 @@ $(() => {
               x.text(td.attr("data-x"));
               y.text(td.attr("data-y"));
               targetTD = td;
-              if (isClicked && mode != "fill") {
+              if (isClicked && ["brush", "ereaser"].includes(mode)) {
                 $(this).css(
                   "background",
-                  mode == "brush" ? val : "transparent"
+                  mode == "brush" ? val : "#00000000"
                 );
                 document
                   .querySelectorAll(".neighbour")
@@ -385,7 +399,7 @@ $(() => {
             })
             .on("mousedown", function (e) {
               if (e.button == 0)
-                if (!["pippet", "fill"].includes(mode)) {
+                if (["brush", "ereaser"].includes(mode)) {
                   $(this).css(
                     "background",
                     mode == "brush" ? val : "transparent"
@@ -401,14 +415,23 @@ $(() => {
                             ? "transparent"
                             : "#000cba")
                     );
-                } else if (mode != "fill") {
-                  let valu = chroma($(this).css("background-color"))
-                    .hex()
-                    .slice(0, 7);
+                } else if (mode == "pippet") {
+                  let valu = chroma($(this).css("background-color")).hex();
+                  if (valu == "#00000000") {
+                    valu = chroma(
+                      _.chunk(looper.toArray(), 20)[$(this).attr("data-y")][
+                        $(this).attr("data-x")
+                      ].style.backgroundColor
+                    )
+                      .hex()
+                      .slice(0, 7);
+                  } else valu = valu.slice(0, 7);
                   clr.val(valu);
                   clr1help.val(valu.slice(1));
                   val = clr.val();
                   root.css("--clr", val);
+                } else if (mode == "select") {
+                  startSelectTd ||= td;
                 }
             })
             .on("mouseup", function (e) {
@@ -426,6 +449,8 @@ $(() => {
                           (el.style.background =
                             mode == "brush" ? val : "transparent")
                       );
+                  }
+                  if (mode == "select") {
                   }
                   let csses = [];
                   tds.each(function () {
@@ -582,30 +607,25 @@ $(() => {
     $(this).on("click", function () {
       if (mode == "fill") {
         function fill(data, x, y, newValue) {
-          // get target value
           const target = data[x][y];
 
           function flow(x, y) {
-            // bounds check what we were passed
             if (x >= 0 && x < data.length && y >= 0 && y < data[x].length) {
               if (data[x][y] === target) {
                 data[x][y] = newValue;
-                flow(x - 1, y); // check up
-                flow(x + 1, y); // check down
-                flow(x, y - 1); // check left
-                flow(x, y + 1); // check right
+                flow(x - 1, y);
+                flow(x + 1, y);
+                flow(x, y - 1);
+                flow(x, y + 1);
               }
             }
           }
-
           flow(x, y);
         }
 
         const onedclrs = [];
         tds.each(function () {
-          onedclrs.push(
-            rgbToHex(...rgbToArray($(this).css("background-color")))
-          );
+          onedclrs.push(chroma($(this).css("background-color")).hex());
         });
         const clrs = get2dimensional(onedclrs, 20);
         fill(clrs, $(this).attr("data-y"), $(this).attr("data-x"), clr.val());
@@ -617,7 +637,7 @@ $(() => {
     });
   });
 
-  const looper = $("td.mainLooper");
+  looper = $("td.mainLooper");
   const looperDisabler = $("#disblL");
   looperDisabler.on("change", () =>
     looper[(looperDisabler.prop("checked") ? "remove" : "add") + "Class"](
@@ -707,26 +727,9 @@ $(() => {
     boo.play();
   });
 
-  const head = $(".head");
-  const legs = $(".legs");
-  const darkhead = $(".darkhead");
-  const darklegs = $(".darklegs");
-
-  $("#lgclr").on("click", () => {
-    const hslval = hexToCssHsl(val);
-    legs.css("background", hslval);
-    darklegs.css("background", hslDark(hslval, 68));
-  });
-  $("#bdclr").on("click", () => {
-    const hslval = hexToCssHsl(val);
-    head.css("background", hslval);
-    darkhead.css("background", hslDark(hslval, 68));
-  });
-
   const imprt = $("#importBtn");
   const exprt = $("#exportBtn");
 
-  const balckscreen = $("#blackscreen");
   imprt.on("click", function () {
     navigator.clipboard.readText().then((text) => {
       try {
@@ -747,8 +750,8 @@ $(() => {
           $(this).css("background-color", arrr[i]);
         });
       } catch (e) {
-        alert("Somethig went wrong!");
         console.error(e);
+        errDialogOpen(new SkinError(e.message));
       }
     });
   });
@@ -784,9 +787,7 @@ $(() => {
     const lel = btoa(window.pako.deflateRaw(csses, { to: "string" }));
     navigator.clipboard.writeText("trSkin1" + lel);
     exprt.val("Copied").css({ color: "#0f0", borderColor: "#0f0" });
-    balckscreen.css("display", "block");
     setTimeout(() => {
-      balckscreen.css("display", "none");
       exprt
         .val("Export as text")
         .css({ color: "#65abcf", borderColor: "#65abcf" });
@@ -892,6 +893,8 @@ $(() => {
     }
   };
 
+  $(document.body).css("display", "flex");
+
   const qrFillier = $("#qrFiller");
   let qr = new QRCode(qrFillier[0], {
     text: `trSkin1${exprtSkin(true)}`,
@@ -990,13 +993,31 @@ $(() => {
 
   const notMainTable = $("#tbl");
   const notMainTbody = notMainTable.children(":first");
-  $("#flipH").on("click", function () {
-    trs.each(function () {
-      $(this).append($(this).children("td").get().reverse());
-    });
+
+  const flipH = $("#flipH");
+  const flipV = $("#flipV");
+
+  flipH.on({
+    click: function () {
+      trs.each(function () {
+        $(this).append($(this).children("td").get().reverse());
+      });
+    },
+    contextmenu: function () {
+      $(this).hide();
+      flipV.show();
+      return false;
+    },
   });
-  $("#flipV").on("click", function () {
-    notMainTbody.append(notMainTbody.children("tr").get().reverse());
+  flipV.on({
+    click: function () {
+      notMainTbody.append(notMainTbody.children("tr").get().reverse());
+    },
+    contextmenu: function () {
+      $(this).hide();
+      flipH.show();
+      return false;
+    },
   });
 
   $("#undo").on("click", function () {
@@ -1032,7 +1053,7 @@ $(() => {
     img.src = URL.createObjectURL(e.target.files[0]);
     img.onload = function () {
       if (img.naturalWidth != 20 || img.naturalHeight != 18) {
-        return alert("The image must be 20x18 px");
+        return errDialogOpen(new ResolutionError("The image must be 20x18 px"));
       }
       cx.drawImage(img, 0, 0, 20, 18);
       const data = get2dimensional(cx.getImageData(0, 0, 20, 18).data, 4);
@@ -1068,87 +1089,9 @@ $(() => {
       link.href = imgCanv.toDataURL();
       link.click();
     } catch (e) {
-      alert("SkinError: " + e.message);
+      errDialogOpen(e);
     }
   });
-
-  class Star {
-    constructor(options) {
-      this.ctx = options.ctx;
-
-      this.image = options.image;
-
-      this.width = options.width;
-      this.height = options.height;
-
-      this.starSize = Math.floor(
-        Math.random() * (maxStarSize - minStarSize) + minStarSize
-      );
-
-      this.frameIndex = 0;
-      this.tickCount = 0;
-      this.ticksPerFrame = options.ticksPerFrame || 0;
-      this.numberOfFrames = options.numberOfFrames || 1;
-      this.x = Math.floor(Math.random() * scrWidth);
-      this.y = Math.floor(Math.random() * scrHeight);
-
-      this.rgb = options.rgb;
-
-      this.start();
-    }
-
-    render() {
-      this.ctx.drawImage(
-        this.image,
-        this.frameIndex * (this.width / this.numberOfFrames),
-        0,
-        10,
-        10,
-        this.x,
-        this.y,
-        this.starSize,
-        this.starSize
-      );
-    }
-
-    update() {
-      this.tickCount++;
-
-      if (this.tickCount > this.ticksPerFrame) {
-        this.ctx.clearRect(this.x, this.y, 30, 30);
-        this.tickCount = 0;
-        this.frameIndex++;
-      }
-    }
-    start() {
-      const loop = () => {
-        this.update();
-        this.render();
-
-        if (this.frameIndex < this.numberOfFrames)
-          window.requestAnimationFrame(loop);
-        else {
-          starCount--;
-        }
-      };
-
-      window.requestAnimationFrame(loop);
-    }
-  }
-
-  setInterval(() => {
-    if (starCount < minStars && starCount < maxStars) {
-      new Star({
-        ctx: starsCanv.getContext("2d"),
-        image: starSheets[Math.floor(Math.random() * 3)],
-        width: 50,
-        height: 10,
-        numberOfFrames: 5,
-        ticksPerFrame: 20,
-      });
-      starCount++;
-    }
-  }, 100);
 
   $('#input[type="color"]').on("change", () => blur());
   window.onbeforeunload = () => unreload(acsntClrHelp);
@@ -1224,7 +1167,69 @@ $(() => {
     qr.makeCode(`trSkin1${exprtSkin(true)}`);
   });
 
+  const head = $(".head");
+  const legs = $(".legs");
+  const darkhead = $(".darkhead");
+  const darklegs = $(".darklegs");
+
+  $("#lgclr").on("click", () => {
+    const hslval = hexToCssHsl(val);
+    legs.css("background", hslval);
+    darklegs.css("background", hslDark(hslval, 68));
+    autoclose.prop("checked") && applDialog.dialog("close");
+  });
+  $("#bdclr").on("click", () => {
+    const hslval = hexToCssHsl(val);
+    head.css("background", hslval);
+    darkhead.css("background", hslDark(hslval, 68));
+    autoclose.prop("checked") && applDialog.dialog("close");
+  });
+
   $(".ui-dialog-titlebar").hide();
+  const applDialog = $("#applClr").dialog({
+    width: 400,
+    height: 200,
+    autoOpen: false,
+    modal: true,
+    dialogClass: "mixClrs",
+    resizable: false,
+    buttons: {
+      Close: function () {
+        applDialog.dialog("close");
+      },
+    },
+  });
+
+  $("#applClrsB").on("click", () => applDialog.dialog("open"));
+
+  const errorDialog = $("#errorDialog").dialog({
+    width: 400,
+    height: 500,
+    autoOpen: false,
+    modal: true,
+    dialogClass: "mixClrs",
+    resizable: false,
+    buttons: {
+      Close: function () {
+        errorDialog.dialog("close");
+      },
+    },
+  });
+
+  const errorDialogTitleBar = $(".ui-dialog-title:contains('Error')");
+
+  function errDialogOpen(err) {
+    errorDialogTitleBar.text(
+      err.name
+        .replace(...camelSplit)
+        .split(" ")
+        .map((e, i) => (i !== 0 ? e.toLowerCase() : e))
+        .join(" ")
+    );
+    errorDialog.text(err.message);
+    errorDialog.dialog("open");
+    bonk.play();
+  }
 });
 function unreload(acsnt) {
   let csses = [];
