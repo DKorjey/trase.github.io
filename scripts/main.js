@@ -1096,6 +1096,9 @@ $(() => {
   $('#input[type="color"]').on("change", () => blur());
   window.onbeforeunload = () => unreload(acsntClrHelp);
 
+  const ratioMixTxt = $("#ratioMixTxt")
+  const ratioMix = $("#ratioMix");
+
   const mixClrs = $("#modMix").dialog({
     width: 400,
     height: 250,
@@ -1113,9 +1116,16 @@ $(() => {
   const resClr = $("#resClr");
   const resClrHelp = $("#resClrHelp");
 
+  ratioMix.on("input", function () {
+    ratioMixTxt.text($(this).val());
+    const qwe = chroma.mix(clr1help.val(), clr2help.val(), +ratioMix.val()).hex();
+    resClr.val(qwe);
+    resClrHelp.val(qwe.slice(1));
+  });
+
   $("#modMixClrs").on("click", function () {
     mixClrs.dialog("open");
-    const qwe = chroma.mix(clr1help.val(), clr2help.val()).hex();
+    const qwe = chroma.mix(clr1help.val(), clr2help.val(), +ratioMix.val()).hex();
     resClr.val(qwe);
     resClrHelp.val(qwe.slice(1));
   });
