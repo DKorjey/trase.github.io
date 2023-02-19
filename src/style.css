@@ -4,8 +4,14 @@
 }
 
 .liss {
-  border: 5px solid
+  border-bottom: 5px solid
     hsl(var(--accent-h), var(--accent-s), calc(var(--accent-l) - 35%));
+  background-color: hsla(
+    var(--accent-h),
+    var(--accent-s),
+    calc(var(--accent-l) - 45%),
+    0.25
+  );
   z-index: 10;
 }
 
@@ -24,7 +30,8 @@
 }
 
 :root {
-  --clr: #ffffffaa;
+  --clr: #ffffff88;
+  --hl: #ffffff;
   --accent-h: 200;
   --accent-s: 52%;
   --accent-l: 60%;
@@ -190,7 +197,8 @@ ul li input[type="color"] {
   background: transparent !important;
   border: none !important;
 }
-input[type="text"] {
+input[type="text"],
+input[type="password"] {
   background: hsla(
     var(--accent-h),
     var(--accent-s),
@@ -203,8 +211,11 @@ input[type="text"] {
   overflow: visible;
   font-size: 1.02rem;
   transition: 0.15s;
+}
+input[type="text"]:not(.foruploadskin) {
   width: 5.25em !important;
 }
+
 input[type="text"]:focus {
   background: hsla(
     var(--accent-h),
@@ -226,7 +237,7 @@ input[type="button"],
   outline: none;
   transition: 0.15s;
 }
-button:hover,
+button:not(.filler):hover,
 input[type="button"]:hover,
 .ui-button:hover {
   cursor: pointer;
@@ -236,7 +247,7 @@ input[type="button"]:hover,
     calc(var(--accent-l) - 45%)
   ) !important;
 }
-button:active,
+button:not(.filler):active,
 input[type="button"]:active,
 .ui-button:active {
   background-color: hsl(
@@ -357,15 +368,6 @@ h2 {
   margin: 0 auto;
 }
 
-/* #bRange { */
-/* text-align: left; */
-/* } */
-
-/* #xy {
-  position: absolute;
-  top: 3em;
-} */
-
 #canvSkin {
   display: none;
 }
@@ -482,7 +484,8 @@ input {
   overflow: hidden !important;
 }
 
-.ui-dialog * {
+.ui-dialog *,
+.ui-spinner-down {
   font-family: "Diary of an 8-bit mage", sans-serif !important;
   color: var(--accent) !important;
 }
@@ -561,7 +564,7 @@ input {
 }
 
 .resetZone {
-  background: #700;
+  background: #7008;
 }
 
 #qrFiller {
@@ -636,11 +639,11 @@ input {
 
 .ui-dialog-titlebar {
   background-color: hsla(
-        var(--accent-h),
-        calc(var(--accent-s) - 20%),
-        calc(var(--accent-l) - 35%),
-        0.5
-      ) !important;
+    var(--accent-h),
+    calc(var(--accent-s) - 20%),
+    calc(var(--accent-l) - 35%),
+    0.5
+  ) !important;
   border-color: var(--accent) !important;
 }
 
@@ -653,3 +656,77 @@ input {
   display: none !important;
 }
 
+.boom-poom-shikidi-toom {
+  border-color: #f00 !important;
+  background-color: #f003 !important;
+  box-shadow: 0 0 5px 3px #f00;
+}
+.boom-poom-shikidi-toom * {
+  color: #f00 !important;
+}
+
+.key {
+  padding: 0.3em !important;
+  text-align: center;
+  width: 100% !important;
+  border: 3px solid var(--accent);
+  border-radius: 10%;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  appearance: textfield;
+}
+
+.ui-spinner {
+  background: hsla(
+    var(--accent-h),
+    var(--accent-s),
+    calc(var(--accent-l) - 50%),
+    0.25
+  ) !important;
+  color: var(--accent) !important;
+  outline: none;
+  overflow: visible;
+  font-size: 1.02rem;
+  transition: 0.15s;
+  border: none !important;
+  border-bottom: 2px solid var(--accent) !important;
+  border-radius: 0 !important;
+  width: 4rem !important;
+}
+
+.ui-spinner * {
+  font-family: "Diary of an 8-bit mage", sans-serif !important;
+}
+
+.points1Line,
+.points2Line {
+  background-color: var(--clr) !important;
+}
+
+.point1Line,
+.point2Line {
+  background-color: var(--hl) !important;
+}
+
+::selection {
+  background: hsl(
+    var(--accent-h),
+    var(--accent-s),
+    calc(var(--accent-l) - 0.00001%)
+  ) !important;
+  color: hsl(
+    var(--accent-h),
+    calc(var(--accent-s) - 20%),
+    calc(var(--accent-l) - 40%)
+  );
+}
+
+input[type="text"].forline {
+  width: 3rem !important;
+}

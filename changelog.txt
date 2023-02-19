@@ -39,11 +39,12 @@ Destralina update (1.0.0):
   reworked interface
   improved color picker
   reworked UI
+  added line instrument
+  bugfix
   and etc
 
 
 In development:
-  select and wand tool
   bugfix
 
 

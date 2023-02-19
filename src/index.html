@@ -32,7 +32,12 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js" integrity="sha512-WFN04846sdKMIP5LKNphMaWzU7YpMyCU245etK3g/2ARYbPK9Ub18eG+ljU96qKRCWh+quCY7yefSmlkQw1ANQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"
+      integrity="sha512-WFN04846sdKMIP5LKNphMaWzU7YpMyCU245etK3g/2ARYbPK9Ub18eG+ljU96qKRCWh+quCY7yefSmlkQw1ANQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mobile-detect/1.4.4/mobile-detect.min.js"></script>
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.4.2/chroma.min.js"
@@ -42,13 +47,13 @@
     ></script>
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
-      integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA=="
+      integrity="shthisa512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA=="
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     ></script>
     <script defer src="../scripts/main.js"></script>
     <script defer src="../scripts/stars.js"></script>
-    <title>TRASE (R_1.0.0_Alpha)</title>
+    <title>TRASE (R_1.0.0_Beta2)</title>
   </head>
   <body>
     <canvas id="canvSkin" width="20" height="18"></canvas>
@@ -62,7 +67,7 @@
     <ul id="btns" class="jquiSort">
       <li>
         <div class="liss">
-          <h2>Color</h2>
+          <h2>Main</h2>
           <ul>
             <li>
               <input type="color" id="clr" value="#ffffff" />
@@ -115,27 +120,14 @@
                   <i class="fa-solid fa-fill-drip"></i>
                 </button>
 
-                <button id="select" class="instr" title="Select (Q or 5)">
-                  <i class="fa-solid fa-object-ungroup indev"></i>
+                <button id="line" class="instr" title="Line (Q or 5)">
+                  <i class="fa-solid fa-slash fa-flip-horizontal"></i>
                 </button>
 
-                <button id="wand" title="Wand (K or 6)" class="instr">
-                  <i class="fa-solid fa-wand-magic-sparkles indev"></i>
+                <button id="flipDialogOpen">
+                  <i class="fa-solid fa-arrow-right-arrow-left"></i>
                 </button>
               </div>
-            </li>
-          </ul>
-        </div>
-      </li>
-      <li>
-        <div id="devDK" class="liss">
-          <h2>Dev lifehacks</h2>
-          <ul>
-            <li><button onclick="location.reload()">Reload page</button></li>
-            <li>
-              <button onclick="localStorage.clear()">
-                Clear local storage
-              </button>
             </li>
           </ul>
         </div>
@@ -147,26 +139,30 @@
         <div class="liss">
           <h2>Skin</h2>
 
-          <button class="div2" id="importBtn" title="Paste from text">
-            <i class="fa-solid fa-paste"></i>
-          </button>
+          <div class="nopadd">
+            <button class="div2" id="importBtn" title="Paste from text">
+              <i class="fa-solid fa-paste"></i>
+            </button>
+            <button id="btnImImg" title="Import from image (20x18)">
+              <i class="fa-solid fa-file-import"></i>
+            </button>
+            <input type="file" id="importImg" accept="image/png" />
+            <button title="Export as text" class="div2" id="exportBtn">
+              <i class="fa-solid fa-copy"></i>
+            </button>
+            <br />
+            <button title="Export as image" id="exportImg">
+              <i class="fa-solid fa-file-export"></i>
+            </button>
+            <button id="exportQr" title="Share with QR code">
+              <i class="fa-solid fa-qrcode"></i>
+            </button>
 
-          <button id="btnImImg" title="Import from image (20x18)">
-            <i class="fa-solid fa-file-import"></i>
-          </button>
-          <input type="file" id="importImg" accept="image/png" />
-
-          <button title="Export as text" class="div2" id="exportBtn">
-            <i class="fa-solid fa-copy"></i>
-          </button>
-
-          <button title="Export as image" id="exportImg">
-            <i class="fa-solid fa-file-export"></i>
-          </button>
-
-          <button id="exportQr" title="Share with QR code">
-            <i class="fa-solid fa-qrcode"></i>
-          </button>
+            <!-- It's not done yet -->
+            <!-- <button id="uploadDialogBtn">
+              <i class="fa-solid fa-arrow-up-from-bracket"></i>
+            </button> -->
+          </div>
 
           <br />
           <br />
@@ -176,13 +172,6 @@
 
           <br />
           <br />
-
-          <button id="flipH" title="Flip (Horisontal)">
-            <i class="fa-solid fa-arrow-right-arrow-left"></i>
-          </button>
-          <button id="flipV" title="Flip (Vertical)" style="display: none">
-            <i class="fa-solid fa-arrow-right-arrow-left fa-rotate-90"></i>
-          </button>
         </div>
       </li>
 
@@ -199,14 +188,35 @@
                 value="1"
               />
             </div>
-            <div id="deepDL">
-              Power: <span id="deepDLVal">10</span>%<br />
-              <input type="range" id="deepLDark" min="1" max="60" value="1" />
+            <div id="lineCr" class="nopadd" style="display: none">
+              X1: <input type="text" readonly id="linex1" class="forline" min="0" max="19" /> Y1:
+              <input type="text" id="liney1" readonly class="forline" min="0" max="17" />
+
+              <br />
+              <br />
+
+              X2: <input type="text" id="linex2" readonly class="forline" min="0" max="19" /> Y2:
+              <input type="text" id="liney2" readonly class="forline" min="0" max="17" />
+
+              <br />
+              <br />
+
+              <button id="crtline" title="Create line" disabled>Create line</button>
             </div>
           </div>
         </div>
       </li>
     </ul>
+
+    <div id="flipDialog" title="Flip...">
+      <button id="flipH" class="forflip" title="Flip (Horizontal)">
+        horizontal
+      </button>
+      <button id="flipV" class="forflip" title="Flip (Vertical)">
+        vertical
+      </button>
+      <button id="flipB" class="forflip" title="Flip (Both)">both</button>
+    </div>
 
     <div id="applClr" title="Apply color for">
       <input type="button" id="bdclr" value="Body" />
@@ -215,7 +225,14 @@
 
     <div id="modMix">
       Ratio: <span id="ratioMixTxt">0.5</span> <br />
-      <input type="range" id="ratioMix" min="0" max="1" step="0.01" value="0.5" />
+      <input
+        type="range"
+        id="ratioMix"
+        min="0"
+        max="1"
+        step="0.01"
+        value="0.5"
+      />
       <br />
       Result:
       <input type="color" id="resClr" />
@@ -248,20 +265,35 @@
           <input type="range" id="paddingTbl" min="10" max="20" value="10" />
         </li>
         <li>
-          <h2>Accent color</h2>
-          <ul>
-            <li>
-              <input type="color" id="acsntClr" value="#65abcf" />&nbsp; #<input
-                type="text"
-                id="acsntClrHelp"
-                maxlength="6"
-                value="65abcf"
-              />
-            </li>
-          </ul>
+          <div class="liss">
+            <h2>Accent color</h2>
+            <ul>
+              <li>
+                <input type="color" id="acsntClr" value="#65abcf" />&nbsp; #<input
+                  type="text"
+                  id="acsntClrHelp"
+                  maxlength="6"
+                  value="65abcf"
+                />
+              </li>
+            </ul>
+          </div>
         </li>
         <li>
-          <h2 style="color: #f00 !important; background: #700">Reset zone</h2>
+          <div id="devDK" class="liss">
+            <h2>Dev lifehacks</h2>
+            <ul>
+              <li><button onclick="location.reload()">Reload page</button></li>
+              <li>
+                <button onclick="localStorage.clear()">
+                  Clear local storage
+                </button>
+              </li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <h2 style="color: #500 !important; background: #c00">Reset zone</h2>
           <ul class="resetZone">
             <li>
               <button id="reset" class="danger reseter">Reset skin</button>
@@ -308,9 +340,44 @@
       <div id="xy" class="lblLol">
         X: <span id="x">0</span>Y: <span id="y">0</span
         ><span id="currClrDiv">
-          Pixel's color under cursor: <span id="currClr">None</span>
+          Pixel's color under cursor: <span id="currClr">None</span> (<span
+            class="key"
+            >Shift</span
+          >
+          + <span class="key">N</span> to copy)
         </span>
       </div>
+    </div>
+
+    <div id="uploadToTrss" title="Upload to TRSS">
+      <form>
+        Skin name:
+        <input
+          type="text"
+          required
+          id="skinName"
+          class="foruploadskin"
+          autocomplete="off"
+        />
+        Token:
+        <input
+          required
+          type="password"
+          id="trsstoken"
+          class="foruploadskin"
+          autocomplete="off"
+        />
+        <br />
+        <br />
+        Body and legs color on a skin
+        <br />
+        <br />
+        <button id="uploadSkin">Upload skin</button>
+        <br />
+        <br />
+      </form>
+      <input type="checkbox" id="showToken" />
+      <label for="showToken">Show token</label>
     </div>
 
     <div id="errorDialog" title="Error"></div>
