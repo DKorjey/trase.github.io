@@ -662,7 +662,7 @@ try {
     const clrFromLooper = $("#clrFromLooper");
 
     function onMove(event) {
-      const $target = event.target;
+      try{const $target = event.target;
 
       if (
         $target.tagName !== "TD" ||
@@ -703,7 +703,9 @@ try {
             : "None"
         );
       }
-      neighbours.forEach((neighbour) => neighbour.classList.add("neighbour"));
+      neighbours.forEach((neighbour) => neighbour.classList.add("neighbour"));}catch (_) {
+        return
+      }
     }
 
     /**
@@ -1083,27 +1085,27 @@ try {
       switch (filtered.length) {
         case 1:
           const repeatedd = filtered.repeat(6);
-          clr.val("#" + repeatedd);
-          clr1help.val(repeatedd);
+          clr2.val("#" + repeatedd);
+          clr2help.val(repeatedd);
           break;
         case 2:
           const repeate = filtered.repeat(3);
-          clr.val("#" + repeate);
-          clr1help.val(repeate);
+          clr2.val("#" + repeate);
+          clr2help.val(repeate);
           break;
         case 3:
           const repeated = filtered.repeat(2);
-          clr.val("#" + repeated);
-          clr1help.val(repeated);
+          clr2.val("#" + repeated);
+          clr2help.val(repeated);
           break;
         case 6:
-          clr.val("#" + filtered);
-          clr1help.val(filtered);
+          clr2.val("#" + filtered);
+          clr2help.val(filtered);
           break;
         case 8:
           const unbruh = filtered.slice(0, 7);
-          clr.val("#" + unbruh);
-          clr1help.val(unbruh);
+          clr2.val("#" + unbruh);
+          clr2help.val(unbruh);
           break;
         case 0:
         default:
