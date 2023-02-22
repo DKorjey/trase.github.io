@@ -318,7 +318,6 @@ try {
 
     const acsnt = $("#acsntClr");
     const acsntClrHelp = $("#acsntClrHelp");
-    const allowerToCombine = $("#allowCombine");
 
     const bParamsHeader = $("#bParams");
 
@@ -662,49 +661,53 @@ try {
     const clrFromLooper = $("#clrFromLooper");
 
     function onMove(event) {
-      try{const $target = event.target;
+      try {
+        const $target = event.target;
 
-      if (
-        $target.tagName !== "TD" ||
-        $target.classList.contains("mouseEnter")
-      ) {
-        return;
-      }
+        if (
+          $target.tagName !== "TD" ||
+          $target.classList.contains("mouseEnter")
+        ) {
+          return;
+        }
 
-      const far = parseInt(rangeInput.val());
-      const neighbours = getNeighbors($target, far);
+        const far = parseInt(rangeInput.val());
+        const neighbours = getNeighbors($target, far);
 
-      clean();
+        clean();
 
-      if (mode !== "pippet") {
-        if (mode !== "fill") {
-          clrFromLooper.text(
-            $target.style.backgroundColor !== "rgba(0, 0, 0, 0)" ? "no" : "yes"
-          );
-          if (mode !== "line") {
-            $target.classList.add("mouseEnter");
+        if (mode !== "pippet") {
+          if (mode !== "fill") {
+            clrFromLooper.text(
+              $target.style.backgroundColor !== "rgba(0, 0, 0, 0)"
+                ? "no"
+                : "yes"
+            );
+            if (mode !== "line") {
+              $target.classList.add("mouseEnter");
+            }
           }
         }
-      }
-      if ($target.style.backgroundColor !== "rgba(0, 0, 0, 0)") {
-        currClrSpan.text(
-          $target.style.backgroundColor
-            ? rgbToHex(...rgbToArray($target.style.backgroundColor))
-            : "None"
-        );
-      } else {
-        const loopr = _.chunk(looper.toArray(), 20)[$($target).attr("data-y")][
-          $($target).attr("data-x")
-        ];
-        const sbc = loopr.style.backgroundColor;
-        currClrSpan.text(
-          sbc || chroma(sbc).hex() !== "#00000000"
-            ? chroma(sbc).hex().slice(0, 7)
-            : "None"
-        );
-      }
-      neighbours.forEach((neighbour) => neighbour.classList.add("neighbour"));}catch (_) {
-        return
+        if ($target.style.backgroundColor !== "rgba(0, 0, 0, 0)") {
+          currClrSpan.text(
+            $target.style.backgroundColor
+              ? rgbToHex(...rgbToArray($target.style.backgroundColor))
+              : "None"
+          );
+        } else {
+          const loopr = _.chunk(looper.toArray(), 20)[
+            $($target).attr("data-y")
+          ][$($target).attr("data-x")];
+          const sbc = loopr.style.backgroundColor;
+          currClrSpan.text(
+            sbc || chroma(sbc).hex() !== "#00000000"
+              ? chroma(sbc).hex().slice(0, 7)
+              : "None"
+          );
+        }
+        neighbours.forEach((neighbour) => neighbour.classList.add("neighbour"));
+      } catch (_) {
+        return;
       }
     }
 
@@ -896,11 +899,6 @@ try {
           const result = String.fromCharCode.apply(null, new Uint16Array(data));
           const arrr = result.split(";").map((e) => "#" + e);
           tds.each(function (i) {
-            if (
-              allowerToCombine.prop("checked") &&
-              /#?[0-9a-f]{4}00/i.test(arrr[i])
-            )
-              return;
             if (!/#?([0-9a-f]{6}|[0-9a-f]{8})/i.test(arrr[i])) {
               throw new SkinError(
                 "Error occurred while import (the skin contains NOT hex string)"
@@ -1235,8 +1233,6 @@ try {
         const rgba = data.map((e) => doRGBA(...e));
         cx.clearRect(0, 0, 20, 18);
         tds.each(function (i) {
-          if (allowerToCombine.prop("checked") && rgba[i].endsWith("0)"))
-            return;
           $(this).css("background-color", rgba[i]);
         });
       };
@@ -1564,12 +1560,8 @@ try {
         hslDark(hexToCssHsl(skin.secondary_color), 68)
       );
       const resSkin = arrFromSkin(skin.skin, false).map((e) => e.toUpperCase());
+      tds.css("background-color", "#00000000");
       tds.each(function (i) {
-        if (
-          allowerToCombine.prop("checked") &&
-          /#?[0-9a-f]{4,4}00/i.test(chroma(resSkin[i]).hex())
-        )
-          return;
         if (/#?00000000/i.test(chroma(resSkin[i]).hex())) {
           $(this).css("background-color", "#00000000");
           return;
