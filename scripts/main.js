@@ -190,6 +190,30 @@ class SkinError extends Error {
     super(message);
   }
 }
+
+class TRSSError extends Error {
+  name = "SkinError";
+  /**
+   * @constructor
+   * @param {string | undefined} message
+   */
+  constructor(message = "") {
+    super(message);
+  }
+}
+
+const trssErrors = {
+  0: "Invalid user or password",
+  1: "The user could not be found in the Team Run database",
+  2: "Failed to generate unique token",
+  3: "User already registered",
+  4: "User or skin not found",
+  5: "Exactly the same skin from the same author is already in the database",
+  6: "Skin not found",
+  7: "Skin creator ID does not match user ID",
+  "-1": "Unknown error",
+};
+
 class ResolutionError extends Error {
   name = "ResolutionError";
   /**
@@ -199,6 +223,30 @@ class ResolutionError extends Error {
   constructor(message = "") {
     super(message);
   }
+}
+
+class RequestError extends Error {
+  name = "RequestError";
+  /**
+   * @constructor
+   * @param {string | undefined} message
+   */
+  constructor(message = "") {
+    super(message);
+  }
+}
+
+function isJson(item) {
+  item = typeof item !== "string" ? JSON.stringify(item) : item;
+  try {
+    item = JSON.parse(item);
+  } catch (e) {
+    return false;
+  }
+  if (typeof item === "object" && item !== null) {
+    return true;
+  }
+  return false;
 }
 
 $(() => {
@@ -227,20 +275,12 @@ $(() => {
   if (!settings) {
     settings = Object.assign({}, defaultSettings);
   } else settings = JSON.parse(settings);
-  for (const k in defaultSettings) {
-    if (!(k in settings)) settings[k] = defaultSettings[k];
-  }
-  for (const k in settings) {
-    if (!(k in defaultSettings)) delete settings[k];
-  }
-
-  $(".indev").each(function () {
-    $(this)
-      .parent()
-      .attr("title", $(this).parent().attr("title") + " (In developmant)");
-  });
 
   const root = $(":root");
+
+  $("input[type=checkbox]").checkboxradio();
+  const pippetApply = $("input[type=radio]").checkboxradio();
+  const cpchoice = $("#cpchoice");
 
   const clr = $("#clr");
   const clr2 = $("#clr2");
@@ -249,6 +289,15 @@ $(() => {
   const table = $("#tblLooper");
   const rangeInput = $("#brushRange");
   const jquiSort = $(".jquiSort");
+
+  const fatalErrD = $("#fatalErrDialog").dialog({
+    width: 500,
+    height: 550,
+    autoOpen: false,
+    modal: true,
+    dialogClass: "mixClrs",
+    resizable: false,
+  });
 
   const acsnt = $("#acsntClr");
   const acsntClrHelp = $("#acsntClrHelp");
@@ -269,43 +318,45 @@ $(() => {
 
   const forline = $(".forline");
 
-  const crtline = $("#crtline").on("click", function () {
-    try {
-      cx.clearRect(0, 0, 20, 18);
-      tds.removeClass("point1Line points1Line point2Line points2Line");
-      const twodmarr = [];
-      tds.each(function () {
-        twodmarr.push(rgbToArray($(this).css("background-color")));
-      });
-      const editedArr = new Uint8ClampedArray(
-        twodmarr.map((e) => (e.length == 3 ? e.concat(255) : e)).flat()
-      );
-      const imgData = new ImageData(editedArr, 20, 18);
-      for (let i = 0; i < imgData.data.length; i += 4) {
-        imgData.data[i + 0] = editedArr[i + 0];
-        imgData.data[i + 1] = editedArr[i + 1];
-        imgData.data[i + 2] = editedArr[i + 2];
-        imgData.data[i + 3] = editedArr[i + 3];
+  const crtline = $("#crtline")
+    .prop("disabled", true)
+    .on("click", function () {
+      try {
+        cx.clearRect(0, 0, 20, 18);
+        tds.removeClass("point1Line points1Line point2Line points2Line");
+        const twodmarr = [];
+        tds.each(function () {
+          twodmarr.push(rgbToArray($(this).css("background-color")));
+        });
+        const editedArr = new Uint8ClampedArray(
+          twodmarr.map((e) => (e.length == 3 ? e.concat(255) : e)).flat()
+        );
+        const imgData = new ImageData(editedArr, 20, 18);
+        for (let i = 0; i < imgData.data.length; i += 4) {
+          imgData.data[i + 0] = editedArr[i + 0];
+          imgData.data[i + 1] = editedArr[i + 1];
+          imgData.data[i + 2] = editedArr[i + 2];
+          imgData.data[i + 3] = editedArr[i + 3];
+        }
+
+        cx.putImageData(imgData, 0, 0);
+
+        cx.beginPath();
+        cx.strokeStyle = val;
+        cx.lineWidth = 0.5;
+        cx.moveTo(+linex1.val() + 0.5, +liney1.val() + 0.5);
+        cx.lineTo(+linex2.val() + 0.5, +liney2.val() + 0.5);
+        cx.stroke();
+
+        const data = _.chunk(cx.getImageData(0, 0, 20, 18).data, 4);
+        const rgba = data.map((e) => doRGBA(...e));
+        tds.each(function (i) {
+          $(this).css("background-color", rgba[i]);
+        });
+      } catch (e) {
+        errDialogOpen(e);
       }
-
-      cx.putImageData(imgData, 0, 0);
-
-      cx.beginPath();
-      cx.strokeStyle = val;
-      cx.lineWidth = 0.5;
-      cx.moveTo(+linex1.val() + 0.5, +liney1.val() + 0.5);
-      cx.lineTo(+linex2.val() + 0.5, +liney2.val() + 0.5);
-      cx.stroke();
-
-      const data = _.chunk(cx.getImageData(0, 0, 20, 18).data, 4);
-      const rgba = data.map((e) => doRGBA(...e));
-      tds.each(function (i) {
-        $(this).css("background-color", rgba[i]);
-      });
-    } catch (e) {
-      errDialogOpen(e);
-    }
-  });
+    });
 
   const [x, y] = [$("#x"), $("#y")];
 
@@ -318,11 +369,13 @@ $(() => {
   const filler = $("#fill");
   const line = $("#line");
 
+  const theresNothingHere = $("#nthngHere");
+
   /**@type {[JQuery<HTMLElement>, JQuery<HTMLElement>]} */
   const linePoints = [];
 
   /**
-   * @type { "brush" | "ereaser" | "pippet" | "fill" | "line"}}
+   * @type { "brush" | "ereaser" | "pippet" | "fill" | "line"}
    */
   let mode = "brush";
 
@@ -338,12 +391,14 @@ $(() => {
       if (mode == "line") {
         tds.removeClass("point1Line points1Line point2Line points2Line");
         crtline.prop("disabled", true);
+        forline.val("");
       }
       mode = el.attr("id");
       brng.css(
         "display",
         ["brush", "ereaser"].includes(mode) ? "block" : "none"
       );
+      cpchoice.css("display", mode == "pippet" ? "block" : "none");
       lineCr.css("display", mode == "line" ? "block" : "none");
       if (!["brush", "ereaser"].includes(mode)) {
         rangeInput.val(1);
@@ -352,7 +407,8 @@ $(() => {
       if (mode == "fill") {
         targetTD?.removeClass("mouseEnter");
       }
-      bParamsHeader.text(mode == "pippet" ? "Color picker" : fromUpper(mode));
+      theresNothingHere.css("display", mode == "fill" ? "block" : "none");
+      bParamsHeader.text(mode == "pippet" ? "Eyedropper" : fromUpper(mode));
     });
   });
 
@@ -434,7 +490,7 @@ $(() => {
                 if (["brush", "ereaser"].includes(mode)) {
                   $(this).css(
                     "background",
-                    mode == "brush" ? val : "transparent"
+                    mode == "brush" ? val : "#00000000"
                   );
                   document
                     .querySelectorAll(".neighbour")
@@ -444,7 +500,7 @@ $(() => {
                           mode == "brush"
                             ? val
                             : mode == "ereaser"
-                            ? "transparent"
+                            ? "#00000000"
                             : "#000cba")
                     );
                 } else if (mode == "pippet") {
@@ -458,10 +514,15 @@ $(() => {
                       .hex()
                       .slice(0, 7);
                   } else valu = valu.slice(0, 7);
-                  clr.val(valu);
-                  clr1help.val(valu.slice(1));
-                  val = clr.val();
-                  root.css({ "--clr":`${val}88`, "--hl": val });
+                  if (pippetApply.filter(":checked").val() == "forclr1") {
+                    clr.val(valu);
+                    clr1help.val(valu.slice(1));
+                    val = clr.val();
+                    root.css({ "--clr": `${val}88`, "--hl": val });
+                  } else {
+                    clr2.val(valu);
+                    clr2help.val(valu.slice(1));
+                  }
                 }
               }
             })
@@ -500,19 +561,21 @@ $(() => {
               }
             })
             .on("contextmenu", (e) => {
-              e.preventDefault();
-              tds.removeClass("points2Line point2Line");
-              linePoints[1] = td;
-              td.addClass("point2Line");
-              $(`td.notMain[data-x="${j}"], td.notMain[data-y="${i}"]`)
-                .not(td)
-                .addClass("points2Line");
-              linex2.val(j);
-              liney2.val(i);
-              crtline.prop(
-                "disabled",
-                forline.toArray().some((e) => !e.value.trim())
-              );
+              if (mode == "line") {
+                e.preventDefault();
+                tds.removeClass("points2Line point2Line");
+                linePoints[1] = td;
+                td.addClass("point2Line");
+                $(`td.notMain[data-x="${j}"], td.notMain[data-y="${i}"]`)
+                  .not(td)
+                  .addClass("points2Line");
+                linex2.val(j);
+                liney2.val(i);
+                crtline.prop(
+                  "disabled",
+                  forline.toArray().some((e) => !e.value.trim())
+                );
+              }
             });
         } else {
           const elemRgba = arrayForImportLayer[i][j].toUpperCase();
@@ -558,7 +621,8 @@ $(() => {
     let csses = [];
     tds.each(function () {
       csses.push(
-        rgbToHex(...rgbToArray($(this).css("background-color")))
+        chroma($(this).css("background-color"))
+          .hex()
           .toUpperCase()
           .replace("#", "")
       );
@@ -575,6 +639,8 @@ $(() => {
       .indexOf($element);
   }
 
+  const clrFromLooper = $("#clrFromLooper");
+
   function onMove(event) {
     const $target = event.target;
 
@@ -587,29 +653,33 @@ $(() => {
 
     clean();
 
-    if (mode !== "pippet")
+    if (mode !== "pippet") {
       if (mode !== "fill") {
-        if ($target.style.backgroundColor !== "rgba(0, 0, 0, 0)") {
-          currClrSpan.text(
-            $target.style.backgroundColor
-              ? rgbToHex(...rgbToArray($target.style.backgroundColor))
-              : "None"
-          );
-        } else {
-          const loopr = _.chunk(looper.toArray(), 20)[
-            $($target).attr("data-y")
-          ][$($target).attr("data-x")];
-          const sbc = loopr.style.backgroundColor;
-          currClrSpan.text(
-            sbc || chroma(sbc).hex() !== "#00000000"
-              ? chroma(sbc).hex().slice(0, 7)
-              : "None"
-          );
-        }
+        clrFromLooper.text(
+          $target.style.backgroundColor !== "rgba(0, 0, 0, 0)" ? "no" : "yes"
+        );
         if (mode !== "line") {
           $target.classList.add("mouseEnter");
         }
       }
+    }
+    if ($target.style.backgroundColor !== "rgba(0, 0, 0, 0)") {
+      currClrSpan.text(
+        $target.style.backgroundColor
+          ? rgbToHex(...rgbToArray($target.style.backgroundColor))
+          : "None"
+      );
+    } else {
+      const loopr = _.chunk(looper.toArray(), 20)[$($target).attr("data-y")][
+        $($target).attr("data-x")
+      ];
+      const sbc = loopr.style.backgroundColor;
+      currClrSpan.text(
+        sbc || chroma(sbc).hex() !== "#00000000"
+          ? chroma(sbc).hex().slice(0, 7)
+          : "None"
+      );
+    }
     neighbours.forEach((neighbour) => neighbour.classList.add("neighbour"));
   }
 
@@ -714,11 +784,11 @@ $(() => {
       gridM.checked ? "var(--accent)" : allTds.css("background-color")
     );
   };
-  function forClrHelper() {
+  function forClr1Helper1() {
     if (clr1help.val().length === 6) {
       clr.val("#" + clr1help.val());
       val = "#" + clr1help.val();
-      root.css({ "--clr": `#${clr2help.val()}`, "--hl": val });
+      root.css({ "--clr": `#${clr1help.val()}aa`, "--hl": val });
     }
     if (clr1help.val().length === 3) {
       const tmp = "#" + [...clr1help.val()].map((e) => e + e).join("");
@@ -733,7 +803,8 @@ $(() => {
       root.css({ "--clr": `${tmp}aa`, "--hl": val });
     }
   }
-  function forClrHelper2() {
+
+  function forClr2Helper1() {
     if (clr2help.val().length === 6) {
       clr2.val("#" + clr2help.val());
     }
@@ -750,7 +821,7 @@ $(() => {
       $(this).val([...$(this).val()].map((e) => e + e).join(""));
     }
     if ($(this).val().length === 1) {
-      $(this).val([...$(this).val()].map((e) => e.repeat(6)).join(""));
+      $(this).val($(this).val().repeat(6));
     }
   }
 
@@ -761,14 +832,14 @@ $(() => {
   }
   clr1help.on({
     keypress: denyChars,
-    input: forClrHelper,
-    paste: forClrHelper,
+    input: forClr1Helper1,
+    paste: (e) => e.preventDefault(),
     blur: clrHelpBlur,
   });
   clr2help.on({
     keypress: denyChars,
-    input: forClrHelper2,
-    paste: forClrHelper2,
+    input: forClr2Helper1,
+    paste: (e) => e.preventDefault(),
     blur: clrHelpBlur,
   });
 
@@ -906,10 +977,6 @@ $(() => {
         case "Numpad9":
           gridM.click();
           break;
-        case "KeyM":
-          musC.click();
-          break;
-
         case "KeyB":
         case "Digit1":
           brush.click();
@@ -926,9 +993,13 @@ $(() => {
         case "Digit4":
           filler.click();
           break;
-        case "KeyQ":
+        case "KeyL":
         case "Digit5":
           line.click();
+          break;
+
+        case "KeyJ":
+          crtline.trigger("click");
           break;
 
         case "KeyN":
@@ -936,36 +1007,97 @@ $(() => {
             navigator.clipboard.writeText(currClrSpan.text().trim());
           }
           break;
-        case "Equal":
-        case "NumpadAdd":
-          rangeInput.val(parseInt(rangeInput.val()) + 1);
-          bRangeVal.text(rangeInput.val());
-          break;
-        case "Minus":
-        case "NumpadSubtract":
-          rangeInput.val(rangeInput.val() - 1);
-          bRangeVal.text(rangeInput.val());
-          break;
       }
     }
   };
 
-  $(document.body).css("display", "flex");
-
-  const qrFillier = $("#qrFiller");
-  let qr = new QRCode(qrFillier[0], {
-    text: `trSkin1${exprtSkin(true)}`,
-    width: 340,
-    height: 340,
-    colorDark: "#fff",
-    colorLight: "#000",
-    correctLevel: QRCode.CorrectLevel.H,
+  $("#cpyForClr1").on("click", async () => {
+    const str = await navigator.clipboard.readText();
+    const filtered = str.replace(/#?[^\da-f]/i, "");
+    switch (filtered.length) {
+      case 1:
+        const repeatedd = filtered.repeat(6);
+        clr.val("#" + repeatedd);
+        clr1help.val(repeatedd);
+        val = "#" + repeatedd;
+        root.css({ "--clr": `${val}88`, "--hl": val });
+        break;
+      case 2:
+        const repeate = filtered.repeat(3);
+        clr.val("#" + repeate);
+        clr1help.val(repeate);
+        val = "#" + repeate;
+        root.css({ "--clr": `${val}88`, "--hl": val });
+        break;
+      case 3:
+        const repeated = filtered.repeat(2);
+        clr.val("#" + repeated);
+        clr1help.val(repeated);
+        val = "#" + repeated;
+        root.css({ "--clr": `${val}88`, "--hl": val });
+        break;
+      case 6:
+        clr.val("#" + filtered);
+        clr1help.val(filtered);
+        val = "#" + filtered;
+        root.css({ "--clr": `${val}88`, "--hl": val });
+        break;
+      case 8:
+        const unbruh = filtered.slice(0, 7);
+        clr.val("#" + unbruh);
+        clr1help.val(unbruh);
+        val = "#" + unbruh;
+        root.css({ "--clr": `${val}88`, "--hl": val });
+        break;
+      case 0:
+      default:
+        return;
+    }
   });
+  $("#cpyForClr2").on("click", async () => {
+    const str = await navigator.clipboard.readText();
+    const filtered = str.replace(/#?[^\da-f]/i, "");
+    switch (filtered.length) {
+      case 1:
+        const repeatedd = filtered.repeat(6);
+        clr.val("#" + repeatedd);
+        clr1help.val(repeatedd);
+        break;
+      case 2:
+        const repeate = filtered.repeat(3);
+        clr.val("#" + repeate);
+        clr1help.val(repeate);
+        break;
+      case 3:
+        const repeated = filtered.repeat(2);
+        clr.val("#" + repeated);
+        clr1help.val(repeated);
+        break;
+      case 6:
+        clr.val("#" + filtered);
+        clr1help.val(filtered);
+        break;
+      case 8:
+        const unbruh = filtered.slice(0, 7);
+        clr.val("#" + unbruh);
+        clr1help.val(unbruh);
+        break;
+      case 0:
+      default:
+        return;
+    }
+  });
+
+  $(document.body).css("display", "flex");
 
   acsnt.on({
     change: function () {
-      const hsl = hexToCssHsl(acsnt.val(), true).split(",");
-
+      let hsl;
+      try {
+        hsl = hexToCssHsl(acsnt.val(), true).split(",");
+      } catch (e) {
+        fatalErrD.dialog("open");
+      }
       root.css({
         "--accent-h": hsl[0],
         "--accent-s": hsl[1],
@@ -979,41 +1111,45 @@ $(() => {
   });
 
   function forAcsntHelper() {
-    if (acsntClrHelp.val().length === 6) {
-      acsnt.val(`#${acsntClrHelp.val()}`);
-      const hsl = hexToCssHsl(acsnt.val(), true).split(",");
+    try {
+      if (acsntClrHelp.val().length === 6) {
+        acsnt.val(`#${acsntClrHelp.val()}`);
+        const hsl = hexToCssHsl(chroma(acsnt.val()).hex(), true).split(",");
 
-      root.css({
-        "--accent-h": hsl[0],
-        "--accent-s": hsl[1],
-        "--accent-l": hsl[2],
-      });
-    }
-    if (acsntClrHelp.val().length === 3) {
-      acsnt.val(`#${[...acsntClrHelp.val()].map((e) => e + e).join("")}`);
-      const hsl = hexToCssHsl(acsnt.val(), true).split(",");
+        root.css({
+          "--accent-h": hsl[0],
+          "--accent-s": hsl[1],
+          "--accent-l": hsl[2],
+        });
+      }
+      if (acsntClrHelp.val().length === 3) {
+        acsnt.val(`#${[...acsntClrHelp.val()].map((e) => e + e).join("")}`);
+        const hsl = hexToCssHsl(acsnt.val(), true).split(",");
 
-      root.css({
-        "--accent-h": hsl[0],
-        "--accent-s": hsl[1],
-        "--accent-l": hsl[2],
-      });
-    }
-    if (acsntClrHelp.val().length === 1) {
-      acsnt.val(`#${[...acsntClrHelp.val()].map((e) => e.repeat(6))}`);
-      const hsl = hexToCssHsl(acsnt.val(), true).split(",");
+        root.css({
+          "--accent-h": hsl[0],
+          "--accent-s": hsl[1],
+          "--accent-l": hsl[2],
+        });
+      }
+      if (acsntClrHelp.val().length === 1) {
+        acsnt.val(`#${[...acsntClrHelp.val()].map((e) => e.repeat(6))}`);
+        const hsl = hexToCssHsl(acsnt.val(), true).split(",");
 
-      root.css({
-        "--accent-h": hsl[0],
-        "--accent-s": hsl[1],
-        "--accent-l": hsl[2],
-      });
+        root.css({
+          "--accent-h": hsl[0],
+          "--accent-s": hsl[1],
+          "--accent-l": hsl[2],
+        });
+      }
+    } catch (e) {
+      fatalErrD.dialog("open");
     }
   }
   acsntClrHelp.on({
     keyup: forAcsntHelper,
-    paste: forAcsntHelper,
     keypress: denyChars,
+    paste: (e) => preventDefault(),
     blur: clrHelpBlur,
   });
 
@@ -1051,7 +1187,6 @@ $(() => {
   const notMainTable = $("#tbl");
   const notMainTbody = notMainTable.children(":first");
 
-  $("input[type=checkbox]").checkboxradio();
   $("select").selectmenu();
 
   /**@type {HTMLCanvasElement} */
@@ -1171,13 +1306,7 @@ $(() => {
   const addSets = $("#addSets").dialog(defaultModal(500, 600));
   $("#addSetsBtn").on("click", () => addSets.dialog("open"));
 
-  const qrDialog = $("#exportQrDialog").dialog(defaultModal(433, 550));
-
-  $("#exportQr").on("click", () => {
-    qrDialog.dialog("open");
-    qr.clear();
-    qr.makeCode(`trSkin1${exprtSkin(true)}`);
-  });
+  $("#settabs").tabs();
 
   const head = $(".head");
   const legs = $(".legs");
@@ -1192,23 +1321,30 @@ $(() => {
     darklegs.css("background", hslDark(legshsl, 68));
   })(settings.bodyColor, settings.legsColor);
 
-  $("#lgclr").on("click", () => {
-    const hslval = hexToCssHsl(val);
-    legs.css("background", hslval);
-    darklegs.css("background", hslDark(hslval, 68));
-    autoclose.prop("checked") && applDialog.dialog("close");
-  });
-  $("#bdclr").on("click", () => {
-    const hslval = hexToCssHsl(val);
-    head.css("background", hslval);
-    darkhead.css("background", hslDark(hslval, 68));
-    autoclose.prop("checked") && applDialog.dialog("close");
-  });
-
   $(".ui-dialog-titlebar").hide();
-  const applDialog = $("#applClr").dialog(defaultModal(400, 200));
+  const applDialog = $("#applClr").dialog(defaultModal(400, 400));
 
   $("#applClrsB").on("click", () => applDialog.dialog("open"));
+
+  const bdorlg = $("input[name=looprClr]");
+  const bdlgClr = $("input[name=bdlgClr]");
+
+  $("#applLprClr").on("click", function () {
+    const hslval = hexToCssHsl(
+      "#" +
+        (bdlgClr.filter(":checked").val() == "yesclr1"
+          ? clr1help.val()
+          : clr2help.val())
+    );
+    if (bdorlg.filter(":checked").val() == "body") {
+      head.css("background", hslval);
+      darkhead.css("background", hslDark(hslval, 68));
+    } else {
+      legs.css("background", hslval);
+      darklegs.css("background", hslDark(hslval, 68));
+    }
+    autoclose.prop("checked") && applDialog.dialog("close");
+  });
 
   const errorDialog = $("#errorDialog").dialog(defaultModal(400, 500));
 
@@ -1279,16 +1415,159 @@ $(() => {
   const skinNameInp = $("#skinName");
   const trssToken = $("#trsstoken");
 
+  const wellDone = $("#jobWellDone").dialog(defaultModal(400, 200));
+
   const showTokenBtn = $("#showToken").checkboxradio();
 
-  let tokenIsShown = false;
+  showTokenBtn.on("click", () =>
+    trssToken.attr(
+      "type",
+      trssToken.attr("type") == "text" ? "password" : "text"
+    )
+  );
 
-  showTokenBtn.on("click", () => {
-    trssToken.attr("type", tokenIsShown ? "password" : "text");
-    tokenIsShown = !tokenIsShown;
+  $("#uploadSkin").on("click", async (e) => {
+    const qwe = await makeRequestToTRSS("skins", e, "upload_skin", {
+      token: trssToken.val(),
+      skin: "trSkin1" + exprtSkin(true),
+      skin_name: skinNameInp.val().trim(),
+      primary_color: chroma(head[0].style.backgroundColor).hex().toUpperCase(),
+      secondary_color: chroma(legs[0].style.backgroundColor)
+        .hex()
+        .toUpperCase(),
+    });
+    if (isJson(qwe) && "error_code" in skin) {
+      const code = JSON.parse(token).error_code;
+      addSets.dialog("close");
+      return errDialogOpen(
+        new TRSSError("Error: " + trssErrors[code] + ". Error code: " + code)
+      );
+    }
+    if (qwe == 1) {
+      uploadDialog.dialog("close");
+      trssToken.val("");
+      skinNameInp.val("");
+      wellDone.dialog("open");
+    }
   });
 
-  const uploadSkinBtn = $("#uploadSkin").on("click", () => {});
+  const [trssLogin, trssPassword] = [$("#trssLogin"), $("#trssPassword")];
+
+  const tokenSpan = $("#tokenHere").on("click", function () {
+    navigator.clipboard.writeText($(this).text());
+  });
+
+  $("#showPsswrd").on("click", () =>
+    trssPassword.attr(
+      "type",
+      trssPassword.attr("type") == "text" ? "password" : "text"
+    )
+  );
+
+  async function makeRequestToTRSS(link, e, action, params, dialog) {
+    try {
+      e.preventDefault();
+      const data = new URLSearchParams();
+      data.append("action", action);
+      for (const [k, v] of Object.entries(params)) {
+        data.append(k, v);
+        acsnt.val();
+      }
+      const response = await fetch(
+        "http://trsstest.crystalcloud.xyz/game-dev/TRSSDatabase/" +
+          link +
+          ".php",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: data,
+        }
+      ).catch((e) => console.error(e));
+      return response.text();
+    } catch (e) {
+      dialog.dialog("close");
+      errDialogOpen(new RequestError("Turn off adblock, lol"));
+    }
+  }
+
+  $("#getToken").on("click", async (e) => {
+    const token = await makeRequestToTRSS(
+      "users",
+      e,
+      "login",
+      {
+        login: trssLogin.val().trim(),
+        password: trssPassword.val().trim(),
+      },
+      addSets
+    );
+    if (isJson(token) && "error_code" in skin) {
+      const code = JSON.parse(token).error_code;
+      addSets.dialog("close");
+      return errDialogOpen(
+        new TRSSError("Error: " + trssErrors[code] + ". Error code: " + code)
+      );
+    }
+    tokenSpan.text(token);
+    trssLogin.val("");
+    trssPassword.val("");
+  });
+
+  const fromTrssD = $("#importFromTrss").dialog(defaultModal(400, 350));
+
+  $("#imprtFromTrss").on("click", async () => fromTrssD.dialog("open"));
+
+  const skinidInp = $("#skinid").spinner();
+
+  $("#gettrssskin").on("click", async (e) => {
+    const skin = JSON.parse(
+      await makeRequestToTRSS(
+        "skins",
+        e,
+        "get_skin_by_id",
+        {
+          skin_id: +skinidInp.val(),
+        },
+        fromTrssD
+      )
+    );
+    if ("error_code" in skin) {
+      const code = skin.error_code;
+      fromTrssD.dialog("close");
+      return errDialogOpen(
+        new TRSSError("Error: " + trssErrors[code] + ". Error code: " + code)
+      );
+    }
+    console.log(skin);
+    head.css("background", skin.primary_color);
+    darkhead.css("background", hslDark(hexToCssHsl(skin.primary_color), 68));
+    legs.css("background", skin.secondary_color);
+    darklegs.css("background", hslDark(hexToCssHsl(skin.secondary_color), 68));
+    const resSkin = arrFromSkin(skin.skin, false).map((e) => e.toUpperCase());
+    tds.each(function (i) {
+      if (
+        allowerToCombine.prop("checked") &&
+        /#?[0-9a-f]{4,4}00/i.test(chroma(resSkin[i]).hex())
+      )
+        return;
+      if (/#?00000000/i.test(chroma(resSkin[i]).hex())) {
+        $(this).css("background-color", "#00000000");
+        return;
+      }
+
+      $(this).css(
+        "background-color",
+        chroma(resSkin[i])
+          .hex()
+          .replace(/#?[a-f0-9]{6,6}00/i)
+          .slice(0, 7)
+      );
+    });
+    skinidInp.val("");
+    fromTrssD.dialog("close");
+  });
 });
 function unreload(acsnt, bdclr, lgclr) {
   let csses = [];

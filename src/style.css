@@ -386,8 +386,13 @@ input {
   background: transparent !important;
 }
 
-.fa-solid {
+.fa-solid,
+.fa-regular {
   padding: 0;
+}
+
+.regul {
+  border-bottom: 2px solid var(--accent) !important;
 }
 
 #instr,
@@ -428,16 +433,6 @@ input {
 .reset {
   display: none;
 }
-.indev {
-  text-decoration: underline !important;
-  color: #ff0 !important;
-}
-
-.infdev {
-  text-decoration: underline !important;
-  color: #000cba !important;
-}
-
 .divider {
   background: hsl(
     var(--accent-h),
@@ -545,6 +540,14 @@ input {
   ) !important;
   border: 2px solid
     hsl(var(--accent-h), var(--accent-s), calc(var(--accent-l) - 35%)) !important;
+}
+
+.ui-state-active .ui-checkboxradio-icon {
+  background: hsl(
+    var(--accent-h),
+    var(--accent-s),
+    calc(var(--accent-l) - 20%)
+  ) !important;
 }
 .ui-visual-focus {
   box-shadow: none !important;
@@ -729,4 +732,92 @@ input[type="number"] {
 
 input[type="text"].forline {
   width: 3rem !important;
+}
+
+.ui-tabs {
+  background: hsla(
+    var(--accent-h),
+    calc(var(--accent-s) - 20%),
+    calc(var(--accent-l) - 35%),
+    0.25
+  ) !important;
+  border: none !important;
+  border-bottom: 5px solid var(--accent) !important;
+  border-top: 5px solid var(--accent) !important;
+  border-radius: 0 !important;
+}
+
+.ui-tabs-nav {
+  background: hsla(
+    var(--accent-h),
+    calc(var(--accent-s) - 10%),
+    calc(var(--accent-l) - 35%),
+    0.25
+  ) !important;
+  border: none !important;
+  border-radius: 0 !important;
+}
+
+.ui-tabs-tab {
+  background: hsla(
+    var(--accent-h),
+    calc(var(--accent-s) - 10%),
+    calc(var(--accent-l) - 15%),
+    0.25
+  ) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  outline: none !important;
+  transition: 0.25s all;
+}
+
+#clrFromDiv {
+  display: inline-block !important;
+}
+
+.ui-tabs-active {
+  background-color: var(--accent) !important;
+}
+
+.ui-tabs-active a {
+  color: hsl(
+    var(--accent-h),
+    var(--accent-s),
+    calc(var(--accent-l) - 47.5%)
+  ) !important;
+  border: none !important;
+}
+
+.ui-tabs-tab.ui-state-hover:not(.ui-tabs-active) {
+  background-color: hsla(
+    var(--accent-h),
+    calc(var(--accent-s) - 10%),
+    calc(var(--accent-l) - 15%),
+    0.5
+  ) !important;
+}
+
+#trssLogin {
+  width: 14rem !important;
+}
+
+#tokenHere {
+  background-color: hsl(
+    var(--accent-h),
+    var(--accent-s),
+    calc(var(--accent-l) - 47.5%)
+  ) !important ;
+  border-bottom: 2px solid var(--accent) !important;
+}
+
+.ableToCopy {
+  user-select: text;
+}
+
+.trssSecret {
+  min-width: 14rem !important;
+}
+
+.ui-spinner {
+  width: 10rem !important;
 }

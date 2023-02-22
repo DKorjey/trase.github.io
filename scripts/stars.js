@@ -15,18 +15,18 @@ const minStarSize = 10;
 const maxStarSize = 30;
 
 const starsCanv = document.getElementById("bgCanvas");
-  starsCanv.width = scrWidth;
-  starsCanv.height = scrHeight;
-  const starsCtx = starsCanv.getContext("2d");
-  starsCtx.imageSmoothingEnabled = false;
+starsCanv.width = scrWidth;
+starsCanv.height = scrHeight;
+const starsCtx = starsCanv.getContext("2d");
+starsCtx.imageSmoothingEnabled = false;
 
-  const srces = [
-    "../imgs/StarSpriteSheetPink.png",
-    "../imgs/StarSpriteSheetYellow.png",
-    "../imgs/StarSpriteSheetBlue.png",
-  ];
-  const starSheets = [new Image(), new Image(), new Image()];
-  for (let i = 0; i < 3; i++) starSheets[i].src = srces[i];
+const srces = [
+  "../imgs/StarSpriteSheetPink.png",
+  "../imgs/StarSpriteSheetYellow.png",
+  "../imgs/StarSpriteSheetBlue.png",
+];
+const starSheets = [new Image(), new Image(), new Image()];
+for (let i = 0; i < 3; i++) starSheets[i].src = srces[i];
 
 class Star {
   constructor(options) {

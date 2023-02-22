@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link
       rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css"
-      integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A=="
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"
+      integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ=="
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
@@ -45,15 +45,9 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     ></script>
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
-      integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    ></script>
     <script defer src="../scripts/main.js"></script>
     <script defer src="../scripts/stars.js"></script>
-    <title>TRASE (R_1.0.0_Beta2)</title>
+    <title>TRASE</title>
   </head>
   <body>
     <canvas id="canvSkin" width="20" height="18"></canvas>
@@ -77,6 +71,9 @@
                 value="ffffff"
                 maxlength="6"
               />
+              <button class="regul" id="cpyForClr1" title="Paste to color 1">
+                <i class="fa-regular fa-clipboard"></i>
+              </button>
             </li>
             <li>
               <input type="color" id="clr2" value="#000000" />
@@ -86,6 +83,9 @@
                 value="000000"
                 maxlength="6"
               />
+              <button class="regul" id="cpyForClr2" title="Paste to color 2">
+                <i class="fa-regular fa-clipboard"></i>
+              </button>
             </li>
             <li>
               <div class="nopadd">
@@ -110,7 +110,7 @@
                   <i class="fa-solid fa-eraser"></i>
                 </button>
 
-                <button id="pippet" class="instr" title="Pippet (P or 3)">
+                <button id="pippet" class="instr" title="Eyedropper (P or 3)">
                   <i class="fa-solid fa-eye-dropper"></i>
                 </button>
 
@@ -147,20 +147,19 @@
               <i class="fa-solid fa-file-import"></i>
             </button>
             <input type="file" id="importImg" accept="image/png" />
+            <button id="imprtFromTrss" title="Import from TRSS">
+              <i class="fa-solid fa-arrow-right-to-bracket fa-rotate-90"></i>
+            </button>
+            <br />
             <button title="Export as text" class="div2" id="exportBtn">
               <i class="fa-solid fa-copy"></i>
             </button>
-            <br />
             <button title="Export as image" id="exportImg">
               <i class="fa-solid fa-file-export"></i>
             </button>
-            <button id="exportQr" title="Share with QR code">
-              <i class="fa-solid fa-qrcode"></i>
-            </button>
-            <!-- It's not done yet-->
-            <!-- <button id="uploadDialogBtn">
+            <button title="Upload to TRSS" id="uploadDialogBtn">
               <i class="fa-solid fa-arrow-up-from-bracket"></i>
-            </button> -->
+            </button>
           </div>
 
           <br />
@@ -179,7 +178,7 @@
           <h2><span id="bParams">Brush</span> params</h2>
           <div>
             <div id="brng">
-              Brush range: <span id="bRangeVal">1</span> <br /><input
+              Range: <span id="bRangeVal">1</span> <br /><input
                 type="range"
                 id="brushRange"
                 min="1"
@@ -187,21 +186,78 @@
                 value="1"
               />
             </div>
-            <div id="lineCr" class="nopadd" style="display: none">
-              X1: <input type="text" readonly id="linex1" class="forline" min="0" max="19" /> Y1:
-              <input type="text" id="liney1" readonly class="forline" min="0" max="17" />
-
+            <div id="cpchoice" style="display: none">
+              Apply for: <br /><br />
+              <label
+                ><input
+                  type="radio"
+                  id="rforclr1"
+                  name="cpch"
+                  value="forclr1"
+                  checked
+                />
+                Color 1</label
+              >
               <br />
               <br />
-
-              X2: <input type="text" id="linex2" readonly class="forline" min="0" max="19" /> Y2:
-              <input type="text" id="liney2" readonly class="forline" min="0" max="17" />
-
-              <br />
-              <br />
-
-              <button id="crtline" title="Create line" disabled>Create line</button>
+              <label
+                ><input
+                  type="radio"
+                  id="rforclr2"
+                  name="cpch"
+                  value="forclr2"
+                />
+                Color 2</label
+              >
             </div>
+            <div id="lineCr" class="nopadd" style="display: none">
+              X1:
+              <input
+                type="text"
+                readonly
+                id="linex1"
+                class="forline"
+                min="0"
+                max="19"
+              />
+              Y1:
+              <input
+                type="text"
+                id="liney1"
+                readonly
+                class="forline"
+                min="0"
+                max="17"
+              />
+
+              <br />
+              <br />
+
+              X2:
+              <input
+                type="text"
+                id="linex2"
+                readonly
+                class="forline"
+                min="0"
+                max="19"
+              />
+              Y2:
+              <input
+                type="text"
+                id="liney2"
+                readonly
+                class="forline"
+                min="0"
+                max="17"
+              />
+
+              <br />
+              <br />
+
+              <button id="crtline" title="Create line">Create line</button>
+            </div>
+            <div id="nthngHere" style="display: none">There's nothing here</div>
           </div>
         </div>
       </li>
@@ -218,8 +274,24 @@
     </div>
 
     <div id="applClr" title="Apply color for">
-      <input type="button" id="bdclr" value="Body" />
-      <input type="button" id="lgclr" value="Legs" />
+      <label
+        ><input type="radio" name="looprClr" value="body" checked /> Body</label
+      >
+      <label><input type="radio" name="looprClr" value="legs" /> Legs</label>
+      <br /><br />
+
+      <br /><br />
+      from: <br /><br />
+      <label
+        ><input type="radio" name="bdlgClr" value="yesclr1" checked /> Color
+        1</label
+      >
+      <label
+        ><input type="radio" name="bdlgClr" value="yesclr2" /> Color 2</label
+      >
+
+      <br /><br />
+      <button id="applLprClr">Apply</button>
     </div>
 
     <div id="modMix">
@@ -234,8 +306,11 @@
       />
       <br />
       Result:
-      <input type="color" id="resClr" />
-      (HEX: #<input type="text" id="resClrHelp" readonly />)
+      <input type="color" id="resClr" />&nbsp; #<input
+        type="text"
+        id="resClrHelp"
+        readonly
+      />
 
       <br /><br />
 
@@ -246,53 +321,50 @@
     </div>
 
     <div id="addSets">
-      <ul>
-        <li>
+      <div id="settabs">
+        <ul>
+          <li>
+            <a draggable="false" href="#settab-1">More</a>
+          </li>
+          <li><a draggable="false" href="#settab-2">Accent</a></li>
+          <li>
+            <a draggable="false" href="#settab-3">Resets</a>
+          </li>
+          <li>
+            <a draggable="false" href="#settab-4">TRSS token</a>
+          </li>
+          <li><a draggable="false" href="#settab-5">Key bindings</a></li>
+          <li><a draggable="false" href="#settab-6">Guide</a></li>
+          <li><a draggable="false" href="#settab-7">Contact me</a></li>
+          <li><a draggable="false" href="#settab-8">Dev hacks</a></li>
+          <li><a draggable="false" href="#settab-9">Special thanks</a></li>
+        </ul>
+        <div id="settab-1">
+          <br />
           <input type="checkbox" id="autocloser" checked />
           <label for="autocloser"
             >Automatically close dialog boxes after pressing "apply"</label
           >
-        </li>
-        <li>
+          <br />
+          <br />
           <label
             ><input type="checkbox" id="mus" title="Enable music (M)" /> Enable
             Music</label
           >
-        </li>
-        <li>
+          <br />
+          <br />
           Skin size: <br />
           <input type="range" id="paddingTbl" min="10" max="20" value="10" />
-        </li>
-        <li>
-          <div class="liss">
-            <h2>Accent color</h2>
-            <ul>
-              <li>
-                <input type="color" id="acsntClr" value="#65abcf" />&nbsp; #<input
-                  type="text"
-                  id="acsntClrHelp"
-                  maxlength="6"
-                  value="65abcf"
-                />
-              </li>
-            </ul>
-          </div>
-        </li>
-        <li>
-          <div id="devDK" class="liss">
-            <h2>Dev lifehacks</h2>
-            <ul>
-              <li><button onclick="location.reload()">Reload page</button></li>
-              <li>
-                <button onclick="localStorage.clear()">
-                  Clear local storage
-                </button>
-              </li>
-            </ul>
-          </div>
-        </li>
-        <li>
-          <h2 style="color: #500 !important; background: #c00">Reset zone</h2>
+        </div>
+        <div id="settab-2">
+          <input type="color" id="acsntClr" value="#65abcf" />&nbsp; #<input
+            type="text"
+            id="acsntClrHelp"
+            maxlength="6"
+            value="65abcf"
+          />
+        </div>
+        <div id="settab-3">
           <ul class="resetZone">
             <li>
               <button id="reset" class="danger reseter">Reset skin</button>
@@ -300,15 +372,83 @@
             </li>
             <li>
               <button id="resBdyClr" class="danger">Reset body color</button>
-
               <button id="resLgsClr" class="danger">Reset legs color</button>
             </li>
             <li>
               <button id="resAcsnt" class="danger">Default accent color</button>
             </li>
           </ul>
-        </li>
-      </ul>
+        </div>
+        <div id="settab-4">
+          <form>
+            Login:
+            <input
+              type="text"
+              id="trssLogin"
+              autocomplete="off"
+              required
+            /><br /><br />
+            Password:
+            <input
+              type="password"
+              id="trssPassword"
+              autocomplete="off"
+              required
+              class="trssSecret"
+            />
+            <br />
+            <br />
+            <button id="getToken">Get token</button>
+          </form>
+          <button id="showPsswrd">Show password</button>
+          <br />
+          <br />
+          Token here: <br /><br />
+          <span id="tokenHere"></span><br /><br />
+          (click on text to copy)
+        </div>
+        <div id="settab-5">
+          <ul>
+            <li>X: Switch colors</li>
+            <li>S or 0: Disable/Enable looper</li>
+            <li>A or 9: Disable/Enable grid</li>
+            <li>B or 1: Select "brush" tool</li>
+            <li>E or 2: Select "ereaser" tool</li>
+            <li>P or 3: Select "eyedropper" tool</li>
+            <li>F or 4: Select "fill" tool</li>
+            <li>L or 5: Select "line" tool</li>
+            <li>Shift + N: copy pixel&apos;s color</li>
+            <li>J (When "line" tool active) create line</li>
+          </ul>
+        </div>
+        <div id="settab-6">
+          <a draggable="false" href="">Guide (with en subtitles) coming soon</a>
+        </div>
+        <div id="settab-7">
+          Telegram:
+          <a class="ableToCopy" href="https://t.me/dkorj">t.me/dkorj</a>
+          <br /><br />
+          Discord: <span class="ableToCopy">DKorj#7586</span> <br /><br />
+          VK: <a class="ableToCopy" href="https://vk.me/dkorj">vk.me/dkorj</a>
+        </div>
+        <div id="settab-8">
+          <button onclick="location.reload()">Reload page</button>
+          <button onclick="localStorage.clear()">Clear local storage</button>
+        </div>
+        <div id="settab-9">
+          <a href="https://t.me/IamTagir" draggable="false">IamTagir:</a> For
+          creating Team Run <br /><br />
+          <a href="https://t.me/gstroin" draggable="false">Gstroin:</a> For
+          assistance in integrating TRSS into TRASE (And for creating TRSS)
+          <br /><br />
+          <a href="https://t.me/tttttttpm" draggable="false">Tipim:</a> For help
+          with filling And other for support <br /><br />
+          <a href="https://stackoverflow.com" draggable="false"
+            >stackoverflow.com:</a
+          >
+          for answers
+        </div>
+      </div>
     </div>
 
     <div id="topBar">
@@ -338,18 +478,15 @@
 
       <div id="xy" class="lblLol">
         X: <span id="x">0</span>Y: <span id="y">0</span
-        ><span id="currClrDiv">
-          Pixel's color under cursor: <span id="currClr">None</span> (<span
-            class="key"
-            >Shift</span
-          >
-          + <span class="key">N</span> to copy)
+        ><span id="currClrDiv" title="Shift + N to copy">
+          Pixel's color under cursor:
+          <span id="currClr">None</span>
         </span>
+        from looper: <span id="clrFromLooper">no</span>
       </div>
     </div>
 
-    <!-- yeah... -->
-    <!-- <div id="uploadToTrss" title="Upload to TRSS">
+    <div id="uploadToTrss" title="Upload to TRSS">
       <form>
         Skin name:
         <input
@@ -364,7 +501,7 @@
           required
           type="password"
           id="trsstoken"
-          class="foruploadskin"
+          class="foruploadskin trssSecret"
           autocomplete="off"
         />
         <br />
@@ -378,14 +515,33 @@
       </form>
       <input type="checkbox" id="showToken" />
       <label for="showToken">Show token</label>
-    </div> -->
+    </div>
+
+    <div id="importFromTrss" title="Import from TRSS">
+      <form>
+        <input type="number" id="skinid" required />
+        <br />
+        <br />
+        <button id="gettrssskin">Import skin</button>
+      </form>
+
+      <br />
+      <br />
+      Note: skin may have inconsistencies
+    </div>
+
+    <div id="jobWellDone" title="Published!">Skin successfully published</div>
+
+    <div id="fatalErrDialog" title="ohh...">
+      Oops! We have a fatal error (maybe after update). So, yes
+      <br />
+      <br />
+      <button onclick="localStorage.clear(); location.reload()">
+        Clear local strorage and reload page
+      </button>
+    </div>
 
     <div id="errorDialog" title="Error"></div>
-
-    <div id="exportQrDialog">
-      Result:<br /><br />
-      <div id="qrFiller"></div>
-    </div>
 
     <canvas id="bgCanvas" width="100%" height="100%"></canvas>
 
