@@ -1078,7 +1078,11 @@ try {
           case "Numpad5":
             line.trigger("click");
             break;
-
+          case "KeyZ":
+	  case "Digit6":
+          case "Numpad6":
+            bdlg.trigger("click");
+            break;
           case "KeyJ":
             crtline.trigger("click");
             break;
