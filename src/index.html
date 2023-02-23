@@ -99,8 +99,9 @@
                 <button id="modMixClrs" title="Mix colors">
                   <i class="fa-solid fa-brands fa-mixer"></i>
                 </button>
-                <button id="applClrsB" title="Apply color for (Body or Legs)">
-                  <i class="fa-solid fa-brush"></i>
+
+                <button id="flipDialogOpen">
+                  <i class="fa-solid fa-arrow-right-arrow-left"></i>
                 </button>
               </div>
             </li>
@@ -128,12 +129,22 @@
                   <i class="fa-solid fa-slash fa-flip-horizontal"></i>
                 </button>
 
-                <button id="flipDialogOpen">
-                  <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                <button id="bdlg" title="Apply color for (Body or Legs)">
+                  <i class="fa-solid fa-brush"></i>
                 </button>
               </div>
             </li>
           </ul>
+        </div>
+      </li>
+      <li>
+        <div class="liss">
+          <h2>Dev hacks</h2>
+          <div id="settab-8">
+            <button onclick="location.reload()">Reload page</button>
+            <br /><br />
+            <button onclick="localStorage.clear()">Clear local storage</button>
+          </div>
         </div>
       </li>
     </ul>
@@ -252,6 +263,19 @@
 
               <button id="crtline" title="Create line">Create line</button>
             </div>
+            <div id="applCr" style="display: none">
+              Pick color from:
+              <br /><br />
+              <label>
+                <input type="radio" name="bdlgClr" value="yesclr1" checked />
+                Color 1
+              </label>
+              <br /><br />
+              <label>
+                <input type="radio" name="bdlgClr" value="yesclr2" />
+                Color 2
+              </label>
+            </div>
             <div id="nthngHere" style="display: none">There's nothing here</div>
           </div>
         </div>
@@ -266,27 +290,6 @@
         vertical
       </button>
       <button id="flipB" class="forflip" title="Flip (Both)">both</button>
-    </div>
-
-    <div id="applClr" title="Apply color for">
-      <label
-        ><input type="radio" name="looprClr" value="body" checked /> Body</label
-      >
-      <label><input type="radio" name="looprClr" value="legs" /> Legs</label>
-      <br /><br />
-
-      <br /><br />
-      from: <br /><br />
-      <label
-        ><input type="radio" name="bdlgClr" value="yesclr1" checked /> Color
-        1</label
-      >
-      <label
-        ><input type="radio" name="bdlgClr" value="yesclr2" /> Color 2</label
-      >
-
-      <br /><br />
-      <button id="applLprClr">Apply</button>
     </div>
 
     <div id="modMix">
@@ -331,8 +334,7 @@
           <li><a draggable="false" href="#settab-5">Key bindings</a></li>
           <li><a draggable="false" href="#settab-6">Guide</a></li>
           <li><a draggable="false" href="#settab-7">Contact me</a></li>
-          <li><a draggable="false" href="#settab-8">Dev hacks</a></li>
-          <li><a draggable="false" href="#settab-9">Special thanks</a></li>
+          <li><a draggable="false" href="#settab-8">Special thanks</a></li>
         </ul>
         <div id="settab-1">
           <br />
@@ -405,8 +407,8 @@
         <div id="settab-5">
           <ul>
             <li>X: Switch colors</li>
-            <li>S or 0: Disable/Enable looper</li>
-            <li>A or 9: Disable/Enable grid</li>
+            <li>A or 9: Toggle grid</li>
+            <li>S or 0: Toggle looper</li>
             <li>B or 1: Select "brush" tool</li>
             <li>E or 2: Select "ereaser" tool</li>
             <li>P or 3: Select "eyedropper" tool</li>
@@ -426,11 +428,8 @@
           Discord: <span class="ableToCopy">DKorj#7586</span> <br /><br />
           VK: <a class="ableToCopy" href="https://vk.me/dkorj">vk.me/dkorj</a>
         </div>
+
         <div id="settab-8">
-          <button onclick="location.reload()">Reload page</button>
-          <button onclick="localStorage.clear()">Clear local storage</button>
-        </div>
-        <div id="settab-9">
           <a href="https://t.me/IamTagir" draggable="false">IamTagir:</a> For
           creating Team Run <br /><br />
           <a href="https://t.me/gstroin" draggable="false">Gstroin:</a> For
@@ -455,7 +454,7 @@
           type="checkbox"
           class="gridder"
           id="gridManager"
-          title="Show grid (A or 9)"
+          title="Toggle grid (A or 8)"
           checked
         />
         Grid
@@ -466,7 +465,7 @@
           type="checkbox"
           id="disblL"
           checked
-          title="Show looper (S or 0)"
+          title="Toggle looper (S or 9)"
         />
         Looper
       </label>

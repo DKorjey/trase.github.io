@@ -334,6 +334,8 @@ try {
 
     const forline = $(".forline");
 
+    const bdlgClr = $("input[name=bdlgClr]");
+
     const crtline = $("#crtline")
       .prop("disabled", true)
       .on("click", function () {
@@ -378,12 +380,14 @@ try {
 
     const brng = $("#brng");
     const lineCr = $("#lineCr");
+    const applCr = $("#applCr");
 
     const brush = $("#brush");
     const ereaser = $("#ereaser");
     const pippet = $("#pippet");
     const filler = $("#fill");
     const line = $("#line");
+    const bdlg = $("#bdlg");
 
     const theresNothingHere = $("#nthngHere");
 
@@ -391,11 +395,11 @@ try {
     const linePoints = [];
 
     /**
-     * @type { "brush" | "ereaser" | "pippet" | "fill" | "line"}
+     * @type { "brush" | "ereaser" | "pippet" | "fill" | "line" | "bdlg"}
      */
     let mode = "brush";
 
-    const instruments = [brush, ereaser, pippet, filler, line];
+    const instruments = [brush, ereaser, pippet, filler, line, bdlg];
 
     /**@type {JQuery<HTMLElement>} */
     let targetTD;
@@ -423,8 +427,15 @@ try {
         if (mode == "fill") {
           targetTD?.removeClass("mouseEnter");
         }
+        applCr.css("display", mode == "bdlg" ? "block" : "none");
         theresNothingHere.css("display", mode == "fill" ? "block" : "none");
-        bParamsHeader.text(mode == "pippet" ? "Eyedropper" : fromUpper(mode));
+        bParamsHeader.text(
+          mode == "pippet"
+            ? "Eyedropper"
+            : mode == "bdlg"
+            ? "Applyer"
+            : fromUpper(mode)
+        );
       });
     });
 
@@ -757,36 +768,68 @@ try {
       test.push(rgbToHex(...rgbToArray($(this).css("background-color"))));
     });
     tds.each(function () {
-      $(this).on("click", function () {
-        if (mode == "fill") {
-          function fill(data, x, y, newValue) {
-            const target = data[x][y];
+      $(this).on({
+        click: function () {
+          if (mode == "fill") {
+            function fill(data, x, y, newValue) {
+              const target = data[x][y];
 
-            function flow(x, y) {
-              if (x >= 0 && x < data.length && y >= 0 && y < data[x].length) {
-                if (data[x][y] === target) {
-                  data[x][y] = newValue;
-                  flow(x - 1, y);
-                  flow(x + 1, y);
-                  flow(x, y - 1);
-                  flow(x, y + 1);
+              function flow(x, y) {
+                if (x >= 0 && x < data.length && y >= 0 && y < data[x].length) {
+                  if (data[x][y] === target) {
+                    data[x][y] = newValue;
+                    flow(x - 1, y);
+                    flow(x + 1, y);
+                    flow(x, y - 1);
+                    flow(x, y + 1);
+                  }
                 }
               }
+              flow(x, y);
             }
-            flow(x, y);
-          }
 
-          const onedclrs = [];
-          tds.each(function () {
-            onedclrs.push(chroma($(this).css("background-color")).hex());
-          });
-          const clrs = _.chunk(onedclrs, 20);
-          fill(clrs, $(this).attr("data-y"), $(this).attr("data-x"), clr.val());
-          const res = clrs.flat();
-          tds.each(function (i) {
-            $(this).css("background-color", res[i] + " !important");
-          });
-        }
+            const onedclrs = [];
+            tds.each(function () {
+              onedclrs.push(chroma($(this).css("background-color")).hex());
+            });
+            const clrs = _.chunk(onedclrs, 20);
+            fill(
+              clrs,
+              $(this).attr("data-y"),
+              $(this).attr("data-x"),
+              clr.val()
+            );
+            const res = clrs.flat();
+            tds.each(function (i) {
+              $(this).css("background-color", res[i] + " !important");
+            });
+          }
+        },
+        mousedown: function (e) {
+          if (mode == "bdlg" && !e.button) {
+            const hslval = hexToCssHsl(
+              "#" +
+                (bdlgClr.filter(":checked").val() == "yesclr1"
+                  ? clr1help.val()
+                  : clr2help.val())
+            );
+            head.css("background", hslval);
+            darkhead.css("background", hslDark(hslval, 68));
+          }
+        },
+        contextmenu: (e) => {
+          e.preventDefault();
+          if (mode == "bdlg") {
+            const hslval = hexToCssHsl(
+              "#" +
+                (bdlgClr.filter(":checked").val() == "yesclr1"
+                  ? clr1help.val()
+                  : clr2help.val())
+            );
+            legs.css("background", hslval);
+            darklegs.css("background", hslDark(hslval, 68));
+          }
+        },
       });
     });
 
@@ -798,58 +841,68 @@ try {
       )
     );
 
-    $("#reset").click(() => {
+    $("#reset").on("click", () => {
       tds.css("background", "#00000000");
       settings.savedSkin = "trSkin17cYhAQAACMCwSvf074WgBGJTqzOJiIiIiIj8yAI=";
       unreload(acsntClrHelp);
       boo.play();
     });
     const allTds = $("td");
-    let gridM = document.querySelector("#gridManager");
-    gridM.onchange = function () {
+    const gridM = $("#gridManager").on("change", function () {
       allTds.css(
         "border-color",
-        gridM.checked ? "var(--accent)" : allTds.css("background-color")
+        gridM.prop("checked") ? "var(--accent)" : allTds.css("background-color")
       );
-    };
+    });
     function forClr1Helper1() {
-      if (clr1help.val().length === 6) {
-        clr.val("#" + clr1help.val());
-        val = "#" + clr1help.val();
-        root.css({ "--clr": `#${clr1help.val()}aa`, "--hl": val });
+      let tmp = "";
+      switch (clr1help.val().length) {
+        case 6:
+          tmp = clr1help.val();
+          break;
+        case 3:
+          tmp = [...clr1help.val()].map((e) => e + e).join("");
+          break;
+        case 2:
+          tmp = clr1help.val().repeat(3);
+          break;
+        case 1:
+          tmp = clr1help.val().repeat(6);
+          break;
       }
-      if (clr1help.val().length === 3) {
-        const tmp = "#" + [...clr1help.val()].map((e) => e + e).join("");
-        clr.val(tmp);
-        val = tmp;
-        root.css({ "--clr": `${tmp}aa`, "--hl": val });
-      }
-      if (clr1help.val().length === 1) {
-        const tmp = "#" + clr1help.val().repeat(6);
-        clr.val(tmp);
-        val = tmp;
-        root.css({ "--clr": `${tmp}aa`, "--hl": val });
-      }
+      tmp = "#" + tmp;
+      clr.val(tmp);
+      val = tmp;
+      root.css({ "--clr": `${val}aa`, "--hl": val });
     }
 
     function forClr2Helper1() {
-      if (clr2help.val().length === 6) {
-        clr2.val("#" + clr2help.val());
-      }
-      if (clr2help.val().length === 3) {
-        clr2.val("#" + [...clr2help.val()].map((e) => e + e).join(""));
-      }
-      if (clr2help.val().length === 1) {
-        clr2.val(`#${clr2help.val().repeat(6)}`);
+      switch (clr2help.val().length) {
+        case 6:
+          clr2.val("#" + clr2help.val());
+          break;
+        case 3:
+          clr2.val("#" + [...clr2help.val()].map((e) => e + e).join(""));
+          break;
+        case 2:
+          clr2.val("#" + clr2help.val().repeat(3));
+          break;
+        case 1:
+          clr2.val(`#${clr2help.val().repeat(6)}`);
       }
     }
 
     function clrHelpBlur() {
-      if ($(this).val().length === 3) {
-        $(this).val([...$(this).val()].map((e) => e + e).join(""));
-      }
-      if ($(this).val().length === 1) {
-        $(this).val($(this).val().repeat(6));
+      switch ($(this).val().length) {
+        case 3:
+          $(this).val([...$(this).val()].map((e) => e + e).join(""));
+          break;
+        case 2:
+          $(this).val($(this).val().repeat(3));
+          break;
+        case 1:
+          $(this).val($(this).val().repeat(6));
+          break;
       }
     }
 
@@ -988,37 +1041,42 @@ try {
         blur();
         switch (e.code) {
           case "KeyX":
-            switchCols.click();
+            switchCols.trigger("click");
             break;
           case "KeyS":
           case "Digit0":
           case "Numpad0":
-            looperDisabler.click();
+            looperDisabler.trigger("click");
             break;
           case "KeyA":
           case "Digit9":
           case "Numpad9":
-            gridM.click();
+            gridM.trigger("click");
             break;
           case "KeyB":
           case "Digit1":
-            brush.click();
+          case "Numpad1":
+            brush.trigger("click");
             break;
           case "KeyE":
           case "Digit2":
-            ereaser.click();
+          case "Numpad2":
+            ereaser.trigger("click");
             break;
           case "KeyP":
           case "Digit3":
-            pippet.click();
+          case "Numpad3":
+            pippet.trigger("click");
             break;
           case "KeyF":
           case "Digit4":
-            filler.click();
+          case "Numpad4":
+            filler.trigger("click");
             break;
           case "KeyL":
           case "Digit5":
-            line.click();
+          case "Numpad5":
+            line.trigger("click");
             break;
 
           case "KeyJ":
@@ -1135,36 +1193,27 @@ try {
 
     function forAcsntHelper() {
       try {
-        if (acsntClrHelp.val().length === 6) {
-          acsnt.val(`#${acsntClrHelp.val()}`);
-          const hsl = hexToCssHsl(chroma(acsnt.val()).hex(), true).split(",");
-
-          root.css({
-            "--accent-h": hsl[0],
-            "--accent-s": hsl[1],
-            "--accent-l": hsl[2],
-          });
+        switch (acsntClrHelp.val().length) {
+          case 6:
+            acsnt.val(`#${acsntClrHelp.val()}`);
+            break;
+          case 3:
+            acsnt.val(`#${[...acsntClrHelp.val()].map((e) => e + e).join("")}`);
+            break;
+          case 2:
+            acsnt.val("#" + acsntClrHelp.val().repeat(3));
+            break;
+          case 1:
+            acsnt.val("#" + acsntClrHelp.val().repeat(6));
+            break;
         }
-        if (acsntClrHelp.val().length === 3) {
-          acsnt.val(`#${[...acsntClrHelp.val()].map((e) => e + e).join("")}`);
-          const hsl = hexToCssHsl(acsnt.val(), true).split(",");
 
-          root.css({
-            "--accent-h": hsl[0],
-            "--accent-s": hsl[1],
-            "--accent-l": hsl[2],
-          });
-        }
-        if (acsntClrHelp.val().length === 1) {
-          acsnt.val(`#${[...acsntClrHelp.val()].map((e) => e.repeat(6))}`);
-          const hsl = hexToCssHsl(acsnt.val(), true).split(",");
-
-          root.css({
-            "--accent-h": hsl[0],
-            "--accent-s": hsl[1],
-            "--accent-l": hsl[2],
-          });
-        }
+        const hsl = hexToCssHsl(chroma(acsnt.val()).hex(), true).split(",");
+        root.css({
+          "--accent-h": hsl[0],
+          "--accent-s": hsl[1],
+          "--accent-l": hsl[2],
+        });
       } catch (e) {
         fatalErrD.dialog("open");
       }
@@ -1172,7 +1221,7 @@ try {
     acsntClrHelp.on({
       keyup: forAcsntHelper,
       keypress: denyChars,
-      paste: (e) => preventDefault(),
+      paste: (e) => e.preventDefault(),
       blur: clrHelpBlur,
     });
 
@@ -1217,7 +1266,7 @@ try {
     const cx = imgCanv.getContext("2d");
 
     const importImg = $("#importImg");
-    $("#btnImImg").on("click", () => importImg.click());
+    $("#btnImImg").on("click", () => importImg.trigger("click"));
 
     importImg.on("change", function (e) {
       const img = new Image();
@@ -1259,7 +1308,7 @@ try {
         const link = document.createElement("a");
         link.download = "skin.png";
         link.href = imgCanv.toDataURL();
-        link.click();
+        link.trigger("click");
       } catch (e) {
         errDialogOpen(e);
       }
@@ -1331,29 +1380,6 @@ try {
     })(settings.bodyColor, settings.legsColor);
 
     $(".ui-dialog-titlebar").hide();
-    const applDialog = $("#applClr").dialog(defaultModal(400, 400));
-
-    $("#applClrsB").on("click", () => applDialog.dialog("open"));
-
-    const bdorlg = $("input[name=looprClr]");
-    const bdlgClr = $("input[name=bdlgClr]");
-
-    $("#applLprClr").on("click", function () {
-      const hslval = hexToCssHsl(
-        "#" +
-          (bdlgClr.filter(":checked").val() == "yesclr1"
-            ? clr1help.val()
-            : clr2help.val())
-      );
-      if (bdorlg.filter(":checked").val() == "body") {
-        head.css("background", hslval);
-        darkhead.css("background", hslDark(hslval, 68));
-      } else {
-        legs.css("background", hslval);
-        darklegs.css("background", hslDark(hslval, 68));
-      }
-      autoclose.prop("checked") && applDialog.dialog("close");
-    });
 
     const errorDialog = $("#errorDialog").dialog(defaultModal(400, 500));
 
@@ -1411,7 +1437,10 @@ try {
           });
       });
     });
-    $("#flipB").on("click", () => flipV.click() + flipH.click());
+    $("#flipB").on(
+      "click",
+      () => flipV.trigger("click") + flipH.trigger("click")
+    );
 
     $(".forflip").on(
       "click",
