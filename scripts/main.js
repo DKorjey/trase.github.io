@@ -1079,7 +1079,7 @@ try {
             line.trigger("click");
             break;
           case "KeyZ":
-	  case "Digit6":
+          case "Digit6":
           case "Numpad6":
             bdlg.trigger("click");
             break;
@@ -1414,31 +1414,24 @@ try {
 
     $("#flipDialogOpen").on("click", () => flipDialog.dialog("open"));
 
-    const flipH = $("#flipH");
-    const flipV = $("#flipV");
-
-    flipH.on("click", function () {
-      trs.each(function () {
-        $(this).append($(this).children("td").get().reverse());
-      });
+    const flipH = $("#flipH").on("click", function () {
+      const flipped = [];
       tds.each(function () {
-        $(this).attr(
-          "data-x",
-          to20[oppositeIndex(to20, to20.indexOf(+$(this).attr("data-x")))]
-        );
+        flipped.push($(this).css("background-color"));
+      });
+      const res = _.chunk(flipped, 20).flatMap((e) => e.reverse());
+      tds.each(function (i) {
+        $(this).css("background-color", res[i]);
       });
     });
-    flipV.on("click", function () {
-      notMainTbody.append(notMainTbody.children("tr").get().reverse());
-      trs.each(function () {
-        $(this)
-          .children("td")
-          .each(function () {
-            $(this).attr(
-              "data-y",
-              to18[oppositeIndex(to18, to18.indexOf(+$(this).attr("data-y")))]
-            );
-          });
+    const flipV = $("#flipV").on("click", function () {
+      const flipped = [];
+      tds.each(function () {
+        flipped.push($(this).css("background-color"));
+      });
+      const res = _.chunk(flipped, 20).reverse().flat();
+      tds.each(function (i) {
+        $(this).css("background-color", res[i]);
       });
     });
     $("#flipB").on(
