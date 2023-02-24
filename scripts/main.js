@@ -290,7 +290,7 @@ try {
     const camelSplit = [/([a-z0-9])([A-Z])/g, "$1 $2"];
 
     if (!settings) {
-      settings = Object.assign({}, defaultSettings);
+      settings = _.cloneDeep(defaultSettings);
     } else settings = JSON.parse(settings);
 
     const root = $(":root");
