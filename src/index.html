@@ -129,8 +129,17 @@
                   <i class="fa-solid fa-slash fa-flip-horizontal"></i>
                 </button>
 
-                <button id="bdlg" title="Color applyer for body or legs (Z or 6)">
+                <button
+                  id="bdlg"
+                  title="Color applyer for body or legs (Z or 6)"
+                >
                   <i class="fa-solid fa-brush"></i>
+                </button>
+
+                <br />
+
+                <button id="mover" class="instr" title="Mover (M or 7)">
+                  <i class="fa-solid fa-arrows-up-down-left-right"></i>
                 </button>
               </div>
             </li>
@@ -276,6 +285,23 @@
                 Color 2
               </label>
             </div>
+            <div id="moverctrl" class="nopadd" style="display: none;">
+              <button id="mov_rax" title="Moves up"><i class="fa-solid fa-arrow-up"></i></button>
+              <br />
+              <button id="mov_eax" title="Moves left">
+                <i class="fa-solid fa-arrow-left"></i>
+              </button>
+              <button id="mov_rndm" title="Moves in random position">
+                <i class="fa-solid fa-question"></i>
+              </button>
+              <button id="mov_ebx" title="Moves right">
+                <i class="fa-solid fa-arrow-right"></i>
+              </button>
+              <br />
+              <button id="mov_rbx" title="Moves down">
+                <i class="fa-solid fa-arrow-down"></i>
+              </button>
+            </div>
             <div id="nthngHere" style="display: none">There's nothing here</div>
           </div>
         </div>
@@ -414,7 +440,8 @@
             <li>P or 3: Select "eyedropper" tool</li>
             <li>F or 4: Select "fill" tool</li>
             <li>L or 5: Select "line" tool</li>
-	    <li>Z or 6: Select "color applyer" tool</li>
+            <li>Z or 6: Select "color applyer" tool</li>
+            <li>M or 7: Select "mover" tool</li>
             <li>Shift + N: copy pixel&apos;s color</li>
             <li>J (When "line" tool active) create line</li>
           </ul>

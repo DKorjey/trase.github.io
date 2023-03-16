@@ -266,6 +266,13 @@ try {
     return false;
   }
 
+  /**
+   * @template T
+   * @param {T[]} arr
+   * @returns {T}
+   */
+  const choice = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
   $(() => {
     const flashbang = $("#flashbang");
     flashbang.hide();
@@ -376,11 +383,71 @@ try {
         }
       });
 
+    const moveUp = $("#mov_rax").on("click", () => {
+      const hexes = _.chunk(
+        tds.map(function () {
+          return chroma(this.style.backgroundColor).hex();
+        }),
+        20
+      );
+      hexes.push(hexes.shift());
+      const flatten = hexes.flat();
+      tds.each(function (i) {
+        $(this).css("background-color", flatten[i]);
+      });
+    });
+    const moveDown = $("#mov_rbx").on("click", () => {
+      const hexes = _.chunk(
+        tds.map(function () {
+          return chroma(this.style.backgroundColor).hex();
+        }),
+        20
+      );
+      hexes.unshift(hexes.pop());
+      const flatten = hexes.flat();
+      tds.each(function (i) {
+        $(this).css("background-color", flatten[i]);
+      });
+    });
+    const moveLeft = $("#mov_eax").on("click", () => {
+      const hexes = _.chunk(
+        tds.map(function () {
+          return chroma(this.style.backgroundColor).hex();
+        }),
+        20
+      );
+      hexes.forEach((e) => e.push(e.shift()));
+      const flatten = hexes.flat();
+      tds.each(function (i) {
+        $(this).css("background-color", flatten[i]);
+      });
+    });
+    const moveRight = $("#mov_ebx").on("click", () => {
+      const hexes = _.chunk(
+        tds.map(function () {
+          return chroma(this.style.backgroundColor).hex();
+        }),
+        20
+      );
+      hexes.forEach((e) => e.unshift(e.pop()));
+      const flatten = hexes.flat();
+      tds.each(function (i) {
+        $(this).css("background-color", flatten[i]);
+      });
+    });
+
+    const movBtns = [moveUp, moveDown, moveLeft, moveRight];
+
+    $("#mov_rndm").on("click", () => {
+      choice(movBtns).trigger("click");
+    });
+
     const [x, y] = [$("#x"), $("#y")];
 
     const brng = $("#brng");
     const lineCr = $("#lineCr");
     const applCr = $("#applCr");
+    const moverctrl = $("#moverctrl");
 
     const brush = $("#brush");
     const ereaser = $("#ereaser");
@@ -388,6 +455,7 @@ try {
     const filler = $("#fill");
     const line = $("#line");
     const bdlg = $("#bdlg");
+    const mover = $("#mover");
 
     const theresNothingHere = $("#nthngHere");
 
@@ -395,11 +463,11 @@ try {
     const linePoints = [];
 
     /**
-     * @type { "brush" | "ereaser" | "pippet" | "fill" | "line" | "bdlg"}
+     * @type { "brush" | "ereaser" | "pippet" | "fill" | "line" | "bdlg" | "mover" }
      */
     let mode = "brush";
 
-    const instruments = [brush, ereaser, pippet, filler, line, bdlg];
+    const instruments = [brush, ereaser, pippet, filler, line, bdlg, mover];
 
     /**@type {JQuery<HTMLElement>} */
     let targetTD;
@@ -420,6 +488,7 @@ try {
         );
         cpchoice.css("display", mode == "pippet" ? "block" : "none");
         lineCr.css("display", mode == "line" ? "block" : "none");
+        moverctrl.css("display", mode == "mover" ? "block" : "none");
         if (!["brush", "ereaser"].includes(mode)) {
           rangeInput.val(1);
           bRangeVal.text(1);
@@ -511,7 +580,7 @@ try {
                     .forEach(
                       (el) =>
                         (el.style.background =
-                          mode == "brush" ? val : "transparent")
+                          mode == "brush" ? val : "#00000000")
                     );
                 }
               })
@@ -562,14 +631,14 @@ try {
                     if (mode != "fill") {
                       $(this).css(
                         "background",
-                        mode == "brush" ? val : "transparent"
+                        mode == "brush" ? val : "#00000000"
                       );
                       document
                         .querySelectorAll(".neighbour")
                         .forEach(
                           (el) =>
                             (el.style.background =
-                              mode == "brush" ? val : "transparent")
+                              mode == "brush" ? val : "#00000000")
                         );
                     }
                   }
