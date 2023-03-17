@@ -209,7 +209,7 @@ try {
   }
 
   class TRSSError extends Error {
-    name = "SkinError";
+    name = "TRSSError";
     /**
      * @constructor
      * @param {string | undefined} message
@@ -280,7 +280,7 @@ try {
       $("#mobileSmall").addClass("yesMobileSmall");
       $(document.body).css({
         overflow: "hidden !important",
-        width: "1vh !impo`#${clr1help.val()}`;rtant",
+        width: "1vh !important",
       });
       return;
     }
@@ -289,7 +289,7 @@ try {
     const bonk = new Audio("../src/music/error.wav");
 
     $(
-      "button:not(.filler), input[type=button], input[type=color], input[type=checkbox], .ui-button"
+      "button:not(.filler, .for-mov), input[type=button], input[type=color], input[type=checkbox], .ui-button"
     ).on("click", () => clack.play());
 
     const boo = new Audio("../src/music/reset.wav");
@@ -1152,14 +1152,29 @@ try {
           case "Numpad6":
             bdlg.trigger("click");
             break;
+          case "KeyM":
+          case "Digit7":
+          case "Numpad7":
+            mover.trigger("click");
+            break;
           case "KeyJ":
             crtline.trigger("click");
             break;
-
+          case "ArrowUp":
+            mode == "mover" && moveUp.trigger("click");
+            break;
+          case "ArrowDown":
+            mode == "mover" && moveDown.trigger("click");
+            break;
+          case "ArrowLeft":
+            mode == "mover" && moveLeft.trigger("click");
+            break;
+          case "ArrowRight":
+            mode == "mover" && moveRight.trigger("click");
+            break;
           case "KeyN":
-            if (e.shiftKey) {
+            e.shiftKey &&
               navigator.clipboard.writeText(currClrSpan.text().trim());
-            }
             break;
         }
       }

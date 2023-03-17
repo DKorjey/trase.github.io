@@ -100,7 +100,7 @@
                   <i class="fa-solid fa-brands fa-mixer"></i>
                 </button>
 
-                <button id="flipDialogOpen">
+                <button id="flipDialogOpen" title="Flip skin">
                   <i class="fa-solid fa-arrow-right-arrow-left"></i>
                 </button>
               </div>
@@ -285,20 +285,26 @@
                 Color 2
               </label>
             </div>
-            <div id="moverctrl" class="nopadd" style="display: none;">
-              <button id="mov_rax" title="Moves up"><i class="fa-solid fa-arrow-up"></i></button>
+            <div id="moverctrl" class="nopadd" style="display: none">
+              <button id="mov_rax" title="Moves up" class="for-mov">
+                <i class="fa-solid fa-arrow-up"></i>
+              </button>
               <br />
-              <button id="mov_eax" title="Moves left">
+              <button id="mov_eax" title="Moves left" class="for-mov">
                 <i class="fa-solid fa-arrow-left"></i>
               </button>
-              <button id="mov_rndm" title="Moves in random position">
+              <button
+                id="mov_rndm"
+                title="Moves in random position"
+                class="for-mov"
+              >
                 <i class="fa-solid fa-question"></i>
               </button>
-              <button id="mov_ebx" title="Moves right">
+              <button id="mov_ebx" title="Moves right" class="for-mov">
                 <i class="fa-solid fa-arrow-right"></i>
               </button>
               <br />
-              <button id="mov_rbx" title="Moves down">
+              <button id="mov_rbx" title="Moves down" class="for-mov">
                 <i class="fa-solid fa-arrow-down"></i>
               </button>
             </div>

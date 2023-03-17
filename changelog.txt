@@ -46,6 +46,8 @@ Destralina update (1.0.0):
 1.1.0 update:
   added mover tool
 
+1.1.2 update:
+  bugfixes
 
 In development:
   bugfix
