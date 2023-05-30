@@ -19,11 +19,6 @@ try {
   function doRGBA(r, g, b, a) {
     return `rgba(${r}, ${g}, ${b}, ${a})`;
   }
-  /**
-   * @param {[number, number, number]}
-   * @returns {string}
-   */
-  const doRGB = (arr) => `rgb(${arr[0]}, ${arr[1]}, ${arr[2]})`;
   const RGBToHSL = (r, g, b) => {
     r /= 255;
     g /= 255;
@@ -1360,9 +1355,9 @@ try {
       const img = new Image();
       img.src = URL.createObjectURL(e.target.files[0]);
       img.onload = function () {
-        if (img.naturalWidth != 20 || img.naturalHeight != 18) {
+        if ((img.naturalWidth < 20) || (img.naturalHeight < 18)) {
           return errDialogOpen(
-            new ResolutionError("The image must be 20x18 px")
+            new ResolutionError("The image must be 20x18 px or larger")
           );
         }
         cx.drawImage(img, 0, 0, 20, 18);
