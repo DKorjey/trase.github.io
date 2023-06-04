@@ -1355,7 +1355,7 @@ try {
       const img = new Image();
       img.src = URL.createObjectURL(e.target.files[0]);
       img.onload = function () {
-        if ((img.naturalWidth < 20) || (img.naturalHeight < 18)) {
+        if (img.naturalWidth < 20 || img.naturalHeight < 18) {
           return errDialogOpen(
             new ResolutionError("The image must be 20x18 px or larger")
           );
@@ -1395,6 +1395,58 @@ try {
       } catch (e) {
         errDialogOpen(e);
       }
+    });
+
+    const svi = $("#svi").on("change", (e) => {
+      let fr = new FileReader();
+      fr.onload = () => {
+        const strs = fr.result
+          .trim()
+          .split("\n")
+          .map((e) => e.trim());
+        const skin =
+          strs[0] || "trSkin17cYhAQAACMCwSvf074WgBGJTqzOJiIiIiIj8yAI=";
+        if (!skin.startsWith("trSkin1"))
+          return alert('Skin not starts with "trSkin1"');
+        const bc =
+          strs.length <= 2 || ["default", ""].includes(strs[1].toLowerCase())
+            ? /#?[0-9a-f]/i.exec(strs[1])[0] || "#ffffff"
+            : "#ffffff";
+        const lc =
+          strs.length <= 3 || ["default", ""].includes(strs[2].toLowerCase())
+            ? /#?[0-9a-f]/i.exec(strs[2])[0] || "#000000"
+            : "#000000";
+        ((bdclr, lgclr) => {
+          const [headHsl, legshsl] = [hexToCssHsl(bdclr), hexToCssHsl(lgclr)];
+          head.css("background", headHsl);
+          darkhead.css("background", hslDark(headHsl, 68));
+          legs.css("background", legshsl);
+          darklegs.css("background", hslDark(legshsl, 68));
+        })(bc, lc);
+        const res = arrFromSkin(skin, false);
+        tds.each(function (i) {
+          $(this).css("background-color", res[i]);
+        });
+      };
+      fr.readAsText(e.target.files[0]);
+    });
+    $("#svibtn").on("click", () => svi.trigger("click"));
+
+    $("#sve").on("click", () => {
+      const blob = new Blob(
+        [
+          "trSkin1" + exprtSkin(true) + "\n",
+          chroma(head[0].style.backgroundColor).hex().toLowerCase() + "\n",
+          chroma(legs[0].style.backgroundColor).hex().toLowerCase() + "\n",
+          "#0c0c0c" + "\n",
+        ],
+        { type: "text/plain;charset=utf-8" }
+      );
+      let a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "skin.txt";
+      a.click();
+      a = null;
     });
 
     $('#input[type="color"]').on("change", () => blur());
@@ -1481,14 +1533,6 @@ try {
       errorDialog.dialog("open");
       bonk.play();
     }
-
-    const to20 = _.range(20);
-    const to18 = _.range(18);
-
-    function oppositeIndex(arr, index) {
-      return arr.length - index - 1;
-    }
-
     const flipDialog = $("#flipDialog").dialog(defaultModal(400, 250));
 
     $("#flipDialogOpen").on("click", () => flipDialog.dialog("open"));

@@ -450,7 +450,7 @@ input {
     calc(var(--accent-l) - 42.5%)
   );
 }
-#importImg {
+#importImg, #svi {
   display: none;
 }
 
